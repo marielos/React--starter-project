@@ -18,8 +18,24 @@ if(process.env.NODE_ENV !== 'production') {
 app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('/', function(request, response) {
+  console.log('here');
   response.sendFile(__dirname + '/dist/index.html')
 });
+
+
+app.get('/stopetas', function(request, response) {
+
+
+  console.log('here');
+  // read the request
+
+  // ping Gmaps 
+
+  // return response
+
+
+});
+
 
 app.listen(PORT, function(error) {
   if (error) {

@@ -33,13 +33,24 @@ class App extends Component {
     }) 
   }
 
+  getStopETAs() {
+
+  	// htttp request that tells server to ping GMaps 
+
+  	// format request
+
+
+  	// get response 
+
+  	// store ETAs into the state
+  }
 
 
 
 
   render() {
   	if (!this.state) return null
-  		
+
     return(
       	<div className='row'>
           {this.state.stops.map( function(stop) {
