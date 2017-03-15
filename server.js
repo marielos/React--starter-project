@@ -4,9 +4,9 @@ var app = express();
 var PORT = process.env.PORT || 8080
 var http = require('http');
 var fs = require('fs');
-// var googleMapsClient = require('@google/maps').createClient({
-//   key: 'AIzaSyBC-uIPCkcqeaI5idN5rKgyx8JO2N8DLI0'
-// });
+var googleMapsClient = require('@google/maps').createClient({
+  key: 'AIzaSyBC-uIPCkcqeaI5idN5rKgyx8JO2N8DLI0'
+});
 
 // using webpack-dev-server and middleware in development environment
 if(process.env.NODE_ENV !== 'production') {
