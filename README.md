@@ -1,5 +1,21 @@
 # React + Node Starter (for [Heroku](https://www.heroku.com/) deployment)
 
+
+## TO DO
+- Gmaps gives us time between stops, not ETA
+	- how to go from here to ETA?
+		* save start time and subtract every minute
+		* get current location as origin and recalculate time_between_stops every 30 sec ^^
+
+- Display current time
+- Get current location 
+	- run from a phone
+		* does heroku need to be working for this?
+		* access computer localhost from my phone +56
+
+
+
+
 ### Start with updating server on save
 nodemon ./server.js localhost 8080
 

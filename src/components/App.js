@@ -6,13 +6,20 @@ import { Router, Route, browserHistory } from 'react-router';
 
 class App extends Component {
 
-
-
-  componentDidMount() {
-    // this.getStopETAs();
+  componentWillMount(){
+    this.setCurrentTime()
   }
 
-  getStopETAs() {
+  componentDidMount() {
+    this.getRouteData()
+    // calls set time every second
+    window.setInterval(function () {
+      this.setCurrentTime()
+    }.bind(this), 1000)
+    
+  }
+
+  getRouteData() {
 	  var data = {}
 	  var that = this;
 
@@ -24,13 +31,37 @@ class App extends Component {
 			
 			that.setState({
 				stop_names: that.getStopNames(data),
-        time_between_stops: that.getTimeBetweenStops(data)
+        time_between_stops: that.getStopETAs(data)
 			})
 
-      // console.log(data)
+      console.log(data)
 		})
-
   }
+
+
+  setCurrentTime() {
+   
+    this.setState({
+      current_date: new Date()
+      // current_time: time
+    })
+  }
+
+  getCurrentTime() {
+    return this.parseDate(this.state.current_date)
+  }
+
+  parseDate(date_sec) {
+    var date = new Date(date_sec),
+        hours = date.getHours(),
+        minutes = date.getMinutes()
+    if( hours > 12 ){ hours -= 12; }
+    if( minutes < 10) { minutes = '0'+ minutes}
+    var time = hours + ':' + minutes
+
+    return time
+  }
+
 
   getStopNames(data) {
     var stop_names = [],
@@ -42,42 +73,74 @@ class App extends Component {
     return stop_names
   }
 
-  getTimeBetweenStops(data) {
-    var time_between_stops = [],
+  getSecondsBetweenStops(data) {
+    var seconds_between_stops = [],
         route = data.routes[0],
         legs = route.legs,
         num_legs = legs.length
 
     for (var i=0; i<num_legs; i++) {
-      time_between_stops.push(legs[i].duration.text)
+      seconds_between_stops.push(legs[i].duration.value)
     }
 
-    return time_between_stops
+    return seconds_between_stops
+  }
+
+  getStopETAs(data) {
+    var seconds_between_stops = this.getSecondsBetweenStops(data),
+        stop_etas = ['']
+
+    for (var i=0; i<seconds_between_stops.length; i++) {
+      // add seconds to date and then re-parse?
+        // keep an incremental counter of seconds between stops 
+      var next_date = this.state.current_date,
+          next_eta = this.parseDate(next_date.setSeconds(next_date.getSeconds() +seconds_between_stops[i]) )
+      stop_etas.push(next_eta)
+    }
+    return stop_etas
+  }
+
+
+  // add checks to avoid warnings
+
+  renderStops() {
+    if (!this.state.stop_names) return null
+
+    return (
+      this.state.stop_names.map( function(stop) {
+        return <div className='col-xs' key={stop}> {stop} </div>
+      }.bind(this))
+    )
+  }
+
+  renderTimeBetweenStops() {
+    if (!this.state.time_between_stops) return null
+
+    return (
+      this.state.time_between_stops.map( function(time, index) {
+        return <div className='col-xs' key={index}> {time} </div>
+      }.bind(this))
+    )
   }
 
 
   render() {
-    return (<div>
-      Testing without GMaps API
-      </div>)
-
-
   	if (!this.state) return null
+
     return(
     	<div>
-      Testing without GMaps API
-      	<div className='row'>
-          {this.state.stop_names.map( function(stop) {
-
-            return <div className='col-xs' key={stop}> {stop} </div>
-          }.bind(this))}
+      	<div className='row around-xs'>
+          {this.renderStops()}
         </div>
-        <div className='row'>
-          {this.state.time_between_stops.map( function(time, index) {
-
-            return <div className='col-xs' key={index}> {time} </div>
-          }.bind(this))}
+        <div className='row around-xs'>
+          {this.renderTimeBetweenStops()}
         </div>
+        <div className='row around-xs'>
+          <div className='col-xs'>
+            Current Time: {this.getCurrentTime()}
+          </div>
+        </div>
+
       </div>
     )
   }
