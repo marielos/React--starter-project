@@ -2,8 +2,10 @@ var path = require('path');
 var express = require('express');
 var app = express();
 var PORT = process.env.PORT || 8080
-var http = require('http');
+// var http = require('http');
 var fs = require('fs');
+
+// ---- breaks in Heroku -----------//
 var googleMapsClient = require('@google/maps').createClient({
   key: 'AIzaSyBC-uIPCkcqeaI5idN5rKgyx8JO2N8DLI0'
 });
@@ -25,7 +27,6 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 
 app.get('/route/etas', function(request, response) {
-
 
   var stops = JSON.parse(fs.readFileSync('data/route.js', 'utf8'));
 

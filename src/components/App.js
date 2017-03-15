@@ -19,31 +19,11 @@ class App extends Component {
     
   }
 
-  getRouteData() {
-	  var data = {}
-	  var that = this;
 
-    fetch('/route/etas').then(function(response) {
-		  return response.json()
-		}, function(error) {
-			console.log('error- '+ error);
-		}).then(function(data) {
-			
-			that.setState({
-				stop_names: that.getStopNames(data),
-        time_between_stops: that.getStopETAs(data)
-			})
-
-      console.log(data)
-		})
-  }
-
-
+/* -------------- Time methods -------------- */
   setCurrentTime() {
-   
     this.setState({
       current_date: new Date()
-      // current_time: time
     })
   }
 
@@ -63,6 +43,29 @@ class App extends Component {
   }
 
 
+
+/* -------------- Route methods -------------- */
+
+  getRouteData() {
+	  var data = {},
+	      that = this
+
+    fetch('/route/etas').then(function(response) {
+		  return response.json()
+		}, function(error) {
+			console.log('error- '+ error);
+		}).then(function(data) {
+			
+			that.setState({
+				stop_names: that.getStopNames(data),
+        stop_etas: that.getStopETAs(data)
+			})
+
+      console.log(data)
+		})
+  }
+
+
   getStopNames(data) {
     var stop_names = [],
         route = data.stops.route,
@@ -73,18 +76,6 @@ class App extends Component {
     return stop_names
   }
 
-  getSecondsBetweenStops(data) {
-    var seconds_between_stops = [],
-        route = data.routes[0],
-        legs = route.legs,
-        num_legs = legs.length
-
-    for (var i=0; i<num_legs; i++) {
-      seconds_between_stops.push(legs[i].duration.value)
-    }
-
-    return seconds_between_stops
-  }
 
   getStopETAs(data) {
     var seconds_between_stops = this.getSecondsBetweenStops(data),
@@ -100,8 +91,21 @@ class App extends Component {
     return stop_etas
   }
 
+  getSecondsBetweenStops(data) {
+    var seconds_between_stops = [],
+        route = data.routes[0],
+        legs = route.legs,
+        num_legs = legs.length
 
-  // add checks to avoid warnings
+    for (var i=0; i<num_legs; i++) {
+      seconds_between_stops.push(legs[i].duration.value)
+    }
+
+    return seconds_between_stops
+  }
+
+  
+/* -------------- Render methods -------------- */
 
   renderStops() {
     if (!this.state.stop_names) return null
@@ -114,10 +118,10 @@ class App extends Component {
   }
 
   renderTimeBetweenStops() {
-    if (!this.state.time_between_stops) return null
+    if (!this.state.stop_etas) return null
 
     return (
-      this.state.time_between_stops.map( function(time, index) {
+      this.state.stop_etas.map( function(time, index) {
         return <div className='col-xs' key={index}> {time} </div>
       }.bind(this))
     )
@@ -144,6 +148,8 @@ class App extends Component {
       </div>
     )
   }
+
+
 };
 
 export default App;
