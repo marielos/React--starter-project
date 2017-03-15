@@ -39,7 +39,6 @@ class App extends Component {
 
   getStopETAs() {
 
-
   	  console.log('controller')
 	  var data = {}
 	  var that = this;
@@ -47,10 +46,6 @@ class App extends Component {
 	  var response = fetch('/route/etas').then(function(response) {
 		
 		  return response.json()
-		  	// that.setState({
-		  	// 	data: data
-		  	// })
-		  	
 		  
 		}, function(error) {
 			console.log('error- '+ error);
@@ -63,30 +58,11 @@ class App extends Component {
 			return data
 		})
 
-
-
-
-	 // response.then(function(response_value) {
-	 // 	console.log('response_value-' +response_value)
-	 // });
-
-
-  	// htttp request that tells server to ping GMaps 
-
-  	// format request
-
-
-  	// get response 
-
-  	// store ETAs into the state
   }
-
-
 
 
   render() {
   	if (!this.state) return null
-
     return(
     	
       	<div className='row'>
@@ -96,7 +72,7 @@ class App extends Component {
             return <div className='col-xs' key={stop.name}> {stop.name} </div>
           }.bind(this))}
 
-          {this.state.data.base}
+          {this.state.data ? this.state.data.base : ''}
         </div>
     )
   }

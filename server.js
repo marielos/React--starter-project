@@ -54,25 +54,6 @@ app.get('/route/etas', function(request, response) {
 
   var url = 'http://samples.openweathermap.org/data/2.5/weather?zip=94040,us&appid=b1b15e88fa797225412429c1c50c122a1';
   
-  // http.get(url, function(res) {
-
-  //   for(var i=0; i < Object.keys(res).length; i++) {
-  //     console.log(Object.keys(res)[i] + '--' + res[Object.keys(res)[i]]);
-  //   }
-
-
-
-
-  //   // response.json(res);
-  //   response.status(200).send('res')
-  //   // response.sendFile(__dirname + '/dist/index.html');//sendStatus(200)
-
-  // }).on('error', function(e) {
-  //   console.log("Got error: " + e.message);
-  // });
-
-  var url2 = 'http://nodejs.org/dist/index.json';
-
   http.get(url, (res) => {
     const statusCode = res.statusCode;
     const contentType = res.headers['content-type'];
