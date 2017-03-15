@@ -3,8 +3,9 @@ var express = require('express');
 var app = express();
 var PORT = process.env.PORT || 8080
 var http = require('http');
+var fs = require('fs');
 var googleMapsClient = require('@google/maps').createClient({
-  key: 'AIzaSyDQVdX_R3nPKCRok0HeBqrNfLpuNiRF-hU'
+  key: 'AIzaSyBC-uIPCkcqeaI5idN5rKgyx8JO2N8DLI0'
 });
 
 // using webpack-dev-server and middleware in development environment
@@ -23,38 +24,81 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 
 
-
-
-
 app.get('/route/etas', function(request, response) {
 
-  console.log('new api');
 
-  // // does this googleMaps client work????
-  // googleMapsClient.geocode({
-  //   address: '1600 Amphitheatre Parkway, Mountain View, CA'
-  // }, function(err, response) {
-  //   if (!err) {
-  //     console.log(response.json.results);
-  //   }
-  // });
+  var stops = JSON.parse(fs.readFileSync('data/route.js', 'utf8'));
+
+  var origin  = function(data) {
+    var origin_obj = data.route[0],
+        lat = origin_obj.lat,
+        lng = origin_obj.lng
+   
+    return [lat, lng]
+  }(stops)
+
+  var waypoints  = function(data) {
+    var stops = []
+    // iterate through route stops skipping first and last stop
+    for(var i=1; i < data.route.length-1; i++) {
+      var stop_obj = data.route[i],
+          lat = stop_obj.lat,
+          lng = stop_obj.lng
+
+      stops.push([lat, lng])    
+    }
+    return stops
+  }(stops)
+
+ var destination  = function(data) {
+    var destination_obj = data.route[data.route.length-1],
+        lat = destination_obj.lat,
+        lng = destination_obj.lng
+   
+    return [lat, lng]
+  }(stops)
+
+
+  googleMapsClient.directions({
+    origin: origin,
+    waypoints: waypoints,
+    destination: destination
+  }, function(err, res) {
+    
+    if (!err) {
+      var json_data = res.json;
+      json_data['stops'] = stops;
+
+      response.json(json_data);
+    } else {
+      console.log('err-' + err);
+    }
+  });
+});
 
 
 
-  // if not, we can craft our own http request  
 
-  // var stop_options = 'origin=sydney,au&destination=perth,au&waypoints=via:-37.81223%2C144.96254%7Cvia:-34.92788%2C138.60008&key=AIzaSyDQVdX_R3nPKCRok0HeBqrNfLpuNiRF'
-
-  // var options = {
-  //   host: 'https://maps.googleapis.com',
-  //   port: 80,
-  //   path: '/maps/api/directions/json?' + stop_options
-  // };
+app.get('/', function(request, response) {
+  console.log('here');
+  response.sendFile(__dirname + '/dist/index.html')
+});
 
 
-  var url = 'http://samples.openweathermap.org/data/2.5/weather?zip=94040,us&appid=b1b15e88fa797225412429c1c50c122a1';
-  
-  http.get(url, (res) => {
+
+app.listen(PORT, function(error) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.info("==> 🌎  Listening on port %s. Visit http://localhost:%s/ in your browser.", PORT, PORT);
+  }
+});
+
+
+
+/* ----------------------------- Sample http request ---------------------------------
+
+http.get(url, (res) => {
     const statusCode = res.statusCode;
     const contentType = res.headers['content-type'];
 
@@ -89,24 +133,9 @@ app.get('/route/etas', function(request, response) {
     console.log(`Got error: ${e.message}`);
   });
 
-});
 
 
 
-
-app.get('/', function(request, response) {
-  console.log('here');
-  response.sendFile(__dirname + '/dist/index.html')
-});
+  ---------------------------------------------------------------------------------------*/
 
 
-
-
-
-app.listen(PORT, function(error) {
-  if (error) {
-    console.error(error);
-  } else {
-    console.info("==> 🌎  Listening on port %s. Visit http://localhost:%s/ in your browser.", PORT, PORT);
-  }
-});

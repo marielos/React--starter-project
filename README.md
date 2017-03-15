@@ -1,5 +1,9 @@
 # React + Node Starter (for [Heroku](https://www.heroku.com/) deployment)
 
+### Start with updating server on save
+nodemon ./server.js localhost 8080
+
+
 ### UP & RUNNING
 * `npm install`
 * `npm start`

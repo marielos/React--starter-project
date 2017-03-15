@@ -9,71 +9,70 @@ class App extends Component {
 
 
   componentDidMount() {
-    this.setRouteStops();
     this.getStopETAs();
   }
 
-  setRouteStops() {
-    var routeStops = [
-      {
-        name: 'IDEO',
-        lat: 37.442309, 
-        lng: -122.160738
-      },
-      {
-        name: 'Med Wraps',
-        lat: 37.425994, 
-        lng: -122.144927
-      },
-      {
-        name: 'Stanford',
-        lat: 37.428057,
-        lng: -122.165364
-      }
-    ]
-
-    this.setState({
-      stops : routeStops
-    }) 
-  }
-
   getStopETAs() {
-
-  	  console.log('controller')
 	  var data = {}
 	  var that = this;
 
-	  var response = fetch('/route/etas').then(function(response) {
-		
+    fetch('/route/etas').then(function(response) {
 		  return response.json()
-		  
 		}, function(error) {
 			console.log('error- '+ error);
-		  error.message //=> String
 		}).then(function(data) {
-			console.log(data)
+			
 			that.setState({
-				data: data
+				stop_names: that.getStopNames(data),
+        time_between_stops: that.getTimeBetweenStops(data)
 			})
-			return data
+
+      // console.log(data)
 		})
 
+  }
+
+  getStopNames(data) {
+    var stop_names = [],
+        route = data.stops.route,
+        num_stops = route.length
+    for (var i=0; i<num_stops; i++) {
+      stop_names.push(route[i].name)
+    }
+    return stop_names
+  }
+
+  getTimeBetweenStops(data) {
+    var time_between_stops = [],
+        route = data.routes[0],
+        legs = route.legs,
+        num_legs = legs.length
+
+    for (var i=0; i<num_legs; i++) {
+      time_between_stops.push(legs[i].duration.text)
+    }
+
+    return time_between_stops
   }
 
 
   render() {
   	if (!this.state) return null
     return(
-    	
+    	<div>
       	<div className='row'>
+          {this.state.stop_names.map( function(stop) {
 
-          {this.state.stops.map( function(stop) {
-
-            return <div className='col-xs' key={stop.name}> {stop.name} </div>
+            return <div className='col-xs' key={stop}> {stop} </div>
           }.bind(this))}
-
-          {this.state.data ? this.state.data.base : ''}
         </div>
+        <div className='row'>
+          {this.state.time_between_stops.map( function(time, index) {
+
+            return <div className='col-xs' key={index}> {time} </div>
+          }.bind(this))}
+        </div>
+      </div>
     )
   }
 };
