@@ -4,9 +4,9 @@ var app = express();
 var PORT = process.env.PORT || 8080
 var http = require('http');
 var fs = require('fs');
-var googleMapsClient = require('@google/maps').createClient({
-  key: 'AIzaSyBC-uIPCkcqeaI5idN5rKgyx8JO2N8DLI0'
-});
+// var googleMapsClient = require('@google/maps').createClient({
+//   key: 'AIzaSyBC-uIPCkcqeaI5idN5rKgyx8JO2N8DLI0'
+// });
 
 // using webpack-dev-server and middleware in development environment
 if(process.env.NODE_ENV !== 'production') {
@@ -24,57 +24,57 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 
 
-app.get('/route/etas', function(request, response) {
+// app.get('/route/etas', function(request, response) {
 
 
-  var stops = JSON.parse(fs.readFileSync('data/route.js', 'utf8'));
+//   var stops = JSON.parse(fs.readFileSync('data/route.js', 'utf8'));
 
-  var origin  = function(data) {
-    var origin_obj = data.route[0],
-        lat = origin_obj.lat,
-        lng = origin_obj.lng
+//   var origin  = function(data) {
+//     var origin_obj = data.route[0],
+//         lat = origin_obj.lat,
+//         lng = origin_obj.lng
    
-    return [lat, lng]
-  }(stops)
+//     return [lat, lng]
+//   }(stops)
 
-  var waypoints  = function(data) {
-    var stops = []
-    // iterate through route stops skipping first and last stop
-    for(var i=1; i < data.route.length-1; i++) {
-      var stop_obj = data.route[i],
-          lat = stop_obj.lat,
-          lng = stop_obj.lng
+//   var waypoints  = function(data) {
+//     var stops = []
+//     // iterate through route stops skipping first and last stop
+//     for(var i=1; i < data.route.length-1; i++) {
+//       var stop_obj = data.route[i],
+//           lat = stop_obj.lat,
+//           lng = stop_obj.lng
 
-      stops.push([lat, lng])    
-    }
-    return stops
-  }(stops)
+//       stops.push([lat, lng])    
+//     }
+//     return stops
+//   }(stops)
 
- var destination  = function(data) {
-    var destination_obj = data.route[data.route.length-1],
-        lat = destination_obj.lat,
-        lng = destination_obj.lng
+//  var destination  = function(data) {
+//     var destination_obj = data.route[data.route.length-1],
+//         lat = destination_obj.lat,
+//         lng = destination_obj.lng
    
-    return [lat, lng]
-  }(stops)
+//     return [lat, lng]
+//   }(stops)
 
 
-  googleMapsClient.directions({
-    origin: origin,
-    waypoints: waypoints,
-    destination: destination
-  }, function(err, res) {
+//   googleMapsClient.directions({
+//     origin: origin,
+//     waypoints: waypoints,
+//     destination: destination
+//   }, function(err, res) {
     
-    if (!err) {
-      var json_data = res.json;
-      json_data['stops'] = stops;
+//     if (!err) {
+//       var json_data = res.json;
+//       json_data['stops'] = stops;
 
-      response.json(json_data);
-    } else {
-      console.log('err-' + err);
-    }
-  });
-});
+//       response.json(json_data);
+//     } else {
+//       console.log('err-' + err);
+//     }
+//   });
+// });
 
 
 

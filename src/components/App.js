@@ -9,7 +9,7 @@ class App extends Component {
 
 
   componentDidMount() {
-    this.getStopETAs();
+    // this.getStopETAs();
   }
 
   getStopETAs() {
@@ -57,9 +57,15 @@ class App extends Component {
 
 
   render() {
+    return (<div>
+      Testing without GMaps API
+      </div>)
+
+
   	if (!this.state) return null
     return(
     	<div>
+      Testing without GMaps API
       	<div className='row'>
           {this.state.stop_names.map( function(stop) {
 
