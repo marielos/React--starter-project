@@ -8,6 +8,7 @@ class App extends Component {
 
   componentWillMount(){
     this.setCurrentTime()
+    // calls every location change
     this.setLocation()
   }
 
@@ -20,9 +21,10 @@ class App extends Component {
     }.bind(this), 1000)
     
     // calls setLocation every 15 seconds
-    window.setInterval(function () {
-      // this.setLocation()
-    }.bind(this), 15000)
+    // window.setInterval(function () {
+    //   this.setLocation()
+    //   this.getRouteData()
+    // }.bind(this), 15000)
     
   }
 
@@ -135,29 +137,34 @@ class App extends Component {
 // I can call this every minute and recalculate ETAs
 
   setLocation() {
-
+    var num_calls = 1
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) {
+
+      // gets called everytime we change position
+      navigator.geolocation.watchPosition(function(position) {
         var pos = {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         }
 
+
+    
+
         this.setState({
-          current_location : pos
+          current_location : pos,
+          num_calls : num_calls++
         })
 
         // get route data once after current position is determined
-        if(!this.state.data) {
+        // if(!this.state.data) {
           this.getRouteData()
-        }
+        // }
         
       }.bind(this), function() {
         console.log('error with navigator.geolocation')
       });
     } else {
       console.log('browser doesnt support navigator.geolocation')
-
     }
 
   }
@@ -177,7 +184,7 @@ class App extends Component {
     return (
       this.state.stop_names.map( function(stop) {
         return <div className='col-xs' key={stop}> {stop} </div>
-      }.bind(this))
+      })
     )
   }
 
@@ -187,7 +194,7 @@ class App extends Component {
     return (
       this.state.stop_etas.map( function(time, index) {
         return <div className='col-xs' key={index}> {time} </div>
-      }.bind(this))
+      })
     )
   }
 
@@ -218,10 +225,11 @@ class App extends Component {
         </div>
         <div className='row around-xs'>
           <div className='col-xs'>
-            Current Time: {this.getCurrentTime()}
+            Current Time7: {this.getCurrentTime()}
           </div>
         </div>
         {this.renderCurrentLocation()}
+        {this.state.num_calls}
       </div>
     )
   }
