@@ -24,7 +24,8 @@
     "sass-loader": "^3.2.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.12.14",
-    "whatwg-fetch": "^2.0.3"
+    "whatwg-fetch": "^2.0.3",
+    "@google/maps": "3.10.8"
   },
   "devDependencies": {
     "webpack-dev-middleware": "^1.6.1",
