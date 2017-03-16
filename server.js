@@ -28,20 +28,18 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('/route/etas', function(request, response) {
 
+  // console.log(request.query)
   var stops = JSON.parse(fs.readFileSync('data/route.js', 'utf8'));
 
+
   var origin  = function(data) {
-    var origin_obj = data.route[0],
-        lat = origin_obj.lat,
-        lng = origin_obj.lng
-   
-    return [lat, lng]
+    return [request.query.lat, request.query.lng]
   }(stops)
 
   var waypoints  = function(data) {
     var stops = []
     // iterate through route stops skipping first and last stop
-    for(var i=1; i < data.route.length-1; i++) {
+    for(var i=0; i < data.route.length-1; i++) {
       var stop_obj = data.route[i],
           lat = stop_obj.lat,
           lng = stop_obj.lng
