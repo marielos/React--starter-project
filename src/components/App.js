@@ -45,10 +45,13 @@ getAvailableCaltrains(data){
   //var date = new Date()
   //hours = date.getHours()
   //minutes = date.getMinutes()
-  var stationEtaTimeInMins = this.getStationEtaTimeInMins()
+  //var stationEtaTimeInMins = this.getStationEtaTimeInMins()
+  var stationEtaTimeInMins = this.state.stop_etas_in_mins[this.state.stop_etas_in_mins.length-1]
   if (!stationEtaTimeInMins) return null
     console.log(stationEtaTimeInMins)
-  var availableCaltrain = [],
+  var validCaltrain = [],
+      availableCaltrain = [],
+      arrivalTime,
       arrivalTimeHour,
       arrivalTimeMins,
       arrivalTimeInMins
@@ -63,25 +66,36 @@ getAvailableCaltrains(data){
     }
     arrivalTimeInMins = arrivalTimeHour*60 + arrivalTimeMins
     if ((arrivalTimeInMins-stationEtaTimeInMins)<60 && (arrivalTimeInMins-stationEtaTimeInMins)>3){
-      availableCaltrain.push(caltrain.platform_code)
-      availableCaltrain.push(caltrain.arrival_time)     
+      if (arrivalTimeHour > 12 ){ arrivalTimeHour -= 12; }
+      if( arrivalTimeMins < 10) { arrivalTimeMins = '0'+ arrivalTimeMins}
+      arrivalTime = arrivalTimeHour + ':' + arrivalTimeMins
+      validCaltrain.push(caltrain.platform_code)
+      validCaltrain.push(arrivalTime)     
     }
 
   }
-  var index = availableCaltrain.indexOf("SB")
-  for (var i = index+2; i<availableCaltrain.length; i=i+1){
-      availableCaltrain.splice(i,1);
-    }   
-  for (var i=2; i<availableCaltrain.length; i=i+1){
-    if (availableCaltrain[i] == "NB"){
-      availableCaltrain.splice(i,1);
-    }    
-  }
+  
+  availableCaltrain  = this.addNbAndSb(validCaltrain)
+  //availableCaltrain = this.convertClockFormat(availableCaltrain)
+  
   //console.log(availableCaltrain)
   return availableCaltrain
 }
 
-getStationEtaTimeInMins(){
+addNbAndSb(data){
+  var index = data.indexOf("SB")
+  for (var i = index+2; i<data.length; i=i+1){
+      data.splice(i,1);
+    }   
+  for (var i=2; i<data.length; i=i+1){
+    if (data[i] == "NB"){
+      data.splice(i,1);
+    }    
+  }
+  return data
+}
+/*
+getStationEtaTimeInMins(data){
 
   if (!this.state.stop_etas) return null
 
@@ -97,15 +111,16 @@ getStationEtaTimeInMins(){
     stationEtaTimeHour = Number(stationETA.substr(0, 2))
     stationEtaTimeMins = Number(stationETA.substr(3, 2))
   }
+
   if (currentHours>12){
     stationEtaTimeInMins = 12*60 + stationEtaTimeHour*60 + stationEtaTimeMins
   }else{
     stationEtaTimeInMins = stationEtaTimeHour*60 + stationEtaTimeMins
   }
-  console.log(stationEtaTimeInMins)
+  //console.log(stationEtaTimeInMins)
   return stationEtaTimeInMins
 }
-
+*/
 /* -------------- Time methods -------------- */
   setCurrentTime() {
     this.setState({
@@ -127,6 +142,14 @@ getStationEtaTimeInMins(){
     var time = hours + ':' + minutes
 
     return time
+  }
+
+  convertSecToMins(date_sec){
+    var date = new Date(date_sec),
+        hours = date.getHours(),
+        minutes = date.getMinutes(),
+        time = hours*60+minutes
+    return time    
   }
 
 
@@ -166,15 +189,22 @@ getStationEtaTimeInMins(){
 
   getStopETAs(data) {
     var seconds_between_stops = this.getSecondsBetweenStops(data),
-        stop_etas = ['']
+        stop_etas = [''],
+        stopEtasInMins = []
 
     for (var i=0; i<seconds_between_stops.length; i++) {
       // add seconds to date and then re-parse?
       // keep an incremental counter of seconds between stops 
       var next_date = this.state.current_date,
-          next_eta = this.parseDate(next_date.setSeconds(next_date.getSeconds() +seconds_between_stops[i]) )
+          next_date_seconds = next_date.setSeconds(next_date.getSeconds() +seconds_between_stops[i]),
+          next_eta = this.parseDate(next_date_seconds),
+          next_eta_in_mins = this.convertSecToMins(next_date_seconds)
+      stopEtasInMins.push(next_eta_in_mins) 
       stop_etas.push(next_eta)
     }
+    this.setState({
+        stop_etas_in_mins: stopEtasInMins
+      })
     return stop_etas
   }
 
