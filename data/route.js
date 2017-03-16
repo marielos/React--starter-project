@@ -15,5 +15,9 @@
 		"name": "Stanford",
 		"lat": 37.428057,
 		"lng": -122.165364
+	}, {
+		"name": "Palo Alto Caltrain",
+		"lat": 37.444057,
+		"lng": -122.166216
 	}]
 }
