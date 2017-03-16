@@ -9,22 +9,17 @@ class App extends Component {
   componentWillMount(){
     this.setCurrentTime()
     // calls every location change
-    this.setLocation()
+    this.trackLocation()
   }
 
   componentDidMount() {
-    // this.getRouteData()
 
     // calls set time every second
     window.setInterval(function () {
       this.setCurrentTime()
     }.bind(this), 1000)
     
-    // calls setLocation every 15 seconds
-    // window.setInterval(function () {
-    //   this.setLocation()
-    //   this.getRouteData()
-    // }.bind(this), 15000)
+
     
   }
 
@@ -73,27 +68,24 @@ class App extends Component {
 	  var data = {},
 	      that = this
 
-
     fetch(this.getGMapsUrlWithCurrentLocation()).then(function(response) {
 		  return response.json()
 		}, function(error) {
 			console.log('error- '+ error);
 		}).then(function(data) {
-			
 			that.setState({
-        data: data,
-				stop_names: that.getStopNames(data),
+        stop_data: data,
         stop_etas: that.getStopETAs(data)
 			})
 
-      // console.log(data)
+      console.log(data)
 		})
   }
 
 
-  getStopNames(data) {
+  getStopNames() {
     var stop_names = [],
-        route = data.stops.route,
+        route = this.state.stop_data.stops.route,
         num_stops = route.length
     for (var i=0; i<num_stops; i++) {
       stop_names.push(route[i].name)
@@ -103,9 +95,11 @@ class App extends Component {
 
 
   getStopETAs(data, date) {
-    if (!this.state || !this.state.data) return null
-    if (!data) data = this.state.data
+    // double check this safety checks, some might be redundant
+    if (!this.state || !this.state.stop_data) return null
+    if (!data) data = this.state.stop_data
     if(!date) date = this.state.current_date
+
     var seconds_between_stops = this.getSecondsBetweenStops(data),
         stop_etas = [],
         accumulated_seconds = 0
@@ -136,7 +130,7 @@ class App extends Component {
 /* -------------- Location methods -------------- */
 // I can call this every minute and recalculate ETAs
 
-  setLocation() {
+  trackLocation() {
     var num_calls = 1
     if (navigator.geolocation) {
 
@@ -147,18 +141,12 @@ class App extends Component {
           lng: position.coords.longitude
         }
 
-
-    
-
         this.setState({
           current_location : pos,
           num_calls : num_calls++
         })
 
-        // get route data once after current position is determined
-        // if(!this.state.data) {
-          this.getRouteData()
-        // }
+        this.getRouteData()
         
       }.bind(this), function() {
         console.log('error with navigator.geolocation')
@@ -169,28 +157,28 @@ class App extends Component {
 
   }
 
-
-
-
-
-
-
+  // getStopName(stop_obj) {
+  //   return stop_obj.name
+  // }
   
 /* -------------- Render methods -------------- */
 
   renderStops() {
-    if (!this.state.stop_names) return null
+    if (!this.state.stop_data) return null
 
     return (
-      this.state.stop_names.map( function(stop) {
-        return <div className='col-xs' key={stop}> {stop} </div>
+      this.state.stop_data.stops.route.map( function(stop_obj) {
+        return <div className='col-xs' key={stop_obj.name}> {stop_obj.name} - {stop_obj.arrived ? 'arrived' : 'future'} </div>
       })
     )
   }
 
+
+
+
   renderStopETAs() {
     if (!this.state.stop_etas) return null
-
+      console.log('here')
     return (
       this.state.stop_etas.map( function(time, index) {
         return <div className='col-xs' key={index}> {time} </div>
@@ -225,7 +213,7 @@ class App extends Component {
         </div>
         <div className='row around-xs'>
           <div className='col-xs'>
-            Current Time7: {this.getCurrentTime()}
+            Current Time: {this.getCurrentTime()}
           </div>
         </div>
         {this.renderCurrentLocation()}
