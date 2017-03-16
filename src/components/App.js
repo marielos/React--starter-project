@@ -157,24 +157,32 @@ class App extends Component {
 
   }
 
-  // getStopName(stop_obj) {
-  //   return stop_obj.name
-  // }
+  
   
 /* -------------- Render methods -------------- */
+
 
   renderStops() {
     if (!this.state.stop_data) return null
 
     return (
       this.state.stop_data.stops.route.map( function(stop_obj) {
-        return <div className='col-xs' key={stop_obj.name}> {stop_obj.name} - {stop_obj.arrived ? 'arrived' : 'future'} </div>
-      })
+        return <div className='col-xs' key={this.getStopName(stop_obj)}> {this.getStopName(stop_obj)} - {this.getStopState(stop_obj)} - {this.getStopDistance(stop_obj)} </div>
+      }.bind(this))
     )
   }
 
+  getStopName(stop_obj) {
+    return stop_obj.name
+  }
 
+  getStopState(stop_obj) {
+    return stop_obj.arrived ? 'arrived' : 'future'
+  }
 
+  getStopDistance(stop_obj) {
+    return stop_obj.distance
+  }
 
   renderStopETAs() {
     if (!this.state.stop_etas) return null

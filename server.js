@@ -73,6 +73,7 @@ app.get('/route/etas', function(request, response) {
 
       for(var i=0; i<num_stops; i++) {
         var stop_distance = distances_to_stops[i].distance.value // in meters
+          stops.route[i]['distance'] = stop_distance
 
         if (stop_distance < min_distance) {
             stops.route[i]['arrived'] = true
