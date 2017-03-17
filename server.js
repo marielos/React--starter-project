@@ -28,6 +28,22 @@ if(process.env.NODE_ENV !== 'production') {
 
 app.use(express.static(path.join(__dirname, 'dist')));
 
+/*--------------- Get Caltrain ETAs ----------------*/
+app.get('/caltrain/etas', function(request, response) {
+
+  var caltrainSched = JSON.parse(fs.readFileSync('data/caltrainSched.js', 'utf8'));
+  var caltrains = function(data){
+    var caltrain = { "caltrains":[]}
+    for(var i=0; i<data.caltrainStops.length; i++){
+      var caltrainInfo = data.caltrainStops[i]
+      if (caltrainInfo.stop_name == "Palo Alto Caltrain")
+        {caltrain.caltrains.push(caltrainInfo)}
+    }     
+    return caltrain
+  }(caltrainSched)
+  //console.log(caltrains)
+  response.json(caltrains)
+});
 
 
 app.get('/route/etas', function(request, response) {
