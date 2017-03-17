@@ -135,6 +135,7 @@ class App extends Component {
     if (navigator.geolocation) {
 
       // gets called everytime we change position
+      // might want to change to getPosition every  
       navigator.geolocation.watchPosition(function(position) {
         var pos = {
           lat: position.coords.latitude,
