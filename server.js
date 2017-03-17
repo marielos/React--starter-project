@@ -20,6 +20,7 @@ var STAGE = {
   future_stop: 3
 }
 
+var stops = JSON.parse(fs.readFileSync('data/route.js', 'utf8'));
 
 
 // using webpack-dev-server and middleware in development environment
@@ -56,8 +57,6 @@ app.get('/caltrain/etas', function(request, response) {
 app.get('/route/etas', function(request, response) {
 
   // console.log(request.query)
-  var stops = JSON.parse(fs.readFileSync('data/route.js', 'utf8'));
-
 
   var origin  = function(data) {
     return [request.query.lat, request.query.lng]
