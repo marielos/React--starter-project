@@ -107,10 +107,15 @@ app.get('/route/etas', function(request, response) {
         } else if (stop_distance < upcoming_distance) {
           if (stop_obj['stage'] === STAGE.future_stop) {
             stop_obj['stage'] = STAGE.upcoming_stop   // upcoming at this stop
-          } 
+          } else if (stop_obj['stage'] === STAGE.current_stop) {
+            stop_obj['stage'] = STAGE.past_stop
+          }
 
         } else { // out of range
+
           if (stop_obj['stage'] === STAGE.current_stop) {
+             // probably never gets here since we move to upcoming distance before out of range, unless we jump out really quickly
+             // safety check 
             stop_obj['stage'] = STAGE.past_stop   // leaving  this stop
           } 
         }
