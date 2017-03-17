@@ -3,11 +3,13 @@ import React, { Component } from 'react'
 
 class Stop extends Component {
 
-
+// eventually add chariot ID data here
 	render() {
 		return(
-			<div>
-				{this.props.stop}
+			<div className='box'>
+				<div className='current'>
+					{this.props.current_stop}
+				</div>
 			</div>
 		)
 	}

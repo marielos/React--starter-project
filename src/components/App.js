@@ -44,10 +44,7 @@ class App extends Component {
       stop_etas: stop_etas
     })  
   }
-
-  getCurrentTime() {
-    return this.parseDate(this.state.current_date)
-  }
+  
 
   parseDate(date_sec) {
     var date = new Date(date_sec),
@@ -80,8 +77,8 @@ class App extends Component {
       // might want to change to getPosition every  
       navigator.geolocation.watchPosition(function(position) {
         var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
+          lat: position.coords.latitude.toFixed(5),
+          lng: position.coords.longitude.toFixed(5)
         }
 
         this.setState({
@@ -230,7 +227,6 @@ addNbAndSb(data){
 
   getAppStage(stop_data) {
     // check to make sure only 1 of these gets called
-    console.log('calling get app stage')
     var stops = stop_data.stops.route,
         num_stops = stops.length
 
@@ -238,98 +234,77 @@ addNbAndSb(data){
         var stop_obj = stops[i]
         switch(stop_obj.stage) {
           case STOP_STAGE.upcoming_stop:
+            this.setState({
+              current_stop: null,
+              upcoming_stop: stop_obj
+            })
             return APP_STAGE.upcoming
           case STOP_STAGE.current_stop:
+            this.setState({
+              current_stop: stop_obj,
+              upcoming_stop: null
+            })
             return APP_STAGE.stop
           default:
+            this.setState({
+              current_stop: null,
+              upcoming_stop: null
+            })
             return APP_STAGE.ride
         }
     }
   }
 
 
-
 /*------------ Render methods -------------- */
 
   renderCaltrains() {
     if (!this.state.available_caltrains) return null
-    return (
-      this.state.available_caltrains.map( function(caltrainETA) {
+
+      var caltrain_etas = this.state.available_caltrains.map( function(caltrainETA) {
         return <div className='col-xs' key={caltrainETA}> {caltrainETA} </div>
       })
-    )
-  }
-
-  renderStops() {
-    if (!this.state.stop_data) return null
-
     return (
-      this.state.stop_data.stops.route.map( function(stop_obj) {
-        return <div className='col-xs' key={this.getStopName(stop_obj)}> {this.getStopName(stop_obj)} - {this.getStopStage(stop_obj)} - {this.getStopDistance(stop_obj)} </div>
-      }.bind(this))
+      <div className='row around-xs box'>
+        <div className='col-xs'> Caltrains: </div> 
+        {caltrain_etas}
+      </div> 
+      
     )
   }
-
-  getStopName(stop_obj) {
-    return stop_obj.name
-  }
-
-  getStopStage(stop_obj) {
-    switch (stop_obj.stage) {
-      case STOP_STAGE.upcoming_stop:
-          return "upcoming"
-      case STOP_STAGE.current_stop:
-        return "current"
-      case STOP_STAGE.past_stop:
-        return "past"
-      case STOP_STAGE.future_stop:
-        return "future"
-      default:
-        return "da fuck?"
-    }
-  }
-
-  getStopDistance(stop_obj) {
-    return stop_obj.distance
-  }
-
-  renderStopETAs() {
-    if (!this.state.stop_etas) return null
-    return (
-      this.state.stop_etas.map( function(time, index) {
-        return <div className='col-xs' key={index}> {this.parseDate(time)} </div>
-      }.bind(this))
-    )
-  }
-
 
   renderCurrentLocation() {
     if (!this.state.current_location) return null
 
     return (
-      <div className='row around-xs'>
-          <div className='col-xs'>
-            Current Location: [{this.state.current_location.lat}, {this.state.current_location.lng}]
-          </div>
-        </div>
+      <div className='col-xs'>
+        Location: [{this.state.current_location.lat}, {this.state.current_location.lng}]
+      </div> 
     )
+  }
 
+  renderAPICalls() {
+    if (!this.state) return null
+
+    return (
+      <div className='col-xs'>
+         API calls: {this.state.num_calls}
+      </div>
+    )
+  }
+
+  renderCurrentTime() {
+    if (!this.state) return null
+
+    return (
+      <div className='col-xs'>
+         Time: {this.parseDate(this.state.current_date)}
+      </div>
+    )
   }
 
 
-  renderStopStage() {
-    return <Stop stop='in a stop stage'/>
-  }
-
-  renderRideStage() {
-    return <Ride ride='in a ride stage'/>
-  }
-
-  renderUpcomingStage() {
-    return <Ride ride='in an upcoming ride stage'/>
-  }
-
-  testRenderStates() {
+  renderCurrentStage() {
     switch (this.state.app_stage) {
       case APP_STAGE.stop:
         return this.renderStopStage()
@@ -342,31 +317,58 @@ addNbAndSb(data){
     }
   }
 
+  renderStopStage() {
+    return <Stop current_stop={this.state.current_stop}/>
+  }
+
+  renderRideStage() {
+    return <Ride 
+              stop_etas={this.state.stop_etas} 
+              stops={this.state.stop_data.stops.route} 
+              parseDate={this.parseDate}
+            />
+  }
+
+  // might not be necessary
+  renderUpcomingStage() {
+    return <Ride 
+              stop_etas={this.state.stop_etas} 
+              stops={this.state.stop_data.stops.route} 
+              parseDate={this.parseDate}
+            />
+  }
   render() {
   	if (!this.state) return null
 
     return(
     	<div>
-      	<div className='row around-xs'>
-          {this.renderStops()}
+        {this.renderCurrentStage()}
+        {this.renderCaltrains()}
+        <div className='row box'>
+          {this.renderCurrentTime()}
+          {this.renderCurrentLocation()}
+          {this.renderAPICalls()}
         </div>
-        <div className='row around-xs'>
-          {this.renderStopETAs()}
-        </div>
-        <div className='row around-xs'>
-          <div className='col-xs'>
-            Current Time: {this.getCurrentTime()}
-          </div>
-        </div>
-        {this.renderCurrentLocation()}
-        {this.state.num_calls}
-        <div className='row around-xs'>
-          Caltrains: {this.renderCaltrains()}
-        </div>
-        {this.testRenderStates()}
+        
+
+        <button onClick={this.toggleLocationVClickThrough.bind(this)}>
+          Switch to {this.state.testingState ? ' location based' : ' click based'}
+        </button> 
+        {this.state.app_stage}
       </div>
     )
   }
+
+
+
+/*------------ Testing methods -------------- */
+  toggleLocationVClickThrough() {
+      this.setState({
+        testingState: !this.state.testingState
+      })
+  }
+
+
 
 
 };
