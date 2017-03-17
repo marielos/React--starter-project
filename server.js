@@ -12,6 +12,16 @@ var googleMapsDistanceClient = require('@google/maps').createClient({
   key: 'AIzaSyCE4T96JV56kgXvQy54VqtTfKAUwOUOIew'
 });
 
+// must match App.js --- eventually change
+var STAGE = {
+  upcoming_stop: 0,
+  current_stop: 1,
+  past_stop: 2,
+  future_stop: 3
+}
+
+
+
 // using webpack-dev-server and middleware in development environment
 if(process.env.NODE_ENV !== 'production') {
   var webpackDevMiddleware = require('webpack-dev-middleware');
@@ -78,21 +88,35 @@ app.get('/route/etas', function(request, response) {
   var arrivedToStops = function(directions_data) {
     // iterate through stops chronologically
     var all_stops = waypoints.concat([destination]),
-        min_distance = 25 // arrived to stop if 50 meters away
+        upcoming_distance = 100
+        arrived_to_distance = 40
 
-    var updateArrivedToStops = function(distance_data) {
+    var updateStageOfStops = function(distance_data) {
       var distances_to_stops = distance_data.rows[0].elements,
           num_stops = distances_to_stops.length
 
       for(var i=0; i<num_stops; i++) {
-        var stop_distance = distances_to_stops[i].distance.value // in meters
-          stops.route[i]['distance'] = stop_distance
+        var stop_distance = distances_to_stops[i].distance.value,
+            stop_obj = stops.route[i] // in meters
 
-        if (stop_distance < min_distance) {
-            stops.route[i]['arrived'] = true
-        } else {
-            stops.route[i]['arrived'] = false
+        if (stop_distance < arrived_to_distance) {
+
+          if (stop_obj['stage'] === STAGE.upcoming_stop) {
+            stop_obj['stage'] = STAGE.current_stop   // currently at this stop
+          }
+
+        } else if (stop_distance < upcoming_distance) {
+          if (stop_obj['stage'] === STAGE.future_stop) {
+            stop_obj['stage'] = STAGE.upcoming_stop   // upcoming at this stop
+          } 
+
+        } else { // out of range
+          if (stop_obj['stage'] === STAGE.current_stop) {
+            stop_obj['stage'] = STAGE.past_stop   // leaving  this stop
+          } 
         }
+
+        stop_obj['distance'] = stop_distance
       }
       return stops
     }
@@ -102,7 +126,7 @@ app.get('/route/etas', function(request, response) {
         destinations: all_stops
       }, function(err, res) {
         if (!err) {
-          directions_data['stops'] = updateArrivedToStops(res.json)
+          directions_data['stops'] = updateStageOfStops(res.json)
           response.json(directions_data);
         } else {
           console.log('err-' + err);
@@ -131,7 +155,6 @@ app.get('/route/etas', function(request, response) {
 
 
 app.get('/', function(request, response) {
-  console.log('here');
   response.sendFile(__dirname + '/dist/index.html')
 });
 
