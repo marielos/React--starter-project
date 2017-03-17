@@ -10,19 +10,85 @@ class App extends Component {
     this.setCurrentTime()
     // calls every location change
     this.trackLocation()
+    this.getCaltrainData()
   }
 
   componentDidMount() {
-
     // calls set time every second
     window.setInterval(function () {
       this.setCurrentTime()
+      this.setAvailableCaltrains()  //move to etas recalculation after
     }.bind(this), 1000)
-    
-
     
   }
 
+
+/* -------------- Caltrain data -------------- */
+
+getCaltrainData(){
+    var data = {},
+        that = this
+
+    fetch('/caltrain/etas').then(function(response) {
+      return response.json()
+    }, function(error) {
+      console.log('error- '+ error);
+    }).then(function(data) {
+      that.setState({
+        caltrain_data: data
+      })
+    }) 
+}
+
+setAvailableCaltrains(){
+  if (!this.state.stop_etas) return null
+    var caltrainStopEta = this.state.stop_etas[this.state.stop_etas.length-1],
+        stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta),
+        validCaltrain = [],        
+        caltrain_data = this.state.caltrain_data
+
+  for (var i=0; i<caltrain_data.caltrains.length; i++){
+    var caltrain = caltrain_data.caltrains[i],
+        arrivalTimeHour,
+        arrivalTimeMins,
+        arrivalTime
+
+    if (caltrain.arrival_time.length == 7) {
+      arrivalTimeHour = Number(caltrain.arrival_time.substr(0, 1))
+      arrivalTimeMins = Number(caltrain.arrival_time.substr(2, 2))
+    }else {
+      arrivalTimeHour = Number(caltrain.arrival_time.substr(0, 2))
+      arrivalTimeMins = Number(caltrain.arrival_time.substr(3, 2))
+    }
+    var arrivalTimeInMins = arrivalTimeHour*60 + arrivalTimeMins
+    if ((arrivalTimeInMins-stationEtaTimeInMins)<60 && (arrivalTimeInMins-stationEtaTimeInMins)>3){
+      if (arrivalTimeHour > 12 ){ arrivalTimeHour -= 12; }
+      if( arrivalTimeMins < 10) { arrivalTimeMins = '0'+ arrivalTimeMins}
+      arrivalTime = arrivalTimeHour + ':' + arrivalTimeMins
+      validCaltrain.push(caltrain.platform_code)
+      validCaltrain.push(arrivalTime)     
+    }
+  }
+  
+  validCaltrain  = this.addNbAndSb(validCaltrain)
+
+  this.setState({
+    available_caltrains: validCaltrain
+  })
+}
+
+addNbAndSb(data){
+  var index = data.indexOf("SB")
+  for (var i = index+2; i<data.length; i=i+1){
+      data.splice(i,1);
+    }   
+  for (var i=2; i<data.length; i=i+1){
+    if (data[i] == "NB"){
+      data.splice(i,1);
+    }    
+  }
+  return data
+}
 
 /* -------------- Time methods -------------- */
   setCurrentTime() {
@@ -30,13 +96,11 @@ class App extends Component {
     this.setState({
       current_date: date,
       stop_etas: this.getStopETAs(null, date)
-    })
-    // update ETAs
-    
-
+    })  
   }
 
   getCurrentTime() {
+    //console.log('here')
     return this.parseDate(this.state.current_date)
   }
 
@@ -49,6 +113,14 @@ class App extends Component {
     var time = hours + ':' + minutes
 
     return time
+  }
+
+  convertSecToMins(date_sec){
+    var date = new Date(date_sec),
+        hours = date.getHours(),
+        minutes = date.getMinutes(),
+        time = hours*60+minutes
+    return time    
   }
 
 
@@ -67,18 +139,16 @@ class App extends Component {
   getRouteData() {
 	  var data = {},
 	      that = this
-
     fetch(this.getGMapsUrlWithCurrentLocation()).then(function(response) {
+
 		  return response.json()
 		}, function(error) {
 			console.log('error- '+ error);
 		}).then(function(data) {
 			that.setState({
         stop_data: data,
-        stop_etas: that.getStopETAs(data)
+        stop_etas: that.getStopETAs(data) // stores date obj
 			})
-
-      console.log(data)
 		})
   }
 
@@ -106,10 +176,11 @@ class App extends Component {
 
     for (var i=0; i<seconds_between_stops.length; i++) {
       accumulated_seconds += seconds_between_stops[i]
-      var next_date = new Date(date.getTime()),
-          next_eta = this.parseDate(next_date.setSeconds(next_date.getSeconds() +accumulated_seconds) )
-      stop_etas.push(next_eta)
+      var next_date = new Date(date.getTime())
+      next_date.setSeconds(next_date.getSeconds() +accumulated_seconds)
+      stop_etas.push(next_date)
     }
+
     return stop_etas
   }
 
@@ -158,10 +229,16 @@ class App extends Component {
 
   }
 
-  
-  
-/* -------------- Render methods -------------- */
+/*------------ Render methods -------------- */
 
+  renderCaltrains() {
+    if (!this.state.available_caltrains) return null
+    return (
+      this.state.available_caltrains.map( function(caltrainETA) {
+        return <div className='col-xs' key={caltrainETA}> {caltrainETA} </div>
+      })
+    )
+  }
 
   renderStops() {
     if (!this.state.stop_data) return null
@@ -187,11 +264,10 @@ class App extends Component {
 
   renderStopETAs() {
     if (!this.state.stop_etas) return null
-      console.log('here')
     return (
       this.state.stop_etas.map( function(time, index) {
-        return <div className='col-xs' key={index}> {time} </div>
-      })
+        return <div className='col-xs' key={index}> {this.parseDate(time)} </div>
+      }.bind(this))
     )
   }
 
@@ -227,6 +303,9 @@ class App extends Component {
         </div>
         {this.renderCurrentLocation()}
         {this.state.num_calls}
+        <div className='row around-xs'>
+          Caltrains: {this.renderCaltrains()}
+        </div>
       </div>
     )
   }
