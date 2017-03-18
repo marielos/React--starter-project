@@ -49,8 +49,8 @@ class Ride extends Component {
     switch (stop_obj.stage) {
       case STOP_STAGE.upcoming_stop:
           return "upcoming"
-      case STOP_STAGE.current_stop:
-        return "current"
+      // case STOP_STAGE.current_stop:
+      //   return "current"
       case STOP_STAGE.past_stop:
         return "past"
       case STOP_STAGE.future_stop:

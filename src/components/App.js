@@ -70,7 +70,6 @@ class App extends Component {
 // I can call this every minute and recalculate ETAs
 
   trackLocation() {
-    var num_calls = 1
     if (navigator.geolocation) {
 
       // gets called everytime we change position
@@ -82,11 +81,10 @@ class App extends Component {
         }
 
         this.setState({
-          current_location : pos,
-          num_calls : num_calls++ // for testing 
+          current_location : pos
         })
 
-        this.setRouteData()
+        this.setRouteData(0)
         
       }.bind(this), function() {
         console.log('error with navigator.geolocation')
@@ -97,13 +95,44 @@ class App extends Component {
 
   }
 
+  // force get location
+
+  forceGetLocation() {
+    if (navigator.geolocation) { 
+      console.log('forcing')
+
+      // I believe its not working because we need to clear watch position
+      navigator.geolocation.getCurrentPosition(function(position) {
+        console.log('forced succesful')
+        var pos = {
+          lat: position.coords.latitude.toFixed(5),
+          lng: position.coords.longitude.toFixed(5)
+        }
+
+        this.setState({
+          current_location : pos
+        })
+
+        this.setRouteData(this.state.num_calls)
+        
+      }.bind(this), function() {
+        console.log('error with navigator.geolocation')
+      });
+      console.log('forced is fucked')
+    } else {
+      console.log('browser doesnt support navigator.geolocation')
+    }
+  }
+
 
 
 /* -------------- Route methods -------------- */
 
-  setRouteData() {
+  setRouteData(num_calls) {
 	  var data = {},
 	      that = this
+
+    num_calls++
     fetch(this.getGMapsUrlWithCurrentLocation()).then(function(response) {
 
 		  return response.json()
@@ -118,7 +147,8 @@ class App extends Component {
         stop_data: data,
         stop_etas: stop_etas, // stores date obj
         available_caltrains: available_caltrains,  //move to etas recalculation after
-        app_stage: app_stage
+        app_stage: app_stage,
+        num_calls : num_calls // for testing 
 			})
 		})
   }
@@ -230,26 +260,30 @@ addNbAndSb(data){
     var stops = stop_data.stops.route,
         num_stops = stops.length
 
+    if(this.state.testingState) { //change nothing based on stop_obj stages (location)
+      return this.state.app_stage
+    }
+
     for (var i=0; i<num_stops; i++) {
         var stop_obj = stops[i]
         switch(stop_obj.stage) {
           case STOP_STAGE.upcoming_stop:
-            this.setState({
-              current_stop: null,
-              upcoming_stop: stop_obj
-            })
+            // this.setState({
+            //   current_stop: null,
+            //   upcoming_stop: stop_obj
+            // })
             return APP_STAGE.upcoming
           case STOP_STAGE.current_stop:
-            this.setState({
-              current_stop: stop_obj,
-              upcoming_stop: null
-            })
+            // this.setState({
+            //   current_stop: stop_obj,
+            //   upcoming_stop: null
+            // })
             return APP_STAGE.stop
           default:
-            this.setState({
-              current_stop: null,
-              upcoming_stop: null
-            })
+            // this.setState({
+            //   current_stop: null,
+            //   upcoming_stop: null
+            // })
             return APP_STAGE.ride
         }
     }
@@ -260,6 +294,8 @@ addNbAndSb(data){
 
   renderCaltrains() {
     if (!this.state.available_caltrains) return null
+      // need to change how this is stored. 
+      // Better option ex: [{eta: 4:44, direction: NB}, {eta: 4:47, direction: SB}] 
 
       var caltrain_etas = this.state.available_caltrains.map( function(caltrainETA) {
         return <div className='col-xs' key={caltrainETA}> {caltrainETA} </div>
@@ -337,6 +373,127 @@ addNbAndSb(data){
               parseDate={this.parseDate}
             />
   }
+
+/* ---------- TO DO ---------
+
+  Fix this logic
+
+  */ 
+
+  nextStage() {
+    console.log('previous')
+    var stops = this.state.stop_data.stops.route,
+        num_stops = stops.length,
+        previous_app_stage,
+        first_future = true 
+
+    switch(this.state.app_stage) {
+      case APP_STAGE.upcoming:
+        previous_app_stage = APP_STAGE.ride
+        break
+      case APP_STAGE.stop:
+        previous_app_stage = APP_STAGE.upcoming
+        break
+      case APP_STAGE.ride:
+        previous_app_stage = APP_STAGE.stop
+        break
+      default:
+    }
+
+    console.log(stops)
+    for (var i=0; i<num_stops; i++) {
+        var stop_obj = stops[i]
+        switch(stop_obj.stage) {
+          case STOP_STAGE.upcoming_stop:
+            stop_obj.stage = STOP_STAGE.current_stop
+            break
+          case STOP_STAGE.current_stop:
+            stop_obj.stage = STOP_STAGE.past_stop
+            break
+          case STOP_STAGE.future:
+            if (first_future){
+              stop_obj.stage = STOP_STAGE.upcoming_stop
+              first_future = false
+            }
+            break
+          default:
+        }
+    }
+
+    this.setState({
+      app_stage: previous_app_stage
+    })
+  }
+
+  previousStage() {
+    console.log('next')
+    var stops = this.state.stop_data.stops.route,
+        num_stops = stops.length,
+        previous_app_stage,
+        first_past = true 
+
+    switch(this.state.app_stage) {
+      case APP_STAGE.upcoming:
+        previous_app_stage = APP_STAGE.stop
+        break
+      case APP_STAGE.stop:
+        previous_app_stage = APP_STAGE.ride
+        break
+      case APP_STAGE.ride:
+        previous_app_stage = APP_STAGE.upcoming
+        break
+      default:
+    }
+
+    for (var i=0; i<num_stops; i++) {
+        var stop_obj = stops[i]
+        switch(stop_obj.stage) {
+          case STOP_STAGE.past:
+            if (first_past){
+              stop_obj.stage = STOP_STAGE.current_stop
+              first_past = false
+            }
+            break
+          case STOP_STAGE.upcoming_stop:
+            stop_obj.stage = STOP_STAGE.future_stop
+            break
+          case STOP_STAGE.current_stop:
+            stop_obj.stage = STOP_STAGE.upcoming_stop
+            break
+          default:
+        }
+    }
+
+    this.setState({
+      app_stage: previous_app_stage
+    })
+  }
+
+  renderTestingButtons() {
+    var nextPreviousButtons = function() {
+      return (
+        <div>
+          <button onClick={this.previousStage.bind(this)}>
+              &lt;
+          </button> 
+          <button onClick={this.nextStage.bind(this)}>
+              &gt;
+          </button> 
+        </div>
+      )
+    }.bind(this)
+
+    return (
+        <div className='row box'>
+          <button onClick={this.toggleLocationVClickThrough.bind(this)}>
+            Switch to {this.state.testingState ? ' location based' : ' click based'}
+          </button> 
+          {this.state.testingState ? nextPreviousButtons() : null}
+        </div>
+    )
+  }
+
+
   render() {
   	if (!this.state) return null
 
@@ -351,10 +508,11 @@ addNbAndSb(data){
         </div>
         
 
-        <button onClick={this.toggleLocationVClickThrough.bind(this)}>
-          Switch to {this.state.testingState ? ' location based' : ' click based'}
-        </button> 
+        {this.renderTestingButtons()}
         {this.state.app_stage}
+        <button onClick={() => this.forceGetLocation()}>
+            Force API Call
+          </button> 
       </div>
     )
   }
