@@ -22,7 +22,7 @@ class Ride extends Component {
         				{this.getStopName(stop_obj)}
         			</div>
         			<div>
-        				{this.getStopStage(stop_obj)} - {this.getStopDistance(stop_obj)}m 
+        				{this.getStopDistance(stop_obj)}m 
         			</div>
         		</div>
       }.bind(this))
@@ -47,8 +47,6 @@ class Ride extends Component {
     switch (stop_obj.stage) {
       case STOP_STAGE.upcoming_stop:
           return "upcoming"
-      // case STOP_STAGE.current_stop:
-      //   return "current"
       case STOP_STAGE.past_stop:
         return "past"
       case STOP_STAGE.future_stop:
