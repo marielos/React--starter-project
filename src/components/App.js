@@ -383,14 +383,11 @@ addNbAndSb(data){
   }
 
   renderTestingButtons() {
-    var nextPreviousButtons = function() {
+    var nextStageButton = function() {
       return (
         <div>
-          <button onClick={this.previousStage.bind(this)}>
-              &lt;
-          </button> 
           <button onClick={this.nextStage.bind(this)}>
-              &gt;
+              Next Stage &gt; 
           </button> 
         </div>
       )
@@ -401,11 +398,10 @@ addNbAndSb(data){
           <button onClick={this.toggleLocationVClickThrough.bind(this)}>
             Switch to {this.state.testing_state ? ' location based' : ' click based'}
           </button> 
-          {this.state.testing_state ? nextPreviousButtons() : null}
+          {this.state.testing_state ? nextStageButton() : null}
         </div>
     )
   }
-
 
   render() {
   	if (!this.state) return null
@@ -431,7 +427,6 @@ addNbAndSb(data){
   }
 
 
-
 /*------------ Testing methods -------------- */
 
 // if all past change to all future
@@ -443,7 +438,6 @@ addNbAndSb(data){
         mid_ride = this.checkIfMidRide(stops, num_stops),
         all_past = this.checkIfAllPast(stops, num_stops)
 
-
     if (all_past) {
       for (var i=0; i<num_stops; i++) {
         var stop_obj = stops[i]
@@ -454,7 +448,6 @@ addNbAndSb(data){
       })
       return
     }
-
 
     switch(this.state.app_stage) {
       case APP_STAGE.upcoming:
@@ -495,51 +488,49 @@ addNbAndSb(data){
   }
 
 
+// // technically uneccesary 
+//   previousStage() {
+//     var stops = this.state.stop_data.stops.route,
+//         num_stops = stops.length,
+//         previous_app_stage,
+//         first_past = true 
 
+//     switch(this.state.app_stage) {
+//       case APP_STAGE.upcoming:
+//         previous_app_stage = APP_STAGE.ride
+//         break
+//       case APP_STAGE.stop:
+//         previous_app_stage = APP_STAGE.upcoming
+//         break
+//       case APP_STAGE.ride:
+//         previous_app_stage = APP_STAGE.stop
+//         break
+//       default:
+//     }
 
-// technically uneccesary 
-  previousStage() {
-    var stops = this.state.stop_data.stops.route,
-        num_stops = stops.length,
-        previous_app_stage,
-        first_past = true 
+//     for (var i=0; i<num_stops; i++) {
+//         var stop_obj = stops[i]
+//         switch(stop_obj.stage) {
+//           case STOP_STAGE.past:
+//             if (first_past){
+//               stop_obj.stage = STOP_STAGE.current_stop
+//               first_past = false
+//             }
+//             break
+//           case STOP_STAGE.upcoming_stop:
+//             stop_obj.stage = STOP_STAGE.future_stop
+//             break
+//           case STOP_STAGE.current_stop:
+//             stop_obj.stage = STOP_STAGE.upcoming_stop
+//             break
+//           default:
+//         }
+//     }
 
-    switch(this.state.app_stage) {
-      case APP_STAGE.upcoming:
-        previous_app_stage = APP_STAGE.ride
-        break
-      case APP_STAGE.stop:
-        previous_app_stage = APP_STAGE.upcoming
-        break
-      case APP_STAGE.ride:
-        previous_app_stage = APP_STAGE.stop
-        break
-      default:
-    }
-
-    for (var i=0; i<num_stops; i++) {
-        var stop_obj = stops[i]
-        switch(stop_obj.stage) {
-          case STOP_STAGE.past:
-            if (first_past){
-              stop_obj.stage = STOP_STAGE.current_stop
-              first_past = false
-            }
-            break
-          case STOP_STAGE.upcoming_stop:
-            stop_obj.stage = STOP_STAGE.future_stop
-            break
-          case STOP_STAGE.current_stop:
-            stop_obj.stage = STOP_STAGE.upcoming_stop
-            break
-          default:
-        }
-    }
-
-    this.setState({
-      app_stage: previous_app_stage
-    })
-  }
+//     this.setState({
+//       app_stage: previous_app_stage
+//     })
+//   }
 
   checkIfMidRide(stops, num_stops) {
     for (var i=0; i<num_stops; i++) {
@@ -565,7 +556,6 @@ addNbAndSb(data){
     if (this.state.testing_state) { //switching out of testing state, reload stop_data based on location
       this.setRouteData(this.state.num_calls)
     }
-
       this.setState({
         testing_state: !this.state.testing_state
       })
