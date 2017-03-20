@@ -38,9 +38,7 @@ class Ride extends Component {
     )
   }
 
-  getStopName(stop_obj) {
-  	// console.log()
-  	
+  getStopName(stop_obj) {  	
     return stop_obj.name
   }
 

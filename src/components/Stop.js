@@ -8,7 +8,7 @@ class Stop extends Component {
 		return(
 			<div className='box'>
 				<div className='current'>
-					{this.props.current_stop}
+					{this.props.current_stop.name}
 				</div>
 			</div>
 		)

@@ -84,7 +84,10 @@ class App extends Component {
           current_location : pos
         })
 
-        this.setRouteData(0)
+        if(!this.state.testing_state) { // only make api calls out of testing state
+          console.log('about to set Route Data')
+          this.setRouteData(0)
+        }
         
       }.bind(this), function() {
         console.log('error with navigator.geolocation')
@@ -96,7 +99,7 @@ class App extends Component {
   }
 
   // force get location
-
+  // doesnt work
   forceGetLocation() {
     if (navigator.geolocation) { 
       console.log('forcing')
@@ -113,6 +116,7 @@ class App extends Component {
           current_location : pos
         })
 
+        console.log('about to force Route Data')
         this.setRouteData(this.state.num_calls)
         
       }.bind(this), function() {
@@ -142,7 +146,6 @@ class App extends Component {
       var stop_etas = that.getStopETAs(data),
           available_caltrains = that.getAvailableCaltrains(stop_etas),
           app_stage = that.getAppStage(data)
-          console.log(app_stage)
 			that.setState({
         stop_data: data,
         stop_etas: stop_etas, // stores date obj
@@ -260,7 +263,7 @@ addNbAndSb(data){
     var stops = stop_data.stops.route,
         num_stops = stops.length
 
-    if(this.state.testingState) { //change nothing based on stop_obj stages (location)
+    if(this.state.testing_state) { //change nothing based on stop_obj stages (location)
       return this.state.app_stage
     }
 
@@ -268,27 +271,27 @@ addNbAndSb(data){
         var stop_obj = stops[i]
         switch(stop_obj.stage) {
           case STOP_STAGE.upcoming_stop:
-            // this.setState({
-            //   current_stop: null,
-            //   upcoming_stop: stop_obj
-            // })
             return APP_STAGE.upcoming
           case STOP_STAGE.current_stop:
-            // this.setState({
-            //   current_stop: stop_obj,
-            //   upcoming_stop: null
-            // })
             return APP_STAGE.stop
           default:
-            // this.setState({
-            //   current_stop: null,
-            //   upcoming_stop: null
-            // })
             return APP_STAGE.ride
         }
     }
   }
 
+
+  getCurrentStop() {
+    var stops = this.state.stop_data.stops.route,
+        num_stops = stops.length
+
+    for (var i=0; i<num_stops; i++) {
+      var stop = stops[i]
+      if (stop.stage === STOP_STAGE.current_stop) {
+        return stop
+      }
+    }
+  }
 
 /*------------ Render methods -------------- */
 
@@ -354,7 +357,12 @@ addNbAndSb(data){
   }
 
   renderStopStage() {
-    return <Stop current_stop={this.state.current_stop}/>
+    var current_stop = this.getCurrentStop()
+
+    if (!current_stop) {
+      console.log(this.state.stop_data)
+    }
+    return <Stop current_stop={this.getCurrentStop()}/>
   }
 
   renderRideStage() {
@@ -374,101 +382,6 @@ addNbAndSb(data){
             />
   }
 
-/* ---------- TO DO ---------
-
-  Fix this logic
-
-  */ 
-
-  nextStage() {
-    console.log('previous')
-    var stops = this.state.stop_data.stops.route,
-        num_stops = stops.length,
-        previous_app_stage,
-        first_future = true 
-
-    switch(this.state.app_stage) {
-      case APP_STAGE.upcoming:
-        previous_app_stage = APP_STAGE.ride
-        break
-      case APP_STAGE.stop:
-        previous_app_stage = APP_STAGE.upcoming
-        break
-      case APP_STAGE.ride:
-        previous_app_stage = APP_STAGE.stop
-        break
-      default:
-    }
-
-    console.log(stops)
-    for (var i=0; i<num_stops; i++) {
-        var stop_obj = stops[i]
-        switch(stop_obj.stage) {
-          case STOP_STAGE.upcoming_stop:
-            stop_obj.stage = STOP_STAGE.current_stop
-            break
-          case STOP_STAGE.current_stop:
-            stop_obj.stage = STOP_STAGE.past_stop
-            break
-          case STOP_STAGE.future:
-            if (first_future){
-              stop_obj.stage = STOP_STAGE.upcoming_stop
-              first_future = false
-            }
-            break
-          default:
-        }
-    }
-
-    this.setState({
-      app_stage: previous_app_stage
-    })
-  }
-
-  previousStage() {
-    console.log('next')
-    var stops = this.state.stop_data.stops.route,
-        num_stops = stops.length,
-        previous_app_stage,
-        first_past = true 
-
-    switch(this.state.app_stage) {
-      case APP_STAGE.upcoming:
-        previous_app_stage = APP_STAGE.stop
-        break
-      case APP_STAGE.stop:
-        previous_app_stage = APP_STAGE.ride
-        break
-      case APP_STAGE.ride:
-        previous_app_stage = APP_STAGE.upcoming
-        break
-      default:
-    }
-
-    for (var i=0; i<num_stops; i++) {
-        var stop_obj = stops[i]
-        switch(stop_obj.stage) {
-          case STOP_STAGE.past:
-            if (first_past){
-              stop_obj.stage = STOP_STAGE.current_stop
-              first_past = false
-            }
-            break
-          case STOP_STAGE.upcoming_stop:
-            stop_obj.stage = STOP_STAGE.future_stop
-            break
-          case STOP_STAGE.current_stop:
-            stop_obj.stage = STOP_STAGE.upcoming_stop
-            break
-          default:
-        }
-    }
-
-    this.setState({
-      app_stage: previous_app_stage
-    })
-  }
-
   renderTestingButtons() {
     var nextPreviousButtons = function() {
       return (
@@ -486,9 +399,9 @@ addNbAndSb(data){
     return (
         <div className='row box'>
           <button onClick={this.toggleLocationVClickThrough.bind(this)}>
-            Switch to {this.state.testingState ? ' location based' : ' click based'}
+            Switch to {this.state.testing_state ? ' location based' : ' click based'}
           </button> 
-          {this.state.testingState ? nextPreviousButtons() : null}
+          {this.state.testing_state ? nextPreviousButtons() : null}
         </div>
     )
   }
@@ -520,9 +433,141 @@ addNbAndSb(data){
 
 
 /*------------ Testing methods -------------- */
-  toggleLocationVClickThrough() {
+
+// if all past change to all future
+  nextStage() {
+    var stops = this.state.stop_data.stops.route,
+        num_stops = stops.length,
+        next_app_stage,
+        first_future = true,
+        mid_ride = this.checkIfMidRide(stops, num_stops),
+        all_past = this.checkIfAllPast(stops, num_stops)
+
+
+    if (all_past) {
+      for (var i=0; i<num_stops; i++) {
+        var stop_obj = stops[i]
+        stop_obj.stage = STOP_STAGE.future_stop
+      }
       this.setState({
-        testingState: !this.state.testingState
+        app_stage: APP_STAGE.ride
+      })
+      return
+    }
+
+
+    switch(this.state.app_stage) {
+      case APP_STAGE.upcoming:
+        next_app_stage = APP_STAGE.stop
+        break
+      case APP_STAGE.stop:
+        next_app_stage = APP_STAGE.ride
+        break
+      case APP_STAGE.ride:
+        next_app_stage = APP_STAGE.upcoming
+        break
+      default:
+    }
+
+
+    if (mid_ride) {
+      for (var i=0; i<num_stops; i++) {
+        var stop_obj = stops[i]
+        if(stop_obj.stage === STOP_STAGE.future_stop && first_future) { //first future stop
+          stop_obj.stage = STOP_STAGE.upcoming_stop
+          first_future = false
+        }
+      }
+    } else { // theres an upcoming or a current stop 
+      for (var i=0; i<num_stops; i++) {
+          var stop_obj = stops[i]
+          if (stop_obj.stage === STOP_STAGE.upcoming_stop) {
+            stop_obj.stage = STOP_STAGE.current_stop
+          } else if (stop_obj.stage === STOP_STAGE.current_stop) {
+            stop_obj.stage = STOP_STAGE.past_stop
+          }
+      }
+    }
+    console.log(stops)
+    this.setState({
+      app_stage: next_app_stage
+    })
+  }
+
+
+
+
+// technically uneccesary 
+  previousStage() {
+    var stops = this.state.stop_data.stops.route,
+        num_stops = stops.length,
+        previous_app_stage,
+        first_past = true 
+
+    switch(this.state.app_stage) {
+      case APP_STAGE.upcoming:
+        previous_app_stage = APP_STAGE.ride
+        break
+      case APP_STAGE.stop:
+        previous_app_stage = APP_STAGE.upcoming
+        break
+      case APP_STAGE.ride:
+        previous_app_stage = APP_STAGE.stop
+        break
+      default:
+    }
+
+    for (var i=0; i<num_stops; i++) {
+        var stop_obj = stops[i]
+        switch(stop_obj.stage) {
+          case STOP_STAGE.past:
+            if (first_past){
+              stop_obj.stage = STOP_STAGE.current_stop
+              first_past = false
+            }
+            break
+          case STOP_STAGE.upcoming_stop:
+            stop_obj.stage = STOP_STAGE.future_stop
+            break
+          case STOP_STAGE.current_stop:
+            stop_obj.stage = STOP_STAGE.upcoming_stop
+            break
+          default:
+        }
+    }
+
+    this.setState({
+      app_stage: previous_app_stage
+    })
+  }
+
+  checkIfMidRide(stops, num_stops) {
+    for (var i=0; i<num_stops; i++) {
+      var stop_obj = stops[i]
+      if(stop_obj.stage ===  STOP_STAGE.current_stop ||  stop_obj.stage ===  STOP_STAGE.upcoming_stop) {
+        return false
+      }
+    }
+    return true
+  }
+
+  checkIfAllPast(stops, num_stops) {
+    for (var i=0; i<num_stops; i++) {
+      var stop_obj = stops[i]
+      if(stop_obj.stage !==  STOP_STAGE.past_stop) {
+        return false
+      }
+    }
+    return true
+  }
+
+  toggleLocationVClickThrough() {
+    if (this.state.testing_state) { //switching out of testing state, reload stop_data based on location
+      this.setRouteData(this.state.num_calls)
+    }
+
+      this.setState({
+        testing_state: !this.state.testing_state
       })
   }
 
