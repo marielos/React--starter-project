@@ -7,7 +7,7 @@ class Stop extends Component {
 	render() {
 		return(
 			<div className='box'>
-				<div className='current'>
+				<div className='current animate-stop'>
 					{this.props.current_stop.name}
 				</div>
 			</div>

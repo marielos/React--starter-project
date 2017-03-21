@@ -37,6 +37,9 @@ if(process.env.NODE_ENV !== 'production') {
 
 app.use(express.static(path.join(__dirname, 'dist')));
 
+
+
+
 /*--------------- Get Caltrain ETAs ----------------*/
 app.get('/caltrain/etas', function(request, response) {
 

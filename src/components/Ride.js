@@ -12,55 +12,79 @@ var STOP_STAGE = {
 
 class Ride extends Component {
   
-  renderStops() {
-    if (!this.props.stops) return null
+	componentDidMount() {
+	
+	}
 
-    return (
-      this.props.stops.map( function(stop_obj) {
-        return <div className='col-xs' key={this.getStopName(stop_obj)}> 
-        			<div className={this.getStopStage(stop_obj)}>
-        				{this.getStopName(stop_obj)}
-        			</div>
-        			<div>
-        				{this.getStopDistance(stop_obj)}m 
-        			</div>
-        		</div>
-      }.bind(this))
-    )
-  }
+	renderStops() {
+		if (!this.props.stops) return null
 
-  renderStopETAs() {
-    if (!this.props.stop_etas) return null
-    return (
-      this.props.stop_etas.map( function(time, index) {
-        return <div className='col-xs' key={index}> {this.props.parseDate(time)} </div>
-      }.bind(this))
-    )
-  }
+		return (
+		  this.props.stops.map( function(stop_obj) {
+		    return <div className='col-xs' key={this.getStopName(stop_obj)}> 
+		    			<div className={this.getStopStage(stop_obj) + ' ' + this.isNextStop(stop_obj)}>
+		    				{this.getStopName(stop_obj)}
+		    			</div>
+		    			<div>
+		    				{this.getStopDistance(stop_obj)}m 
+		    			</div>
+		    		</div>
+		  }.bind(this))
+		)
+	}
 
-  getStopName(stop_obj) {  	
-    return stop_obj.name
-  }
+	renderStopETAs() {
+		if (!this.props.stop_etas) return null
+		return (
+		  this.props.stop_etas.map( function(time, index) {
+		    return <div className='col-xs' key={index}> {this.props.parseDate(time)} </div>
+		  }.bind(this))
+		)
+	}
 
-  // also css classes
-  getStopStage(stop_obj) {
-    switch (stop_obj.stage) {
-      case STOP_STAGE.upcoming_stop:
-          return "upcoming"
-      case STOP_STAGE.past_stop:
-        return "past"
-      case STOP_STAGE.future_stop:
-        return "future"
-      default:
-        return "da fuck?"
-    }
-  }
+	getStopName(stop_obj) {  	
+		return stop_obj.name
+	}
 
-  getStopDistance(stop_obj) {
-    return stop_obj.distance
-  }
 
-	render() {
+	// current or upcoming or 1st future 
+	isNextStop(stop_obj) {
+		if(stop_obj === this.props.nextStop) {
+			return 'animate-stop'
+		}
+		return ''
+	}
+
+	// also css classes
+	getStopStage(stop_obj) {
+		switch (stop_obj.stage) {
+		  case STOP_STAGE.upcoming_stop:
+		      return "upcoming"
+		  case STOP_STAGE.past_stop:
+		    return "past"
+		  case STOP_STAGE.future_stop:
+		    return "future"
+		  default:
+		    return "da fuck?"
+		}
+	}
+
+	getStopDistance(stop_obj) {
+		return stop_obj.distance
+	}
+
+
+	renderStop() {
+		return(
+			<div className='box'>
+				<div className='current animate-stop'>
+					{this.props.currentStop.name}
+				</div>
+			</div>
+		)
+	}
+
+	renderRide() {
 		return(
 			<div className='box'>
 				<div className='row around-xs'>
@@ -71,6 +95,26 @@ class Ride extends Component {
 		        </div>
 			</div>
 		)
+	}
+
+	render() {
+		console.log('-------------') 
+		console.log('past_stop-') 
+		console.log(this.props.pastStop)
+		console.log('current_stop-') 
+		console.log(this.props.currentStop)
+		console.log('next_stop-') 
+		console.log(this.props.nextStop)
+		console.log('future_stop-') 
+		console.log( this.props.futureStops)
+		console.log('-------------') 
+
+		if(this.props.currentStop) {
+			return this.renderStop()
+		} else {
+			return this.renderRide()
+		}
+		
 	}
 
 }

@@ -20,6 +20,10 @@ h1 {
 .current {
   font-size: 30px;
 }
+
+.animate-stop {
+    transition: font-size linear 1s;
+}
 /* -----------------------flexbox grid-----------------------*/
 
 /* Uncomment and set these variables to customize the grid. */
