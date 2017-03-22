@@ -12,11 +12,11 @@ var STOP_STAGE = {
   future_stop: 3
 }
 
-var APP_STAGE = {
-  upcoming: 0,
-  stop: 1,
-  ride: 2
-}
+// var APP_STAGE = {
+//   upcoming: 0,
+//   stop: 1,
+//   ride: 2
+// }
 
 class App extends Component {
 
@@ -38,7 +38,7 @@ class App extends Component {
 /* -------------- Time methods -------------- */
   setCurrentTime() {
     var date = new Date(),
-        stop_etas = this.state && this.state.stop_data ? this.getStopETAs(this.state.stop_data, date) : null
+        stop_etas = this.state && this.state.route_data ? this.addEtaToStops(this.state.route_data, date) : null
     this.setState({
       current_date: date,
       stop_etas: stop_etas
@@ -143,31 +143,36 @@ class App extends Component {
 		}, function(error) {
 			console.log('error- '+ error);
 		}).then(function(data) {
-      var stop_etas = that.getStopETAs(data),
-          available_caltrains = that.getAvailableCaltrains(stop_etas),
-          app_stage = that.getAppStage(data)
+      var stop_etas = that.addEtaToStops(data),
+          available_caltrains = that.getAvailableCaltrains(stop_etas)
+          // app_stage = that.getAppStage(data)
 			that.setState({
-        stop_data: data,
+        route_data: data,
         stop_etas: stop_etas, // stores date obj
         available_caltrains: available_caltrains,  //move to etas recalculation after
-        app_stage: app_stage,
+        // app_stage: app_stage,
         num_calls : num_calls // for testing 
 			})
 		})
   }
 
-  getStopETAs(data, date) { 
+
+  addEtaToStops(route_data, date) { 
     if(!date) date = this.state.current_date
 
-    var seconds_between_stops = this.getSecondsBetweenStops(data),
+    var seconds_between_stops = this.getSecondsBetweenStops(route_data),
+        stops = route_data.stops.route,
         stop_etas = [],
         accumulated_seconds = 0
 
     for (var i=0; i<seconds_between_stops.length; i++) {
+      var next_date = new Date(date.getTime()),
+          next_stop = stops[i]
+
       accumulated_seconds += seconds_between_stops[i]
-      var next_date = new Date(date.getTime())
       next_date.setSeconds(next_date.getSeconds() +accumulated_seconds)
-      stop_etas.push(next_date)
+      next_stop.eta = next_date
+      stop_etas.push(next_stop)
     }
 
     return stop_etas
@@ -180,9 +185,9 @@ class App extends Component {
     return url
   }
 
-  getSecondsBetweenStops(data) {
+  getSecondsBetweenStops(route_data) {
     var seconds_between_stops = [],
-        route = data.routes[0],
+        route = route_data.routes[0],
         legs = route.legs,
         num_legs = legs.length
 
@@ -197,23 +202,36 @@ class App extends Component {
 /* -------------- Caltrain data -------------- */
 
 setCaltrainData(){
-    var data = {},
-        that = this
+  var data = {},
+      that = this
 
-    fetch('/caltrain/etas').then(function(response) {
-      return response.json()
-    }, function(error) {
-      console.log('error- '+ error);
-    }).then(function(data) {
-      that.setState({
-        caltrain_data: data
-      })
-    }) 
+  fetch('/caltrain/etas').then(function(response) {
+    return response.json()
+  }, function(error) {
+    console.log('error- '+ error);
+  }).then(function(data) {
+    that.setState({
+      caltrain_data: data
+    })
+  })
+}
+
+// caltrain station must be named 'Palo Alto Caltrain'
+getCaltrainStop(stop_etas) {
+  for (var i=0; i<stop_etas.length; i++) {
+    var stop_obj = stop_etas[i]
+
+    if (stop_obj.name == 'Palo Alto Caltrain') {
+      return stop_obj
+    }
+  }
 }
 
 getAvailableCaltrains(stop_etas){
-    var caltrainStopEta = stop_etas[stop_etas.length-1],
-        stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta),
+
+    // assuming caltrainStop is last stop --- not a safe assumption 
+    var caltrainStopEta = this.getCaltrainStop(stop_etas),
+        stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta.eta),
         validCaltrain = [],        
         caltrain_data = this.state.caltrain_data
 
@@ -258,30 +276,32 @@ addNbAndSb(data){
 
 /*------------ Stage methods -------------- */
 
-  getAppStage(stop_data) {
-    // check to make sure only 1 of these gets called
-    var stops = stop_data.stops.route,
-        num_stops = stops.length
+  // getAppStage(stop_data) {
+  //   // check to make sure only 1 of these gets called
+  //   var stops = stop_data.stops.route,
+  //       num_stops = stops.length
 
-    if(this.state.testing_state) { //change nothing based on stop_obj stages (location)
-      return this.state.app_stage
-    }
+  //   if(this.state.testing_state) { //change nothing based on stop_obj stages (location)
+  //     return this.state.app_stage
+  //   }
 
-    for (var i=0; i<num_stops; i++) {
-        var stop_obj = stops[i]
-        switch(stop_obj.stage) {
-          case STOP_STAGE.upcoming_stop:
-            return APP_STAGE.upcoming
-          case STOP_STAGE.current_stop:
-            return APP_STAGE.stop
-          default:
-            return APP_STAGE.ride
-        }
-    }
-  }
+  //   for (var i=0; i<num_stops; i++) {
+  //       var stop_obj = stops[i]
+  //       switch(stop_obj.stage) {
+  //         case STOP_STAGE.upcoming_stop:
+  //           return APP_STAGE.upcoming
+  //         case STOP_STAGE.current_stop:
+  //           return APP_STAGE.stop
+  //         default:
+  //           return APP_STAGE.ride
+  //       }
+  //   }
+  // }
 
+
+// ***************** CHANGE TO USE STATE.STOP_ETAS INSTEAD OF STOP DATA ****************
   getCurrentStop() {
-    var stops = this.state.stop_data.stops.route,
+    var stops = this.state.stop_etas,
         num_stops = stops.length
 
     for (var i=0; i<num_stops; i++) {
@@ -294,7 +314,7 @@ addNbAndSb(data){
   }
 
   getNextStop() {
-    var stops = this.state.stop_data.stops.route,
+    var stops = this.state.stop_etas,
         num_stops = stops.length,
         mid_ride = this.checkIfMidRide(stops, num_stops),
         first_future = true
@@ -319,7 +339,7 @@ addNbAndSb(data){
   }
 
   getPastStop() {
-    var stops = this.state.stop_data.stops.route,
+    var stops = this.state.stop_etas,
         num_stops = stops.length,
         recent_past_stop = null
     for (var i=0; i<num_stops; i++) {
@@ -334,7 +354,7 @@ addNbAndSb(data){
   }
 
   getFutureStops() { // next 3 future spots after next stop
-    var stops = this.state.stop_data.stops.route,
+    var stops = this.state.stop_etas,
         num_stops = stops.length,
         next_stop = this.getNextStop(),
         future_stops = []
@@ -346,10 +366,6 @@ addNbAndSb(data){
         future_stops.push(stops[i])
       }
     }
-
-        // iterate through, 
-        //    find [current/upcoming = nextstop()]  get next 3 
-        //    if no current/upcoming (midRide) skip [first_future = nextstop()]  get next 3 
 
     return future_stops
   }
@@ -393,50 +409,22 @@ addNbAndSb(data){
     )
   }
 
-  renderCurrentTime() {
-    if (!this.state) return null
 
-    return (
-      <div className='col-xs'>
-         Time: {this.parseDate(this.state.current_date)}
-      </div>
-    )
-  }
 
 
   renderCurrentStage() {
-    if (this.state.stop_data){
+    if (this.state.stop_etas){
       return this.renderRideStage()
     } else {
       return "LOADING"
     }
-
-    // switch (this.state.app_stage) {
-    //   case APP_STAGE.stop:
-    //     return this.renderStopStage()
-    //   case APP_STAGE.upcoming:
-    //     return this.renderUpcomingStage()
-    //   case APP_STAGE.ride:
-    //     return this.renderRideStage()
-    //   default:
-    //     return "LOADING"
-    // }
   }
-
-  // renderStopStage() {
-  //   return <Ride 
-  //             stop_etas={this.state.stop_etas} 
-  //             stops={this.state.stop_data.stops.route} 
-  //             parseDate={this.parseDate}
-  //             nextStop={this.getNextStop()}
-  //             current_stop={this.getCurrentStop()}
-  //           />
-  // }
 
   renderRideStage() {
     return <Ride 
+              currentDate={this.state.current_date}
               stop_etas={this.state.stop_etas} 
-              stops={this.state.stop_data.stops.route} 
+              // stops={this.state.stop_data.stops.route} 
               parseDate={this.parseDate}
               nextStop={this.getNextStop()}
               currentStop={this.getCurrentStop()}
@@ -444,16 +432,6 @@ addNbAndSb(data){
               futureStops={this.getFutureStops()}
             />
   }
-
-  // might not be necessary
-  // renderUpcomingStage() {
-  //   return <Ride 
-  //             stop_etas={this.state.stop_etas} 
-  //             stops={this.state.stop_data.stops.route} 
-  //             parseDate={this.parseDate}
-  //             nextStop={this.getNextStop()}
-  //           />
-  // }
 
   renderTestingButtons() {
     var nextStageButton = function() {
@@ -484,7 +462,6 @@ addNbAndSb(data){
         {this.renderCurrentStage()}
         {this.renderCaltrains()}
         <div className='row box'>
-          {this.renderCurrentTime()}
           {this.renderCurrentLocation()}
           {this.renderAPICalls()}
         </div>
@@ -504,9 +481,9 @@ addNbAndSb(data){
 
 // if all past change to all future
   nextStage() {
-    var stops = this.state.stop_data.stops.route,
+    var stops = this.state.stop_etas,
         num_stops = stops.length,
-        next_app_stage,
+        // next_app_stage,
         first_future = true,
         mid_ride = this.checkIfMidRide(stops, num_stops),
         all_past = this.checkIfAllPast(stops, num_stops)
@@ -518,24 +495,24 @@ addNbAndSb(data){
         var stop_obj = stops[i]
         stop_obj.stage = STOP_STAGE.future_stop
       }
-      this.setState({
-        app_stage: APP_STAGE.ride
-      })
-      return
+      // this.setState({
+      //   app_stage: APP_STAGE.ride
+      // })
+      return null
     }
 
-    switch(this.state.app_stage) {
-      case APP_STAGE.upcoming:
-        next_app_stage = APP_STAGE.stop
-        break
-      case APP_STAGE.stop:
-        next_app_stage = APP_STAGE.ride
-        break
-      case APP_STAGE.ride:
-        next_app_stage = APP_STAGE.upcoming
-        break
-      default:
-    }
+    // switch(this.state.app_stage) {
+    //   case APP_STAGE.upcoming:
+    //     next_app_stage = APP_STAGE.stop
+    //     break
+    //   case APP_STAGE.stop:
+    //     next_app_stage = APP_STAGE.ride
+    //     break
+    //   case APP_STAGE.ride:
+    //     next_app_stage = APP_STAGE.upcoming
+    //     break
+    //   default:
+    // }
 
 
     if (mid_ride) {
@@ -556,9 +533,9 @@ addNbAndSb(data){
           }
       }
     }
-    this.setState({
-      app_stage: next_app_stage
-    })
+    // this.setState({
+    //   app_stage: next_app_stage
+    // })
   }
 
 

@@ -9,6 +9,48 @@ h1 {
   border: 1px solid black;
 }
 
+.vehicle-screen {
+  position: relative;
+  height: 200px;
+  width: 900px;
+  border: solid 1px black;
+  overflow-x: hidden;
+  transition: left linear 1s;
+  background-color: black;
+  color: white;
+}
+
+
+.route-container {
+  position: absolute;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.stop {
+  width: 20%;
+  display: inline-block;
+  text-align: center;
+}
+
+.path-line {
+  height: 2px;
+  background-color: white;
+  margin: 3px 0;
+}
+
+.stop-dot {
+  background-color: white;
+  height: 4px;
+  width: 4px;
+  border: black 3px solid;
+  border-radius: 7px;
+  margin: -9px auto;
+  margin-bottom: 2px;
+}
+
+
+
 .upcoming {
   font-size: 20px;
 }
@@ -24,6 +66,13 @@ h1 {
 .animate-stop {
     transition: font-size linear 1s;
 }
+
+
+.time {
+  width:100%;
+  text-align: center;
+}
+
 /* -----------------------flexbox grid-----------------------*/
 
 /* Uncomment and set these variables to customize the grid. */

@@ -12,40 +12,33 @@ var STOP_STAGE = {
 
 class Ride extends Component {
   
-	componentDidMount() {
-	
-	}
-
 	renderStops() {
-		if (!this.props.stops) return null
+		if (!this.props.stop_etas) return null
 
 		return (
-		  this.props.stops.map( function(stop_obj) {
-		    return <div className='col-xs' key={this.getStopName(stop_obj)}> 
+		  this.props.stop_etas.map( function(stop_obj) {
+		    return <div className='stop' key={this.getStopName(stop_obj)}> 
 		    			<div className={this.getStopStage(stop_obj) + ' ' + this.isNextStop(stop_obj)}>
 		    				{this.getStopName(stop_obj)}
 		    			</div>
-		    			<div>
-		    				{this.getStopDistance(stop_obj)}m 
+		    			<div className='path-line'>
 		    			</div>
+		    			<div className='stop-dot'>
+		    			</div>
+		    			<div>
+		    				{this.props.parseDate(stop_obj.eta)}
+		    			</div>
+		    			
 		    		</div>
 		  }.bind(this))
 		)
 	}
 
-	renderStopETAs() {
-		if (!this.props.stop_etas) return null
-		return (
-		  this.props.stop_etas.map( function(time, index) {
-		    return <div className='col-xs' key={index}> {this.props.parseDate(time)} </div>
-		  }.bind(this))
-		)
-	}
+
 
 	getStopName(stop_obj) {  	
 		return stop_obj.name
 	}
-
 
 	// current or upcoming or 1st future 
 	isNextStop(stop_obj) {
@@ -69,31 +62,30 @@ class Ride extends Component {
 		}
 	}
 
+
+// for testing purposes
 	getStopDistance(stop_obj) {
 		return stop_obj.distance
 	}
 
 
-	renderStop() {
-		return(
-			<div className='box'>
-				<div className='current animate-stop'>
-					{this.props.currentStop.name}
-				</div>
-			</div>
+
+	renderCurrentTime() {
+		return (
+		  <div className='time'>
+		     {this.props.parseDate(this.props.currentDate)}
+		  </div>
 		)
 	}
 
 	renderRide() {
 		return(
-			<div className='box'>
-				<div className='row around-xs'>
+			<div className='vehicle-screen'>
+				{this.renderCurrentTime()}
+				<div className='route-container'>
 		          {this.renderStops()}
 		        </div>
-		        <div className='row around-xs'>
-		          {this.renderStopETAs()}
-		        </div>
-			</div>
+		    </div>
 		)
 	}
 
@@ -109,11 +101,9 @@ class Ride extends Component {
 		console.log( this.props.futureStops)
 		console.log('-------------') 
 
-		if(this.props.currentStop) {
-			return this.renderStop()
-		} else {
-			return this.renderRide()
-		}
+	
+		return this.renderRide()
+		
 		
 	}
 
