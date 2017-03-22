@@ -1,5 +1,6 @@
 import '../assets/stylesheets/base.scss';
 import React, { Component } from 'react';
+import {Motion, spring} from 'react-motion';
 
 // for testing purposes
 var STOP_STAGE = {
@@ -12,11 +13,17 @@ var STOP_STAGE = {
 
 class Ride extends Component {
   
+	componentDidMount() {
+		this.setState({
+			left: 0
+		})
+	}
+
 	renderStops() {
-		if (!this.props.stop_etas) return null
+		if (!this.props.stopEtas) return null
 
 		return (
-		  this.props.stop_etas.map( function(stop_obj) {
+		  this.props.stopEtas.map( function(stop_obj) {
 		    return <div className='stop' key={this.getStopName(stop_obj)}> 
 		    			<div className={this.getStopStage(stop_obj) + ' ' + this.isNextStop(stop_obj)}>
 		    				{this.getStopName(stop_obj)}
@@ -77,36 +84,58 @@ class Ride extends Component {
 		  </div>
 		)
 	}
+		
+	// return ideal left position based on proportion of (time left=[ETA-current_time]/total leg time) * stop_distance, 
+	getAbsoluteRouteContainerPosition() {
 
-	renderRide() {
+		var stop_width = 180, // need to change this from a hard coded value to a calculated value based on width of .vehicle-screen
+			index_past_stop = this.props.stopEtas.indexOf(this.props.pastStop), // -1 if no past position  
+			past_stop_left_pos = index_past_stop*stop_width,
+			next_stop = this.props.nextStop,
+			current_leg_progress = (next_stop.eta.getTime()-this.props.currentDate.getTime())/next_stop.leg_time.getTime(),
+			animation_progress = current_leg_progress * stop_width,
+			current_left_position = past_stop_left_pos + animation_progress
+
+		if (index_past_stop === -1) {
+			return stop_width
+		}
+
+		return -1*current_left_position
+	}
+
+
+
+	render() {	
+		if (!this.state) return null
+		const left = this.getAbsoluteRouteContainerPosition()
+
+
 		return(
 			<div className='vehicle-screen'>
 				{this.renderCurrentTime()}
-				<div className='route-container'>
-		          {this.renderStops()}
-		        </div>
+				<div className='path-line past-line'/>
+		    	
+		    	<Motion style={{left: spring(left)}}>
+		    		{({left}) => (
+						<div className='route-container' style={{left: `${left}px` }}>
+				          {this.renderStops()}
+				        </div>
+				    )}
+			    </Motion>
+
+			   
 		    </div>
+
 		)
 	}
 
-	render() {
-		console.log('-------------') 
-		console.log('past_stop-') 
-		console.log(this.props.pastStop)
-		console.log('current_stop-') 
-		console.log(this.props.currentStop)
-		console.log('next_stop-') 
-		console.log(this.props.nextStop)
-		console.log('future_stop-') 
-		console.log( this.props.futureStops)
-		console.log('-------------') 
-
-	
-		return this.renderRide()
-		
-		
-	}
-
 }
+
+// need to create a testing method
+//  <div className='test-button'>
+//   <button onClick={}>
+//       Test Animation
+//   </button> 
+// </div>
 
 export default Ride;

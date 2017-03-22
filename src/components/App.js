@@ -2,7 +2,6 @@ import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import 'whatwg-fetch'
 import Ride from './Ride'
-// import Stop from './Stop'
 
 // must match server.js --- eventually change
 var STOP_STAGE = {
@@ -12,11 +11,6 @@ var STOP_STAGE = {
   future_stop: 3
 }
 
-// var APP_STAGE = {
-//   upcoming: 0,
-//   stop: 1,
-//   ride: 2
-// }
 
 class App extends Component {
 
@@ -163,7 +157,8 @@ class App extends Component {
     var seconds_between_stops = this.getSecondsBetweenStops(route_data),
         stops = route_data.stops.route,
         stop_etas = [],
-        accumulated_seconds = 0
+        accumulated_seconds = 0,
+        last_eta = date
 
     for (var i=0; i<seconds_between_stops.length; i++) {
       var next_date = new Date(date.getTime()),
@@ -172,7 +167,9 @@ class App extends Component {
       accumulated_seconds += seconds_between_stops[i]
       next_date.setSeconds(next_date.getSeconds() +accumulated_seconds)
       next_stop.eta = next_date
+      next_stop.leg_time = new Date(next_date - last_eta)
       stop_etas.push(next_stop)
+      last_eta = next_date
     }
 
     return stop_etas
@@ -201,105 +198,82 @@ class App extends Component {
 
 /* -------------- Caltrain data -------------- */
 
-setCaltrainData(){
-  var data = {},
-      that = this
+  setCaltrainData(){
+    var data = {},
+        that = this
 
-  fetch('/caltrain/etas').then(function(response) {
-    return response.json()
-  }, function(error) {
-    console.log('error- '+ error);
-  }).then(function(data) {
-    that.setState({
-      caltrain_data: data
+    fetch('/caltrain/etas').then(function(response) {
+      return response.json()
+    }, function(error) {
+      console.log('error- '+ error);
+    }).then(function(data) {
+      that.setState({
+        caltrain_data: data
+      })
     })
-  })
-}
+  }
 
-// caltrain station must be named 'Palo Alto Caltrain'
-getCaltrainStop(stop_etas) {
-  for (var i=0; i<stop_etas.length; i++) {
-    var stop_obj = stop_etas[i]
+  // caltrain station must be named 'Palo Alto Caltrain'
+  getCaltrainStop(stop_etas) {
+    for (var i=0; i<stop_etas.length; i++) {
+      var stop_obj = stop_etas[i]
 
-    if (stop_obj.name == 'Palo Alto Caltrain') {
-      return stop_obj
+      if (stop_obj.name == 'Palo Alto Caltrain') {
+        return stop_obj
+      }
     }
   }
-}
 
-getAvailableCaltrains(stop_etas){
+  getAvailableCaltrains(stop_etas){
 
-    // assuming caltrainStop is last stop --- not a safe assumption 
-    var caltrainStopEta = this.getCaltrainStop(stop_etas),
-        stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta.eta),
-        validCaltrain = [],        
-        caltrain_data = this.state.caltrain_data
+      // assuming caltrainStop is last stop --- not a safe assumption 
+      var caltrainStopEta = this.getCaltrainStop(stop_etas),
+          stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta.eta),
+          validCaltrain = [],        
+          caltrain_data = this.state.caltrain_data
 
-  for (var i=0; i<caltrain_data.caltrains.length; i++){
-    var caltrain = caltrain_data.caltrains[i],
-        arrivalTimeHour,
-        arrivalTimeMins,
-        arrivalTime
+    for (var i=0; i<caltrain_data.caltrains.length; i++){
+      var caltrain = caltrain_data.caltrains[i],
+          arrivalTimeHour,
+          arrivalTimeMins,
+          arrivalTime
 
-    if (caltrain.arrival_time.length == 7) {
-      arrivalTimeHour = Number(caltrain.arrival_time.substr(0, 1))
-      arrivalTimeMins = Number(caltrain.arrival_time.substr(2, 2))
-    }else {
-      arrivalTimeHour = Number(caltrain.arrival_time.substr(0, 2))
-      arrivalTimeMins = Number(caltrain.arrival_time.substr(3, 2))
+      if (caltrain.arrival_time.length == 7) {
+        arrivalTimeHour = Number(caltrain.arrival_time.substr(0, 1))
+        arrivalTimeMins = Number(caltrain.arrival_time.substr(2, 2))
+      }else {
+        arrivalTimeHour = Number(caltrain.arrival_time.substr(0, 2))
+        arrivalTimeMins = Number(caltrain.arrival_time.substr(3, 2))
+      }
+      var arrivalTimeInMins = arrivalTimeHour*60 + arrivalTimeMins
+      if ((arrivalTimeInMins-stationEtaTimeInMins)<60 && (arrivalTimeInMins-stationEtaTimeInMins)>3){
+        if (arrivalTimeHour > 12 ){ arrivalTimeHour -= 12; }
+        if( arrivalTimeMins < 10) { arrivalTimeMins = '0'+ arrivalTimeMins}
+        arrivalTime = arrivalTimeHour + ':' + arrivalTimeMins
+        validCaltrain.push(caltrain.platform_code)
+        validCaltrain.push(arrivalTime)     
+      }
     }
-    var arrivalTimeInMins = arrivalTimeHour*60 + arrivalTimeMins
-    if ((arrivalTimeInMins-stationEtaTimeInMins)<60 && (arrivalTimeInMins-stationEtaTimeInMins)>3){
-      if (arrivalTimeHour > 12 ){ arrivalTimeHour -= 12; }
-      if( arrivalTimeMins < 10) { arrivalTimeMins = '0'+ arrivalTimeMins}
-      arrivalTime = arrivalTimeHour + ':' + arrivalTimeMins
-      validCaltrain.push(caltrain.platform_code)
-      validCaltrain.push(arrivalTime)     
+    
+    return this.addNbAndSb(validCaltrain)
+  }
+
+  addNbAndSb(data){
+    var index = data.indexOf("SB")
+    for (var i = index+2; i<data.length; i=i+1){
+        data.splice(i,1);
+      }   
+    for (var i=2; i<data.length; i=i+1){
+      if (data[i] == "NB"){
+        data.splice(i,1);
+      }    
     }
+    return data
   }
-  
-  return this.addNbAndSb(validCaltrain)
-}
 
-addNbAndSb(data){
-  var index = data.indexOf("SB")
-  for (var i = index+2; i<data.length; i=i+1){
-      data.splice(i,1);
-    }   
-  for (var i=2; i<data.length; i=i+1){
-    if (data[i] == "NB"){
-      data.splice(i,1);
-    }    
-  }
-  return data
-}
-
-/*------------ Stage methods -------------- */
-
-  // getAppStage(stop_data) {
-  //   // check to make sure only 1 of these gets called
-  //   var stops = stop_data.stops.route,
-  //       num_stops = stops.length
-
-  //   if(this.state.testing_state) { //change nothing based on stop_obj stages (location)
-  //     return this.state.app_stage
-  //   }
-
-  //   for (var i=0; i<num_stops; i++) {
-  //       var stop_obj = stops[i]
-  //       switch(stop_obj.stage) {
-  //         case STOP_STAGE.upcoming_stop:
-  //           return APP_STAGE.upcoming
-  //         case STOP_STAGE.current_stop:
-  //           return APP_STAGE.stop
-  //         default:
-  //           return APP_STAGE.ride
-  //       }
-  //   }
-  // }
+/* -------------- GetStop methods  -------------- */
 
 
-// ***************** CHANGE TO USE STATE.STOP_ETAS INSTEAD OF STOP DATA ****************
   getCurrentStop() {
     var stops = this.state.stop_etas,
         num_stops = stops.length
@@ -370,6 +344,26 @@ addNbAndSb(data){
     return future_stops
   }
 
+  checkIfMidRide(stops, num_stops) {
+    for (var i=0; i<num_stops; i++) {
+      var stop_obj = stops[i]
+      if(stop_obj.stage ===  STOP_STAGE.current_stop ||  stop_obj.stage ===  STOP_STAGE.upcoming_stop) {
+        return false
+      }
+    }
+    return true
+  }
+
+  checkIfAllPast(stops, num_stops) {
+    for (var i=0; i<num_stops; i++) {
+      var stop_obj = stops[i]
+      if(stop_obj.stage !==  STOP_STAGE.past_stop) {
+        return false
+      }
+    }
+    return true
+  }
+
 /*------------ Render methods -------------- */
 
   renderCaltrains() {
@@ -423,8 +417,7 @@ addNbAndSb(data){
   renderRideStage() {
     return <Ride 
               currentDate={this.state.current_date}
-              stop_etas={this.state.stop_etas} 
-              // stops={this.state.stop_data.stops.route} 
+              stopEtas={this.state.stop_etas} 
               parseDate={this.parseDate}
               nextStop={this.getNextStop()}
               currentStop={this.getCurrentStop()}
@@ -495,24 +488,8 @@ addNbAndSb(data){
         var stop_obj = stops[i]
         stop_obj.stage = STOP_STAGE.future_stop
       }
-      // this.setState({
-      //   app_stage: APP_STAGE.ride
-      // })
       return null
     }
-
-    // switch(this.state.app_stage) {
-    //   case APP_STAGE.upcoming:
-    //     next_app_stage = APP_STAGE.stop
-    //     break
-    //   case APP_STAGE.stop:
-    //     next_app_stage = APP_STAGE.ride
-    //     break
-    //   case APP_STAGE.ride:
-    //     next_app_stage = APP_STAGE.upcoming
-    //     break
-    //   default:
-    // }
 
 
     if (mid_ride) {
@@ -533,31 +510,6 @@ addNbAndSb(data){
           }
       }
     }
-    // this.setState({
-    //   app_stage: next_app_stage
-    // })
-  }
-
-
-
-  checkIfMidRide(stops, num_stops) {
-    for (var i=0; i<num_stops; i++) {
-      var stop_obj = stops[i]
-      if(stop_obj.stage ===  STOP_STAGE.current_stop ||  stop_obj.stage ===  STOP_STAGE.upcoming_stop) {
-        return false
-      }
-    }
-    return true
-  }
-
-  checkIfAllPast(stops, num_stops) {
-    for (var i=0; i<num_stops; i++) {
-      var stop_obj = stops[i]
-      if(stop_obj.stage !==  STOP_STAGE.past_stop) {
-        return false
-      }
-    }
-    return true
   }
 
   toggleLocationVClickThrough() {

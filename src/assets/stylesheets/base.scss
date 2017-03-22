@@ -1,3 +1,6 @@
+
+$stop-width: 20%;
+
 h1 {
   font-family: helvetica;
   font-weight: 200;
@@ -15,7 +18,6 @@ h1 {
   width: 900px;
   border: solid 1px black;
   overflow-x: hidden;
-  transition: left linear 1s;
   background-color: black;
   color: white;
 }
@@ -25,10 +27,12 @@ h1 {
   position: absolute;
   width: 100%;
   white-space: nowrap;
+  transition: left linear 1s;
+  left: $stop-width;
 }
 
 .stop {
-  width: 20%;
+  width: $stop-width;
   display: inline-block;
   text-align: center;
 }
@@ -38,6 +42,18 @@ h1 {
   background-color: white;
   margin: 3px 0;
 }
+
+
+/*move margin-top to a calculated variable*/
+.past-line {
+  position: fixed;
+  background-color: grey !important;
+  width: $stop-width;
+  margin-top: 26px;
+  z-index: 9;
+}
+
+
 
 .stop-dot {
   background-color: white;
@@ -55,6 +71,8 @@ h1 {
   font-size: 20px;
 }
 
+
+
 .past {
   opacity: .5;
 }
@@ -71,6 +89,15 @@ h1 {
 .time {
   width:100%;
   text-align: center;
+  margin: 10px 0;
+  font-size: x-large;
+}
+
+
+
+.test-button {
+    bottom: 0px;
+    position: absolute;
 }
 
 /* -----------------------flexbox grid-----------------------*/
