@@ -1,6 +1,10 @@
 
 $stop-width: 20%;
+$stop-name-height: 50px;
 
+body{
+  margin: 0px;
+}
 h1 {
   font-family: helvetica;
   font-weight: 200;
@@ -28,14 +32,10 @@ h1 {
   width: 100%;
   white-space: nowrap;
   transition: left linear 1s;
-  left: $stop-width;
 }
 
-.stop {
-  width: $stop-width;
-  display: inline-block;
-  text-align: center;
-}
+
+
 
 .path-line {
   height: 2px;
@@ -43,16 +43,71 @@ h1 {
   margin: 3px 0;
 }
 
-
-/*move margin-top to a calculated variable*/
-.past-line {
+/*move margin to a calculated variable*/
+.fixed-line {
   position: fixed;
-  background-color: grey !important;
-  width: $stop-width;
-  margin-top: 26px;
+  margin-top: $stop-name-height +3 ;
   z-index: 9;
 }
 
+.past-line {
+  background-color: grey !important;
+  width: $stop-width;
+}
+
+.first-line {
+  width: $stop-width/2;
+  left: 180px;
+}
+
+
+
+
+
+.stop {
+  width: $stop-width;
+  display: inline-block;
+  text-align: center;
+}
+
+.stop-name {
+  height: $stop-name-height;
+  font-size: 17px;
+  transition: font-size 1s linear, opacity 1s linear;
+  z-index: 10;
+  position: relative;
+}
+
+.text-container {
+  bottom:0px;
+  position: absolute;
+  width:100%;
+}
+
+
+.stop_extras {
+  transition: opacity 1s linear;
+}
+
+.stop_eta {
+  font-size: 15px;
+}
+
+.upcoming {
+  font-size: 20px;
+}
+
+.past {
+  opacity: .5;
+}
+
+.current {
+  font-size: 30px;
+}
+
+.hidden {
+  opacity: 0;
+}
 
 
 .stop-dot {
@@ -65,25 +120,6 @@ h1 {
   margin-bottom: 2px;
 }
 
-
-
-.upcoming {
-  font-size: 20px;
-}
-
-
-
-.past {
-  opacity: .5;
-}
-
-.current {
-  font-size: 30px;
-}
-
-.animate-stop {
-    transition: font-size linear 1s;
-}
 
 
 .time {

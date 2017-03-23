@@ -94,33 +94,33 @@ class App extends Component {
 
   // force get location
   // doesnt work
-  forceGetLocation() {
-    if (navigator.geolocation) { 
-      console.log('forcing')
+  // forceGetLocation() {
+  //   if (navigator.geolocation) { 
+  //     console.log('forcing')
 
-      // I believe its not working because we need to clear watch position
-      navigator.geolocation.getCurrentPosition(function(position) {
-        console.log('forced succesful')
-        var pos = {
-          lat: position.coords.latitude.toFixed(5),
-          lng: position.coords.longitude.toFixed(5)
-        }
+  //     // I believe its not working because we need to clear watch position
+  //     navigator.geolocation.getCurrentPosition(function(position) {
+  //       console.log('forced succesful')
+  //       var pos = {
+  //         lat: position.coords.latitude.toFixed(5),
+  //         lng: position.coords.longitude.toFixed(5)
+  //       }
 
-        this.setState({
-          current_location : pos
-        })
+  //       this.setState({
+  //         current_location : pos
+  //       })
 
-        console.log('about to force Route Data')
-        this.setRouteData(this.state.num_calls)
+  //       console.log('about to force Route Data')
+  //       this.setRouteData(this.state.num_calls)
         
-      }.bind(this), function() {
-        console.log('error with navigator.geolocation')
-      });
-      console.log('forced is fucked')
-    } else {
-      console.log('browser doesnt support navigator.geolocation')
-    }
-  }
+  //     }.bind(this), function() {
+  //       console.log('error with navigator.geolocation')
+  //     });
+  //     console.log('forced is fucked')
+  //   } else {
+  //     console.log('browser doesnt support navigator.geolocation')
+  //   }
+  // }
 
 
 
@@ -139,12 +139,10 @@ class App extends Component {
 		}).then(function(data) {
       var stop_etas = that.addEtaToStops(data),
           available_caltrains = that.getAvailableCaltrains(stop_etas)
-          // app_stage = that.getAppStage(data)
 			that.setState({
         route_data: data,
         stop_etas: stop_etas, // stores date obj
         available_caltrains: available_caltrains,  //move to etas recalculation after
-        // app_stage: app_stage,
         num_calls : num_calls // for testing 
 			})
 		})
@@ -225,8 +223,6 @@ class App extends Component {
   }
 
   getAvailableCaltrains(stop_etas){
-
-      // assuming caltrainStop is last stop --- not a safe assumption 
       var caltrainStopEta = this.getCaltrainStop(stop_etas),
           stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta.eta),
           validCaltrain = [],        
