@@ -67,8 +67,10 @@ class Ride extends Component {
 	// return ideal left position based on proportion of (time left=[ETA-current_time]/total leg time) * stop_distance, 
 	getAbsoluteRouteContainerPosition(past_stop, next_stop, date) {
 
-		var stop_width = 180, // need to change this from a hard coded value to a calculated value based on width of .vehicle-screen
-			stop_dot_width = 10,
+		if (document.getElementsByClassName('stop').length === 0) return 0
+
+		var stop_width = document.getElementsByClassName('stop')[0].getBoundingClientRect().width, 
+			stop_dot_width = document.getElementsByClassName('stop-dot')[0].getBoundingClientRect().width,
 			index_past_stop = this.props.stopEtas.indexOf(past_stop), // -1 if no past position  
 			past_stop_left_pos = index_past_stop*stop_width - stop_width/2 - stop_dot_width,
 			current_leg_progress = 1-((next_stop.eta.getTime()-date.getTime())/next_stop.leg_time.getTime()),
