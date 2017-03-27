@@ -65,6 +65,22 @@ app.get('/route/etas', function(request, response) {
     return [request.query.lat, request.query.lng]
   }(stops)
 
+
+/*
+
+The duration in traffic is returned only if all of the following are true:
+
+The request does not include stopover waypoints. 
+If the request includes waypoints, they must be prefixed with via: to avoid stopovers.
+
+
+If you'd like to influence the route using waypoints without adding a stopover, 
+prefix the waypoint with via:. Waypoints prefixed with via: will not add an entry to the legs
+ array, but will instead route the journey through the provided waypoint.
+
+*/
+
+
   var waypoints  = function(data) {
     var stops = []
     // iterate through route stops skipping first and last stop
@@ -141,15 +157,20 @@ app.get('/route/etas', function(request, response) {
     })
   }
 
+  var date5pm = new Date()
+  date5pm.setHours(17)
+  console.log(date5pm)
+  var secondsDate5pm = Math.round(date5pm.getTime()/1000)
+  console.log(secondsDate5pm)
 
   // free version doesnt factor in traffic...
   googleMapsDirectionsClient.directions({
     origin: origin,
     waypoints: waypoints,
-    destination: destination,
-    departure_time: 'now'
-  }, function(err, res) {
-    
+    destination: destination, 
+    departure_time: secondsDate5pm, //'now', //leave at 5 
+    traffic_model: 'best_guess'
+  }, function(err, res) {    
     if (!err) {
       arrivedToStops(res.json)
     } else {

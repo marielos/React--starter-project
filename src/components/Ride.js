@@ -129,7 +129,6 @@ class Ride extends Component {
 		if (!this.state) return null
 		const left = this.getAnimationPosition()
 
-
 		return(
 			<div>
 				<div className='vehicle-screen'>
@@ -144,8 +143,6 @@ class Ride extends Component {
 					    )}
 				    </Motion>
 
-
-				   
 			    </div>
 			    <div className='slider'>
 			       <button onClick={this.toggleTestState.bind(this)}>

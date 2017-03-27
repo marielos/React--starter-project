@@ -1,18 +1,18 @@
 {
 	"route": [{
-		"name": "IDEO",
-		"lat": 37.442309,
-		"lng": -122.160738,
-		"stage": 3
-	}, {
-		"name": "Med Wraps",
-		"lat": 37.425994,
-		"lng": -122.144927,
+		"name": "Blue Bottle Coffee",
+		"lat": 37.447673, 
+		"lng": -122.159653,
 		"stage": 3
 	}, {
 		"name": "Philz Middlefield",
 		"lat": 37.429511, 
 		"lng": -122.122794,
+		"stage": 3
+	}, {
+		"name": "Med Wraps",
+		"lat": 37.425994,
+		"lng": -122.144927,
 		"stage": 3
 	}, {
 		"name": "Stanford",

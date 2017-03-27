@@ -365,7 +365,7 @@ class App extends Component {
   renderCaltrains() {
     if (!this.state.available_caltrains) return null
       // need to change how this is stored. 
-      // Better option ex: [{eta: 4:44, direction: NB}, {eta: 4:47, direction: SB}] 
+      // [{SB: [eta, eta, eta]}, {NB: [eta, eta, eta]}]
 
       var caltrain_etas = this.state.available_caltrains.map( function(caltrainETA) {
         return <div className='col-xs' key={caltrainETA}> {caltrainETA} </div>

@@ -17,9 +17,10 @@ h1 {
 }
 
 .vehicle-screen {
-  position: relative;
+  position: absolute;
   height: 200px;
-  width: 900px;
+  width: 100%;
+  bottom: 0px;
   border: solid 1px black;
   overflow-x: hidden;
   background-color: black;
