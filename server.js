@@ -157,18 +157,18 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
     })
   }
 
-  var date5pm = new Date()
-  date5pm.setHours(17)
-  console.log(date5pm)
-  var secondsDate5pm = Math.round(date5pm.getTime()/1000)
-  console.log(secondsDate5pm)
+  // var date5pm = new Date()
+  // date5pm.setHours(17)
+  // console.log(date5pm)
+  // var secondsDate5pm = Math.round(date5pm.getTime()/1000)
+  // console.log(secondsDate5pm)
 
   // free version doesnt factor in traffic...
   googleMapsDirectionsClient.directions({
     origin: origin,
     waypoints: waypoints,
     destination: destination, 
-    departure_time: secondsDate5pm, //'now', //leave at 5 
+    departure_time: 'now', //leave at 5 
     traffic_model: 'best_guess'
   }, function(err, res) {    
     if (!err) {

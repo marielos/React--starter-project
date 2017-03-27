@@ -151,12 +151,16 @@ class App extends Component {
 
   addEtaToStops(route_data, date) { 
     if(!date) date = this.state.current_date
+
     var seconds_between_stops = this.getSecondsBetweenStops(route_data),
         stops = route_data.stops.route,
         stop_etas = [],
         accumulated_seconds = 0,
         last_eta = date
 
+    if(!seconds_between_stops) {
+      console.log(route_data)
+    }
     for (var i=0; i<seconds_between_stops.length; i++) {
       var next_date = new Date(date.getTime()),
           next_stop = stops[i]
