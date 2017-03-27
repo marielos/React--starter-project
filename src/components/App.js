@@ -180,7 +180,7 @@ class App extends Component {
   }
 
   getSecondsBetweenStops(route_data) {
-    if (!route_data.routes) return null
+    if (!route_data.routes[0]) return null
 
     var seconds_between_stops = [],
         route = route_data.routes[0],
