@@ -20,7 +20,9 @@ var STAGE = {
   future_stop: 3
 }
 
-var stops = JSON.parse(fs.readFileSync('data/route.js', 'utf8'));
+var stops_GLOBAL = JSON.parse(fs.readFileSync('data/route.js', 'utf8')),
+    first_stop = stops_GLOBAL.route[0]
+first_stop['start_time'] = new Date()
 
 
 // using webpack-dev-server and middleware in development environment
@@ -63,7 +65,7 @@ app.get('/route/etas', function(request, response) {
 
   var origin  = function(data) {
     return [request.query.lat, request.query.lng]
-  }(stops)
+  }(stops_GLOBAL)
 
 
 /*
@@ -92,7 +94,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
       stops.push([lat, lng])    
     }
     return stops
-  }(stops)
+  }(stops_GLOBAL)
 
   var destination  = function(data) {
     var destination_obj = data.route[data.route.length-1],
@@ -100,7 +102,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
         lng = destination_obj.lng
    
     return [lat, lng]
-  }(stops)
+  }(stops_GLOBAL)
 
 
   var arrivedToStops = function(directions_data) {
@@ -108,41 +110,6 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
     var all_stops = waypoints.concat([destination]),
         upcoming_distance = 100
         arrived_to_distance = 40
-
-    var updateStageOfStops = function(distance_data) {
-      var distances_to_stops = distance_data.rows[0].elements,
-          num_stops = distances_to_stops.length
-
-      for(var i=0; i<num_stops; i++) {
-        var stop_distance = distances_to_stops[i].distance.value,
-            stop_obj = stops.route[i] // in meters
-
-        if (stop_distance < arrived_to_distance) {
-
-          if (stop_obj['stage'] === STAGE.upcoming_stop) {
-            stop_obj['stage'] = STAGE.current_stop   // currently at this stop
-          }
-
-        } else if (stop_distance < upcoming_distance) {
-          if (stop_obj['stage'] === STAGE.future_stop) {
-            stop_obj['stage'] = STAGE.upcoming_stop   // upcoming at this stop
-          } else if (stop_obj['stage'] === STAGE.current_stop) {
-            stop_obj['stage'] = STAGE.past_stop
-          }
-
-        } else { // out of range
-
-          if (stop_obj['stage'] === STAGE.current_stop) {
-             // probably never gets here since we move to upcoming distance before out of range, unless we jump out really quickly
-             // safety check 
-            stop_obj['stage'] = STAGE.past_stop   // leaving  this stop
-          } 
-        }
-
-        stop_obj['distance'] = stop_distance
-      }
-      return stops
-    }
 
     googleMapsDistanceClient.distanceMatrix({
         origins: [origin],
@@ -155,6 +122,49 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
           console.log('err-' + err);
         }
     })
+
+    /*
+        stop stage persists because were updating stops_GLOBAL
+        ideally we would be storing this info in a database in a server
+    */
+    var updateStageOfStops = function(distance_data) {
+      var distances_to_stops = distance_data.rows[0].elements,
+          num_stops = distances_to_stops.length
+
+      for(var i=0; i<num_stops; i++) {
+        var stop_distance = distances_to_stops[i].distance.value,
+            stop_obj = stops_GLOBAL.route[i] // in meters
+
+        if (stop_distance < arrived_to_distance) {              // currently at this stop
+
+          if (stop_obj['stage'] === STAGE.upcoming_stop) {
+            stop_obj['stage'] = STAGE.current_stop   
+          }
+
+        } else if (stop_distance < upcoming_distance) {         // upcoming at this stop
+          if (stop_obj['stage'] === STAGE.future_stop) {
+            stop_obj['stage'] = STAGE.upcoming_stop   
+
+          } else if (stop_obj['stage'] === STAGE.current_stop) {  
+            stop_obj['stage'] = STAGE.past_stop       //leaving this spot
+            var next_stop_obj = stops_GLOBAL.route[i+1]
+            if (next_stop_obj) {
+              next_stop_obj['start_time'] = new Date()
+            }
+          } 
+
+        } else {                                                 // out of range
+          if (stop_obj['stage'] === STAGE.current_stop) {
+             // probably never gets here since we move to upcoming distance before out of range, unless we jump out really quickly
+             // safety check 
+            stop_obj['stage'] = STAGE.past_stop   // leaving  this stop
+          } 
+        }
+
+        stop_obj['distance'] = stop_distance
+      }
+      return stops_GLOBAL
+    }
   }
 
   // var date5pm = new Date()

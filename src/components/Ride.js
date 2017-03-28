@@ -69,12 +69,18 @@ class Ride extends Component {
 
 leg_time needs to stay constant throughout animation 
 
+Should eta remain constant?
+- you want to be accurate
+
+
+
 at first second, (stop.eta - now) = stop.leg_time
 
 	Options:
-		- maybe only keep recalculating later stops (not the next stop)
-
-
+		- only keep recalculating later stops (not the next stop)
+		- remember first leg time 
+		- remember the start time(constant) and recalculate eta to give you a accurate leg time 
+		- 
 
 
 

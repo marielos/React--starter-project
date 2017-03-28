@@ -82,14 +82,27 @@ class App extends Component {
           current_location : pos
         })
 
+
+
+        
+        //   why am I recalculating route etas every location change?
+
+        //   - in case traffic conditions change?
+        //   - animate route to correct position
+        //     - time left 
+
+
+        
+
+
         if(!this.state.testing_state) { // only make api calls out of testing state
           console.log('about to set Route Data')
           this.setRouteData(this.state.num_calls)
         }
         
-      }.bind(this), function() {
-        console.log('error with navigator.geolocation')
-      });
+      }.bind(this), function(err) {
+        console.log('error with navigator.geolocation- '+ err)
+      }, {timeout:10000});
     } else {
       console.log('browser doesnt support navigator.geolocation')
     }
@@ -165,25 +178,32 @@ class App extends Component {
   addEtaToStops(route_data, date) { 
     if(!date) date = this.state.current_date
 
-    var seconds_between_stops = this.getSecondsBetweenStops(route_data),
-        stops = route_data.stops.route,
+    // var seconds_between_stops = this.getSecondsBetweenStops(route_data),
+    var stops = route_data.stops.route,
+        legs = route_data.routes[0].legs,
+        num_stops = stops.length,
         stop_etas = [],
-        accumulated_seconds = 0,
-        last_eta = date
+        accumulated_seconds = 0
+        // last_eta = date
 
-    if(!seconds_between_stops) {
-      console.log(route_data)
-    }
-    for (var i=0; i<seconds_between_stops.length; i++) {
+    // if(!seconds_between_stops) {
+    //   console.log(route_data)
+    // }
+
+    for (var i=0; i<num_stops; i++) {
       var next_date = new Date(date.getTime()),
-          next_stop = stops[i]
+          next_stop = stops[i],
+          next_stop_leg_time = legs[i].duration.value
 
-      accumulated_seconds += seconds_between_stops[i]
+      accumulated_seconds += next_stop_leg_time
       next_date.setSeconds(next_date.getSeconds() +accumulated_seconds)
       next_stop.eta = next_date
-      next_stop.leg_time = new Date(next_date - last_eta)
+      if (next_stop.start_time) {
+        next_stop.leg_time = new Date(next_stop.eta - next_stop.start_time)
+        console.log(next_stop.leg_time)
+      }
       stop_etas.push(next_stop)
-      last_eta = next_date
+      // last_eta = next_date
     }
 
     return stop_etas
@@ -196,20 +216,20 @@ class App extends Component {
     return url
   }
 
-  getSecondsBetweenStops(route_data) {
-    if (!route_data) return null
+  // getSecondsBetweenStops(route_data) {
+  //   if (!route_data) return null
 
-    var seconds_between_stops = [],
-        route = route_data.routes[0],
-        legs = route.legs,
-        num_legs = legs.length
+  //   var seconds_between_stops = [],
+  //       route = route_data.routes[0],
+  //       legs = route.legs,
+  //       num_legs = legs.length
 
-    for (var i=0; i<num_legs; i++) {
-      seconds_between_stops.push(legs[i].duration.value)
-    }
+  //   for (var i=0; i<num_legs; i++) {
+  //     seconds_between_stops.push(legs[i].duration.value)
+  //   }
 
-    return seconds_between_stops
-  }
+  //   return seconds_between_stops
+  // }
 
 
 /* -------------- Caltrain data -------------- */
