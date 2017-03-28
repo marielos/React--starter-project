@@ -1,20 +1,20 @@
 {
 	"route": [{
+		"name": "Opa!",
+		"lat": 37.444024, 
+		"lng":  -122.163411,
+		"stage": 3
+	}, 
+	{
+		"name": "Apple Store",
+		"lat": 37.446483, 
+		"lng": -122.160920,
+		"stage": 3
+	}, 
+	{
 		"name": "Palo Alto Caltrain",
 		"lat": 37.444057,
 		"lng": -122.166216,
-		"stage": 3
-	}, 
-	{
-		"name": "Stop 7",
-		"lat": 37.429511, 
-		"lng": -122.122794,
-		"stage": 3
-	}, 
-	{
-		"name": "Stop 8",
-		"lat": 37.428057,
-		"lng": -122.165364,
 		"stage": 3
 	}, 
 	{

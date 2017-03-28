@@ -9,7 +9,10 @@ var STOP_STAGE = {
   current_stop: 1,
   past_stop: 2,
   future_stop: 3
-}
+},
+  TRACKING_ID = 0
+
+
 
 
 class App extends Component {
@@ -66,7 +69,7 @@ class App extends Component {
 
       // gets called everytime we change position
       // might want to change to getPosition every  
-      navigator.geolocation.watchPosition(function(position) { //watchPosition(function(position) {
+      TRACKING_ID = navigator.geolocation.watchPosition(function(position) { //watchPosition(function(position) {
         var pos = {
           lat: position.coords.latitude.toFixed(5),
           lng: position.coords.longitude.toFixed(5)
@@ -87,8 +90,6 @@ class App extends Component {
 
         /*
             try and use IDEO's location as current location and go from there
-
-
         */
 
         if(failure.message.indexOf("Only secure origins are allowed") == 0) {
@@ -97,7 +98,7 @@ class App extends Component {
         this.setState({
           fucked: 'were fucked'
         })
-      }.bind(this), {timeout:10000});
+      }.bind(this));
     } else {
       console.log('browser doesnt support navigator.geolocation')
     }
@@ -106,33 +107,35 @@ class App extends Component {
 
   // force get location
   // doesnt work
-  // forceGetLocation() {
-  //   if (navigator.geolocation) { 
-  //     console.log('forcing')
+  forceGetLocation() {
 
-  //     // I believe its not working because we need to clear watch position
-  //     navigator.geolocation.getCurrentPosition(function(position) {
-  //       console.log('forced succesful')
-  //       var pos = {
-  //         lat: position.coords.latitude.toFixed(5),
-  //         lng: position.coords.longitude.toFixed(5)
-  //       }
+    if (navigator.geolocation) { 
+      console.log('forcing')
 
-  //       this.setState({
-  //         current_location : pos
-  //       })
+      navigator.geolocation.clearWatch(TRACKING_ID);
+      // I believe its not working because we need to clear watch position
+      navigator.geolocation.getCurrentPosition(function(position) {
+        console.log('forced succesful')
+        var pos = {
+          lat: position.coords.latitude.toFixed(5),
+          lng: position.coords.longitude.toFixed(5)
+        }
 
-  //       console.log('about to force Route Data')
-  //       this.setRouteData(this.state.num_calls)
-        
-  //     }.bind(this), function() {
-  //       console.log('error with navigator.geolocation')
-  //     });
-  //     console.log('forced is fucked')
-  //   } else {
-  //     console.log('browser doesnt support navigator.geolocation')
-  //   }
-  // }
+        this.setState({
+          current_location : pos
+        })
+
+        console.log('about to force Route Data')
+        this.setRouteData(this.state.num_calls)
+        this.trackLocation()
+      }.bind(this), function(failure) {
+        console.log('error with force navigator.geolocation---- '+ failure.message)
+      });
+      
+    } else {
+      console.log('browser doesnt support navigator.geolocation')
+    }
+  }
 
 
 
@@ -427,8 +430,11 @@ class App extends Component {
         <div className='row box'>
           {this.renderCurrentLocation()}
           {this.renderAPICalls()}
+          <button onClick={() => this.forceGetLocation()}>
+            Force API Call
+          </button> 
         </div>
-        <div className='row box'>
+        <div className='row'>
         {this.state.fucked}
         </div>
       </div>
@@ -438,9 +444,7 @@ class App extends Component {
 
 
 // Only show this once it works 
-// <button onClick={() => this.forceGetLocation()}>
-//   Force API Call
-// </button> 
+
 
 /*------------ Testing methods -------------- */
 
