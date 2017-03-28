@@ -5,11 +5,11 @@ var PORT = process.env.PORT || 8080
 var fs = require('fs');
 
 var googleMapsDirectionsClient = require('@google/maps').createClient({
-  key: 'AIzaSyBC-uIPCkcqeaI5idN5rKgyx8JO2N8DLI0'
+  key: 'AIzaSyDVl65wW5zqkICh0c1UrabLIn4MV8ryIfk'
 });
 
 var googleMapsDistanceClient = require('@google/maps').createClient({
-  key: 'AIzaSyCE4T96JV56kgXvQy54VqtTfKAUwOUOIew'
+  key: 'AIzaSyA-iU4qAgyz1J6OA-JJ0_LKJxeXJTt78nU'
 });
 
 // must match App.js --- eventually change
@@ -180,12 +180,9 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
 });
 
 
-
-
 app.get('/', function(request, response) {
   response.sendFile(__dirname + '/dist/index.html')
 });
-
 
 
 app.listen(PORT, function(error) {

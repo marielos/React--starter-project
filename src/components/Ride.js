@@ -11,6 +11,7 @@ var STOP_STAGE = {
   future_stop: 3
 }
 
+var GLOBAL_current_leg_progress = 0
 
 class Ride extends Component {
   
@@ -21,8 +22,6 @@ class Ride extends Component {
 			testState: false
 		})
 	}
-
-
 
 	getStopName(stop_obj) {  	
 		return stop_obj.name
@@ -64,6 +63,24 @@ class Ride extends Component {
 		}
 	}
 
+
+
+/*
+
+leg_time needs to stay constant throughout animation 
+
+at first second, (stop.eta - now) = stop.leg_time
+
+	Options:
+		- maybe only keep recalculating later stops (not the next stop)
+
+
+
+
+
+*/
+
+
 	// return ideal left position based on proportion of (time left=[ETA-current_time]/total leg time) * stop_distance, 
 	getAbsoluteRouteContainerPosition(past_stop, next_stop, date) {
 
@@ -77,6 +94,8 @@ class Ride extends Component {
 			animation_progress = current_leg_progress * stop_width,
 			current_left_position = past_stop_left_pos + animation_progress
 
+		GLOBAL_current_leg_progress = current_leg_progress
+	
 		if (index_past_stop === -1) {
 			return stop_width + stop_width/2 - animation_progress
 		}
@@ -93,11 +112,11 @@ class Ride extends Component {
 		if (!this.props.stopEtas) return null
 
 		return (
-		  this.props.stopEtas.map( function(stop_obj) {
+		  this.props.stopEtas.map(function(stop_obj) {
 		    return <div className='stop' key={this.getStopName(stop_obj)}> 
 		    			<div className={this.getStopClass(stop_obj) +' stop-name'}>
 		    				<div className='text-container'>
-		    					{this.getStopName(stop_obj)}	
+		    					{this.getStopName(stop_obj)}
 		    				</div>
 		    			</div>
 		    			<div className='path-line'>
@@ -109,10 +128,10 @@ class Ride extends Component {
 			    			<div className='stop_eta'>
 			    				{this.props.parseDate(stop_obj.eta)}
 			    			</div>
+			    			<div className='stop-eta'>
+		    					{this.getStopDistance(stop_obj)}	
+		    				</div>
 		    			</div>
-		    			
-			    		
-		    			
 		    		</div>
 		  }.bind(this))
 		)
@@ -134,7 +153,11 @@ class Ride extends Component {
 		return(
 			<div>
 				<div className='vehicle-screen'>
-					{this.renderCurrentTime()}
+					<div className='time'>
+						{this.renderCurrentTime()}
+					</div>
+
+
 					<div className='fixed-line path-line past-line'/>
 			    	<div className='fixed-line path-line first-line'/>
 			    	<Motion style={{left: left}}>
@@ -144,8 +167,12 @@ class Ride extends Component {
 					        </div>
 					    )}
 				    </Motion>
-
+				    <div className='time'>
+						{GLOBAL_current_leg_progress}
+					</div>
 			    </div>
+
+
 			    <div className='slider'>
 			       <button onClick={this.toggleTestState.bind(this)}>
 				       {this.state.testState ? 'Back to location base' : 'Switch to test state'}

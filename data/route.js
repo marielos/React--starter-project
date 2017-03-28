@@ -1,23 +1,23 @@
 {
 	"route": [{
-		"name": "Blue Bottle Coffee",
-		"lat": 37.447673, 
-		"lng": -122.159653,
+		"name": "redwood city ",
+		"lat": 37.485989, 
+		"lng": -122.231493,
 		"stage": 3
 	}, {
-		"name": "Philz Middlefield",
-		"lat": 37.429511, 
-		"lng": -122.122794,
+		"name": "milbrea",
+		"lat": 37.599787, 
+		"lng": -122.386791,
 		"stage": 3
 	}, {
-		"name": "Med Wraps",
-		"lat": 37.425994,
-		"lng": -122.144927,
+		"name": "SF Caltrain",
+		"lat": 37.777037, 
+		"lng": -122.394892,
 		"stage": 3
 	}, {
-		"name": "Stanford",
-		"lat": 37.428057,
-		"lng": -122.165364,
+		"name": "JAsper",
+		"lat": 37.786144, 
+		"lng": -122.393883,
 		"stage": 3
 	}, {
 		"name": "Palo Alto Caltrain",

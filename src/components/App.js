@@ -27,15 +27,19 @@ class App extends Component {
       this.setCurrentTime()
     }.bind(this), 1000)
     
+    // window.setInterval(function () {
+    //   this.trackLocation()
+    // }.bind(this), 5000)
+
   }
 
 /* -------------- Time methods -------------- */
   setCurrentTime() {
-    var date = new Date(),
-        stop_etas = this.state && this.state.route_data ? this.addEtaToStops(this.state.route_data, date) : null
+    var date = new Date()
+        // stop_etas = this.state && this.state.route_data ? this.addEtaToStops(this.state.route_data, date) : null
     this.setState({
-      current_date: date,
-      stop_etas: stop_etas
+      current_date: date
+      // stop_etas: stop_etas
     })  
   }
   
@@ -68,7 +72,7 @@ class App extends Component {
 
       // gets called everytime we change position
       // might want to change to getPosition every  
-      navigator.geolocation.watchPosition(function(position) {
+      navigator.geolocation.watchPosition(function(position) { //watchPosition(function(position) {
         var pos = {
           lat: position.coords.latitude.toFixed(5),
           lng: position.coords.longitude.toFixed(5)
@@ -80,7 +84,7 @@ class App extends Component {
 
         if(!this.state.testing_state) { // only make api calls out of testing state
           console.log('about to set Route Data')
-          this.setRouteData(0)
+          this.setRouteData(this.state.num_calls)
         }
         
       }.bind(this), function() {
@@ -130,6 +134,9 @@ class App extends Component {
 	  var data = {},
 	      that = this
 
+    if (!num_calls) {
+      num_calls = 0
+    }
     num_calls++
     fetch(this.getGMapsUrlWithCurrentLocation()).then(function(response) {
 
@@ -137,14 +144,20 @@ class App extends Component {
 		}, function(error) {
 			console.log('error- '+ error);
 		}).then(function(data) {
-      var stop_etas = that.addEtaToStops(data),
-          available_caltrains = that.getAvailableCaltrains(stop_etas)
-			that.setState({
-        route_data: data,
-        stop_etas: stop_etas, // stores date obj
-        available_caltrains: available_caltrains,  //move to etas recalculation after
-        num_calls : num_calls // for testing 
-			})
+      if(data) {
+        var stop_etas = that.addEtaToStops(data),
+            available_caltrains = that.getAvailableCaltrains(stop_etas)
+
+        that.setState({
+          route_data: data,
+          stop_etas: stop_etas, // stores date obj
+          available_caltrains: available_caltrains,  //move to etas recalculation after
+          num_calls : num_calls // for testing 
+        })
+      } else {
+        console.log('didnt get any Route Data!!!!!!')
+      }
+      
 		})
   }
 
@@ -184,7 +197,7 @@ class App extends Component {
   }
 
   getSecondsBetweenStops(route_data) {
-    if (!route_data.routes[0]) return null
+    if (!route_data) return null
 
     var seconds_between_stops = [],
         route = route_data.routes[0],
@@ -324,7 +337,6 @@ class App extends Component {
         recent_past_stop = stop
       }
     }
-
     return recent_past_stop
   }
 
@@ -341,7 +353,6 @@ class App extends Component {
         future_stops.push(stops[i])
       }
     }
-
     return future_stops
   }
 
@@ -380,7 +391,6 @@ class App extends Component {
         <div className='col-xs'> Caltrains: </div> 
         {caltrain_etas}
       </div> 
-      
     )
   }
 
@@ -404,9 +414,6 @@ class App extends Component {
     )
   }
 
-
-
-
   renderCurrentStage() {
     if (this.state.stop_etas){
       return this.renderRideStage()
@@ -427,27 +434,6 @@ class App extends Component {
             />
   }
 
-  renderTestingButtons() {
-    var nextStageButton = function() {
-      return (
-        <div>
-          <button onClick={this.nextStage.bind(this)}>
-              Next Stage &gt; 
-          </button> 
-        </div>
-      )
-    }.bind(this)
-
-    return (
-        <div className='row box'>
-          <button onClick={this.toggleLocationVClickThrough.bind(this)}>
-            Switch to {this.state.testing_state ? ' location based' : ' click based'}
-          </button> 
-          {this.state.testing_state ? nextStageButton() : null}
-        </div>
-    )
-  }
-
   render() {
   	if (!this.state) return null
 
@@ -459,7 +445,6 @@ class App extends Component {
           {this.renderCurrentLocation()}
           {this.renderAPICalls()}
         </div>
-        {this.renderTestingButtons()}
       </div>
     )
   }
@@ -473,54 +458,54 @@ class App extends Component {
 
 /*------------ Testing methods -------------- */
 
-// if all past change to all future
-  nextStage() {
-    var stops = this.state.stop_etas,
-        num_stops = stops.length,
-        // next_app_stage,
-        first_future = true,
-        mid_ride = this.checkIfMidRide(stops, num_stops),
-        all_past = this.checkIfAllPast(stops, num_stops)
+// // if all past change to all future
+//   nextStage() {
+//     var stops = this.state.stop_etas,
+//         num_stops = stops.length,
+//         // next_app_stage,
+//         first_future = true,
+//         mid_ride = this.checkIfMidRide(stops, num_stops),
+//         all_past = this.checkIfAllPast(stops, num_stops)
 
-    this.getFutureStops()
+//     this.getFutureStops()
 
-    if (all_past) {
-      for (var i=0; i<num_stops; i++) {
-        var stop_obj = stops[i]
-        stop_obj.stage = STOP_STAGE.future_stop
-      }
-      return null
-    }
+//     if (all_past) {
+//       for (var i=0; i<num_stops; i++) {
+//         var stop_obj = stops[i]
+//         stop_obj.stage = STOP_STAGE.future_stop
+//       }
+//       return null
+//     }
 
 
-    if (mid_ride) {
-      for (var i=0; i<num_stops; i++) {
-        var stop_obj = stops[i]
-        if(stop_obj.stage === STOP_STAGE.future_stop && first_future) { //first future stop
-          stop_obj.stage = STOP_STAGE.upcoming_stop
-          first_future = false
-        }
-      }
-    } else { // theres an upcoming or a current stop 
-      for (var i=0; i<num_stops; i++) {
-          var stop_obj = stops[i]
-          if (stop_obj.stage === STOP_STAGE.upcoming_stop) {
-            stop_obj.stage = STOP_STAGE.current_stop
-          } else if (stop_obj.stage === STOP_STAGE.current_stop) {
-            stop_obj.stage = STOP_STAGE.past_stop
-          }
-      }
-    }
-  }
+//     if (mid_ride) {
+//       for (var i=0; i<num_stops; i++) {
+//         var stop_obj = stops[i]
+//         if(stop_obj.stage === STOP_STAGE.future_stop && first_future) { //first future stop
+//           stop_obj.stage = STOP_STAGE.upcoming_stop
+//           first_future = false
+//         }
+//       }
+//     } else { // theres an upcoming or a current stop 
+//       for (var i=0; i<num_stops; i++) {
+//           var stop_obj = stops[i]
+//           if (stop_obj.stage === STOP_STAGE.upcoming_stop) {
+//             stop_obj.stage = STOP_STAGE.current_stop
+//           } else if (stop_obj.stage === STOP_STAGE.current_stop) {
+//             stop_obj.stage = STOP_STAGE.past_stop
+//           }
+//       }
+//     }
+//   }
 
-  toggleLocationVClickThrough() {
-    if (this.state.testing_state) { //switching out of testing state, reload stop_data based on location
-      this.setRouteData(this.state.num_calls)
-    }
-      this.setState({
-        testing_state: !this.state.testing_state
-      })
-  }
+  // toggleLocationVClickThrough() {
+  //   if (this.state.testing_state) { //switching out of testing state, reload stop_data based on location
+  //     this.setRouteData(this.state.num_calls)
+  //   }
+  //     this.setState({
+  //       testing_state: !this.state.testing_state
+  //     })
+  // }
 
 
 
