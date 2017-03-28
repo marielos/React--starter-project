@@ -27,19 +27,13 @@ class App extends Component {
       this.setCurrentTime()
     }.bind(this), 1000)
     
-    // window.setInterval(function () {
-    //   this.trackLocation()
-    // }.bind(this), 5000)
-
   }
 
 /* -------------- Time methods -------------- */
   setCurrentTime() {
     var date = new Date()
-        // stop_etas = this.state && this.state.route_data ? this.addEtaToStops(this.state.route_data, date) : null
     this.setState({
       current_date: date
-      // stop_etas: stop_etas
     })  
   }
   
@@ -83,18 +77,6 @@ class App extends Component {
         })
 
 
-
-        
-        //   why am I recalculating route etas every location change?
-
-        //   - in case traffic conditions change?
-        //   - animate route to correct position
-        //     - time left 
-
-
-        
-
-
         if(!this.state.testing_state) { // only make api calls out of testing state
           console.log('about to set Route Data')
           this.setRouteData(this.state.num_calls)
@@ -102,8 +84,6 @@ class App extends Component {
         
       }.bind(this), function(failure) {
         console.log('error with navigator.geolocation- '+ failure.message)
-
-
 
         /*
             try and use IDEO's location as current location and go from there
@@ -189,6 +169,7 @@ class App extends Component {
 		})
   }
 
+// want to display start time as we test to check if its getting recalculated
 
   addEtaToStops(route_data, date) { 
     if(!date) date = this.state.current_date
@@ -200,10 +181,6 @@ class App extends Component {
         stop_etas = [],
         accumulated_seconds = 0
         // last_eta = date
-
-    // if(!seconds_between_stops) {
-    //   console.log(route_data)
-    // }
 
     for (var i=0; i<num_stops; i++) {
       var next_date = new Date(date.getTime()),
@@ -230,21 +207,6 @@ class App extends Component {
 
     return url
   }
-
-  // getSecondsBetweenStops(route_data) {
-  //   if (!route_data) return null
-
-  //   var seconds_between_stops = [],
-  //       route = route_data.routes[0],
-  //       legs = route.legs,
-  //       num_legs = legs.length
-
-  //   for (var i=0; i<num_legs; i++) {
-  //     seconds_between_stops.push(legs[i].duration.value)
-  //   }
-
-  //   return seconds_between_stops
-  // }
 
 
 /* -------------- Caltrain data -------------- */

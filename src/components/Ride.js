@@ -11,7 +11,8 @@ var STOP_STAGE = {
   future_stop: 3
 }
 
-var GLOBAL_current_leg_progress = 0
+var GLOBAL_current_leg_progress = 0,
+	GLOBAL_left = 0
 
 class Ride extends Component {
   
@@ -19,8 +20,18 @@ class Ride extends Component {
 		this.setState({
 			left: 0,
 			testDate: this.props.currentDate,
-			testState: false
+			testState: false,
+			isPaused: false
 		})
+
+
+		document.addEventListener('keydown', function(event) {
+			if (event.keyCode == "32") { // spacebar has been pressed
+				this.setState({
+					isPaused: !this.state.isPaused
+				})
+			}
+		}.bind(this))
 	}
 
 	getStopName(stop_obj) {  	
@@ -48,6 +59,9 @@ class Ride extends Component {
 		return stop_obj.distance
 	}
 
+	getStopStartTime(stop_obj) {
+		return this.props.parseDate(stop_obj.start_time)
+	}
 
 
 	
@@ -56,35 +70,15 @@ class Ride extends Component {
 
 
 	getAnimationPosition() {
-		if (this.state.testState) {
-			return this.getAbsoluteRouteContainerPosition(this.getPastStopForTestDate(), this.getNextStopForTestDate(), this.state.testDate)
-		} else {
-			return this.getAbsoluteRouteContainerPosition(this.props.pastStop, this.props.nextStop, this.props.currentDate)
+		if (!this.state.isPaused) {
+			if (this.state.testState) {
+				GLOBAL_left = this.getAbsoluteRouteContainerPosition(this.getPastStopForTestDate(), this.getNextStopForTestDate(), this.state.testDate)
+			} else {
+				GLOBAL_left = this.getAbsoluteRouteContainerPosition(this.props.pastStop, this.props.nextStop, this.props.currentDate)
+			}
 		}
 	}
 
-
-
-/*
-
-leg_time needs to stay constant throughout animation 
-
-Should eta remain constant?
-- you want to be accurate
-
-
-
-at first second, (stop.eta - now) = stop.leg_time
-
-	Options:
-		- only keep recalculating later stops (not the next stop)
-		- remember first leg time 
-		- remember the start time(constant) and recalculate eta to give you a accurate leg time 
-		- 
-
-
-
-*/
 
 
 	// return ideal left position based on proportion of (time left=[ETA-current_time]/total leg time) * stop_distance, 
@@ -113,7 +107,7 @@ at first second, (stop.eta - now) = stop.leg_time
 
 
 /* -------------- Render methods -------------- */
-
+// want to display start time as we test to check if its getting recalculated
 	renderStops() {
 		if (!this.props.stopEtas) return null
 
@@ -135,7 +129,10 @@ at first second, (stop.eta - now) = stop.leg_time
 			    				{this.props.parseDate(stop_obj.eta)}
 			    			</div>
 			    			<div className='stop-eta'>
-		    					{this.getStopDistance(stop_obj)}	
+		    					{this.getStopDistance(stop_obj)}m	
+		    				</div>
+		    				<div className='stop-eta'>
+		    					{this.getStopStartTime(stop_obj)}	
 		    				</div>
 		    			</div>
 		    		</div>
@@ -154,7 +151,7 @@ at first second, (stop.eta - now) = stop.leg_time
 
 	render() {	
 		if (!this.state) return null
-		const left = this.getAnimationPosition()
+		this.getAnimationPosition()
 
 		return(
 			<div>
@@ -166,7 +163,7 @@ at first second, (stop.eta - now) = stop.leg_time
 
 					<div className='fixed-line path-line past-line'/>
 			    	<div className='fixed-line path-line first-line'/>
-			    	<Motion style={{left: left}}>
+			    	<Motion style={{left: GLOBAL_left}}>
 			    		{({left}) => (
 							<div className='route-container' style={{left: `${left}px` }}>
 					          {this.renderStops()}

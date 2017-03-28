@@ -20,7 +20,7 @@ var STAGE = {
   future_stop: 3
 }
 
-var stops_GLOBAL = JSON.parse(fs.readFileSync('data/route.js', 'utf8')),
+var stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePA.js', 'utf8')),
     first_stop = stops_GLOBAL.route[0]
 first_stop['start_time'] = new Date()
 
