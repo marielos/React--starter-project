@@ -126,6 +126,9 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
     /*
         stop stage persists because were updating stops_GLOBAL
         ideally we would be storing this info in a database in a server
+
+        what if this doesnt get called enough?????
+        way to force this call!!!!
     */
     var updateStageOfStops = function(distance_data) {
       var distances_to_stops = distance_data.rows[0].elements,

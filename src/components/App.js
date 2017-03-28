@@ -197,7 +197,6 @@ class App extends Component {
         console.log(next_stop.leg_time)
       }
       stop_etas.push(next_stop)
-      // last_eta = next_date
     }
 
     return stop_etas
@@ -240,7 +239,6 @@ class App extends Component {
   }
 
   getAvailableCaltrains(stop_etas){
-    console.log('here')
       var caltrainStopEta = this.getCaltrainStop(stop_etas),
           stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta.eta),
           validNBCaltrain = [],
@@ -270,8 +268,6 @@ class App extends Component {
         }else {
           validSBCaltrain.push(arrivalTime)
         }
-        //validCaltrain.push(caltrain.platform_code)
-        //validCaltrain.push(arrivalTime)     
       }
     }
     if (validNBCaltrain.length > 2){validNBCaltrain = validNBCaltrain.slice(0, 2)}
@@ -282,21 +278,8 @@ class App extends Component {
       SB: validSBCaltrain
     };
     return validCaltrain
-    //return this.addNbAndSb(validCaltrain)
   }
 
-  // addNbAndSb(data){
-  //   var index = data.indexOf("SB")
-  //   for (var i = index+2; i<data.length; i=i+1){
-  //       data.splice(i,1);
-  //     }   
-  //   for (var i=2; i<data.length; i=i+1){
-  //     if (data[i] == "NB"){
-  //       data.splice(i,1);
-  //     }    
-  //   }
-  //   return data
-  // }
 
 /* -------------- GetStop methods  -------------- */
 
@@ -391,33 +374,7 @@ class App extends Component {
 
 /*------------ Render methods -------------- */
 
-  renderCaltrains() {
-    if (!this.state.available_caltrains_nb || !this.state.available_caltrains_sb) return null
-      // need to change how this is stored. 
-      // {NB:[eta, eta, eta], SB:[eta, eta, eta]}
-      // var caltrain_keys = Object.keys(this.state.available_caltrains),
-      //   num_keys = caltrain_keys.length
-
-      // for (var i=0; i<num_keys; i++){
-      //   var caltrain_obj = this.state.available_caltrains[caltrain_keys[i]]
-           
-      // }
-      var caltrain_etas_NB = this.state.available_caltrains_nb.map( function(caltrainEtaNb) {
-        return <div className='col-xs' key={caltrainEtaNb}> {caltrainEtaNb} </div>
-      })
-      var caltrain_etas_SB = this.state.available_caltrains_sb.map( function(caltrainEtaSb) {
-        return <div className='col-xs' key={caltrainEtaSb}> {caltrainEtaSb} </div>
-      })
-    return (
-      <div className='row around-xs box'>
-        <div className='col-xs'> Caltrains: </div>
-        <div className='col-xs'> NB </div> 
-        {caltrain_etas_NB} 
-        <div className='col-xs'> SB </div>
-        {caltrain_etas_SB}
-      </div> 
-    )
-  }
+ 
 
   renderCurrentLocation() {
     if (!this.state.current_location) return null
@@ -456,6 +413,8 @@ class App extends Component {
               currentStop={this.getCurrentStop()}
               pastStop={this.getPastStop()}
               futureStops={this.getFutureStops()}
+              availableCaltrainsNB={this.state.available_caltrains_nb}  
+              availableCaltrainsSB={this.state.available_caltrains_sb}
             />
   }
 
@@ -465,7 +424,6 @@ class App extends Component {
     return(
     	<div>
         {this.renderCurrentStage()}
-        {this.renderCaltrains()}
         <div className='row box'>
           {this.renderCurrentLocation()}
           {this.renderAPICalls()}

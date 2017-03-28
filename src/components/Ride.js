@@ -140,6 +140,26 @@ class Ride extends Component {
 		)
 	}
 
+	renderCaltrains() {
+	    if (!this.props.availableCaltrainsNB || !this.props.availableCaltrainsSB) return null
+
+	      var caltrain_etas_NB = this.props.availableCaltrainsNB.map( function(caltrainEtaNb) {
+	        return <div className='col-xs caltrain-time' key={caltrainEtaNb}> {caltrainEtaNb} </div>
+	      })
+	      var caltrain_etas_SB = this.props.availableCaltrainsSB.map( function(caltrainEtaSb) {
+	        return <div className='col-xs caltrain-time' key={caltrainEtaSb}> {caltrainEtaSb} </div>
+	      })
+	    return (
+	      <div className='caltrain-container row around-xs '>
+	        <div className='col-xs'> Caltrains: </div>
+	        <div className='col-xs'> NB </div> 
+	        {caltrain_etas_NB} 
+	        <div className='col-xs'> SB </div>
+	        {caltrain_etas_SB}
+	      </div> 
+	    )
+	 }
+
 	renderCurrentTime() {
 		return (
 		  <div className='time'>
@@ -173,6 +193,7 @@ class Ride extends Component {
 				    <div className='time'>
 						{GLOBAL_current_leg_progress}
 					</div>
+					{this.renderCaltrains()}
 			    </div>
 
 
