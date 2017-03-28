@@ -100,9 +100,24 @@ class App extends Component {
           this.setRouteData(this.state.num_calls)
         }
         
-      }.bind(this), function(err) {
-        console.log('error with navigator.geolocation- '+ err)
-      }, {timeout:10000});
+      }.bind(this), function(failure) {
+        console.log('error with navigator.geolocation- '+ failure.message)
+
+
+
+        /*
+            try and use IDEO's location as current location and go from there
+
+
+        */
+
+        if(failure.message.indexOf("Only secure origins are allowed") == 0) {
+          console.log('Secure Origin issue')
+        }
+        this.setState({
+          fucked: 'were fucked'
+        })
+      }.bind(this), {timeout:10000});
     } else {
       console.log('browser doesnt support navigator.geolocation')
     }
@@ -199,7 +214,7 @@ class App extends Component {
       next_date.setSeconds(next_date.getSeconds() +accumulated_seconds)
       next_stop.eta = next_date
       if (next_stop.start_time) {
-        next_stop.leg_time = new Date(next_stop.eta - next_stop.start_time)
+        next_stop.leg_time = new Date(next_stop.eta - new Date(next_stop.start_time))
         console.log(next_stop.leg_time)
       }
       stop_etas.push(next_stop)
@@ -464,6 +479,9 @@ class App extends Component {
         <div className='row box'>
           {this.renderCurrentLocation()}
           {this.renderAPICalls()}
+        </div>
+        <div className='row box'>
+        {this.state.fucked}
         </div>
       </div>
     )
