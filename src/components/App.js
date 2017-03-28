@@ -141,7 +141,6 @@ class App extends Component {
   setRouteData(num_calls) {
 	  var data = {},
 	      that = this
-
     if (!num_calls) {
       num_calls = 0
     }
@@ -154,18 +153,21 @@ class App extends Component {
 		}).then(function(data) {
       if(data) {
         var stop_etas = that.addEtaToStops(data),
-            available_caltrains = that.getAvailableCaltrains(stop_etas)
+            available_caltrains = that.getAvailableCaltrains(stop_etas),
+            caltrain_keys = Object.keys(available_caltrains),
+            available_caltrains_nb = available_caltrains[caltrain_keys[0]],
+            available_caltrains_sb = available_caltrains[caltrain_keys[1]]
 
         that.setState({
           route_data: data,
           stop_etas: stop_etas, // stores date obj
-          available_caltrains: available_caltrains,  //move to etas recalculation after
+          available_caltrains_nb: available_caltrains_nb,  //move to etas recalculation after
+          available_caltrains_sb: available_caltrains_sb,
           num_calls : num_calls // for testing 
         })
       } else {
         console.log('didnt get any Route Data!!!!!!')
       }
-      
 		})
   }
 
@@ -214,7 +216,7 @@ class App extends Component {
   setCaltrainData(){
     var data = {},
         that = this
-
+    //console.log('here')
     fetch('/caltrain/etas').then(function(response) {
       return response.json()
     }, function(error) {
@@ -238,9 +240,11 @@ class App extends Component {
   }
 
   getAvailableCaltrains(stop_etas){
+    console.log('here')
       var caltrainStopEta = this.getCaltrainStop(stop_etas),
           stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta.eta),
-          validCaltrain = [],        
+          validNBCaltrain = [],
+          validSBCaltrain = [],        
           caltrain_data = this.state.caltrain_data
 
     for (var i=0; i<caltrain_data.caltrains.length; i++){
@@ -261,26 +265,38 @@ class App extends Component {
         if (arrivalTimeHour > 12 ){ arrivalTimeHour -= 12; }
         if( arrivalTimeMins < 10) { arrivalTimeMins = '0'+ arrivalTimeMins}
         arrivalTime = arrivalTimeHour + ':' + arrivalTimeMins
-        validCaltrain.push(caltrain.platform_code)
-        validCaltrain.push(arrivalTime)     
+        if (caltrain.platform_code == 'NB'){
+          validNBCaltrain.push(arrivalTime)
+        }else {
+          validSBCaltrain.push(arrivalTime)
+        }
+        //validCaltrain.push(caltrain.platform_code)
+        //validCaltrain.push(arrivalTime)     
       }
     }
-    
-    return this.addNbAndSb(validCaltrain)
+    if (validNBCaltrain.length > 2){validNBCaltrain = validNBCaltrain.slice(0, 2)}
+    if (validSBCaltrain.length > 2){validSBCaltrain = validSBCaltrain.slice(0, 2)}
+
+    var validCaltrain = {
+      NB: validNBCaltrain,
+      SB: validSBCaltrain
+    };
+    return validCaltrain
+    //return this.addNbAndSb(validCaltrain)
   }
 
-  addNbAndSb(data){
-    var index = data.indexOf("SB")
-    for (var i = index+2; i<data.length; i=i+1){
-        data.splice(i,1);
-      }   
-    for (var i=2; i<data.length; i=i+1){
-      if (data[i] == "NB"){
-        data.splice(i,1);
-      }    
-    }
-    return data
-  }
+  // addNbAndSb(data){
+  //   var index = data.indexOf("SB")
+  //   for (var i = index+2; i<data.length; i=i+1){
+  //       data.splice(i,1);
+  //     }   
+  //   for (var i=2; i<data.length; i=i+1){
+  //     if (data[i] == "NB"){
+  //       data.splice(i,1);
+  //     }    
+  //   }
+  //   return data
+  // }
 
 /* -------------- GetStop methods  -------------- */
 
@@ -376,17 +392,29 @@ class App extends Component {
 /*------------ Render methods -------------- */
 
   renderCaltrains() {
-    if (!this.state.available_caltrains) return null
+    if (!this.state.available_caltrains_nb || !this.state.available_caltrains_sb) return null
       // need to change how this is stored. 
-      // [{SB: [eta, eta, eta]}, {NB: [eta, eta, eta]}]
+      // {NB:[eta, eta, eta], SB:[eta, eta, eta]}
+      // var caltrain_keys = Object.keys(this.state.available_caltrains),
+      //   num_keys = caltrain_keys.length
 
-      var caltrain_etas = this.state.available_caltrains.map( function(caltrainETA) {
-        return <div className='col-xs' key={caltrainETA}> {caltrainETA} </div>
+      // for (var i=0; i<num_keys; i++){
+      //   var caltrain_obj = this.state.available_caltrains[caltrain_keys[i]]
+           
+      // }
+      var caltrain_etas_NB = this.state.available_caltrains_nb.map( function(caltrainEtaNb) {
+        return <div className='col-xs' key={caltrainEtaNb}> {caltrainEtaNb} </div>
+      })
+      var caltrain_etas_SB = this.state.available_caltrains_sb.map( function(caltrainEtaSb) {
+        return <div className='col-xs' key={caltrainEtaSb}> {caltrainEtaSb} </div>
       })
     return (
       <div className='row around-xs box'>
-        <div className='col-xs'> Caltrains: </div> 
-        {caltrain_etas}
+        <div className='col-xs'> Caltrains: </div>
+        <div className='col-xs'> NB </div> 
+        {caltrain_etas_NB} 
+        <div className='col-xs'> SB </div>
+        {caltrain_etas_SB}
       </div> 
     )
   }
