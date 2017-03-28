@@ -160,7 +160,7 @@ class App extends Component {
             caltrain_keys = Object.keys(available_caltrains),
             available_caltrains_nb = available_caltrains[caltrain_keys[0]],
             available_caltrains_sb = available_caltrains[caltrain_keys[1]]
-
+        console.log(stop_etas)
         that.setState({
           route_data: data,
           stop_etas: stop_etas, // stores date obj

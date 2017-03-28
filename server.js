@@ -8,9 +8,9 @@ var googleMapsDirectionsClient = require('@google/maps').createClient({
   key: 'AIzaSyDVl65wW5zqkICh0c1UrabLIn4MV8ryIfk'
 });
 
-var googleMapsDistanceClient = require('@google/maps').createClient({
-  key: 'AIzaSyA-iU4qAgyz1J6OA-JJ0_LKJxeXJTt78nU'
-});
+// var googleMapsDistanceClient = require('@google/maps').createClient({
+//   key: 'AIzaSyA-iU4qAgyz1J6OA-JJ0_LKJxeXJTt78nU'
+// });
 
 // must match App.js --- eventually change
 var STAGE = {
@@ -104,24 +104,21 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
     return [lat, lng]
   }(stops_GLOBAL)
 
-
-  var arrivedToStops = function(directions_data) {
-    // iterate through stops chronologically
-    var all_stops = waypoints.concat([destination]),
-        upcoming_distance = 100
-        arrived_to_distance = 40
-
-    googleMapsDistanceClient.distanceMatrix({
-        origins: [origin],
-        destinations: all_stops
-      }, function(err, res) {
-        if (!err) {
-          directions_data['stops'] = updateStageOfStops(res.json)
-          response.json(directions_data);
-        } else {
-          console.log('err-' + err);
-        }
-    })
+  googleMapsDirectionsClient.directions({
+    origin: origin,
+    waypoints: waypoints,
+    destination: destination, 
+    departure_time: 'now', //leave at 5 
+    traffic_model: 'best_guess'
+  }, function(err, res) {    
+    if (!err) {
+      var directions_data = res.json
+      directions_data['stops'] = updateStageOfStops(directions_data)
+      response.json(directions_data)
+    } else {
+      console.log('err-' + err);
+    }
+  });
 
     /*
         stop stage persists because were updating stops_GLOBAL
@@ -130,12 +127,14 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
         what if this doesnt get called enough?????
         way to force this call!!!!
     */
-    var updateStageOfStops = function(distance_data) {
-      var distances_to_stops = distance_data.rows[0].elements,
-          num_stops = distances_to_stops.length
+    var updateStageOfStops = function(directions_data) {
+      var legs = directions_data.routes[0].legs,
+          num_legs = legs.length,
+          upcoming_distance = 200, //400, ----- testing values are different than driving values
+          arrived_to_distance = 70
 
-      for(var i=0; i<num_stops; i++) {
-        var stop_distance = distances_to_stops[i].distance.value,
+      for(var i=0; i<num_legs; i++) {
+        var stop_distance = legs[i].distance.value,
             stop_obj = stops_GLOBAL.route[i] // in meters
 
         if (stop_distance < arrived_to_distance) {              // currently at this stop
@@ -155,7 +154,6 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
               next_stop_obj['start_time'] = new Date()
             }
           } 
-
         } else {                                                 // out of range
           if (stop_obj['stage'] === STAGE.current_stop) {
              // probably never gets here since we move to upcoming distance before out of range, unless we jump out really quickly
@@ -168,28 +166,6 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
       }
       return stops_GLOBAL
     }
-  }
-
-  // var date5pm = new Date()
-  // date5pm.setHours(17)
-  // console.log(date5pm)
-  // var secondsDate5pm = Math.round(date5pm.getTime()/1000)
-  // console.log(secondsDate5pm)
-
-  // free version doesnt factor in traffic...
-  googleMapsDirectionsClient.directions({
-    origin: origin,
-    waypoints: waypoints,
-    destination: destination, 
-    departure_time: 'now', //leave at 5 
-    traffic_model: 'best_guess'
-  }, function(err, res) {    
-    if (!err) {
-      arrivedToStops(res.json)
-    } else {
-      console.log('err-' + err);
-    }
-  });
 });
 
 
