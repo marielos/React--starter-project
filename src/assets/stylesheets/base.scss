@@ -4,6 +4,7 @@ $stop-name-height: 50px;
 
 body{
   margin: 0px;
+  font-family: sans-serif;
 }
 h1 {
   font-family: helvetica;
@@ -138,16 +139,65 @@ h1 {
 }
 
 
-
-.caltrain-container {
+.bottom-container {
   position: absolute;
-  bottom: 15px;
-  right: 20px;
+  bottom: 0px;
+  right: 0px;
+  left: 0px;
+  height: 30px;
   background-color: #333;
-  padding: 10px;
+  padding: 10px 10%;
 }
 
+.driver-photo {
+    bottom: 18px;
+    height: 50px;
+    width: 50px;
+    z-index: 10;
+    position: absolute;
+}
 
+.driver-name {
+  display: inline-block;
+  margin-left: 55px; /* based on driver photo size*/
+}
+
+.caltrain-container {
+  float: right;
+}
+
+.driver-container {
+  display: inline-block;
+  line-height: 30px;
+}
+
+.caltrain-heading {
+    display: inline;
+}
+
+.caltrain-direction {
+    display: inline;
+    border: solid 1px;
+    margin: 0 2px;
+    padding: 0 5px;
+}
+
+.caltrain-text {
+  line-height: 30px;
+  display: inline;
+}
+
+.caltrain-check {
+  height: 20px;
+  width: 20px;
+  display: inline;
+  vertical-align: middle;
+}
+
+.caltrain-time {
+  width: 50px;
+  display: inline;
+}
 
 
 /* -----------------------react slider -----------------------*/

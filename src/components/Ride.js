@@ -1,7 +1,12 @@
-import '../assets/stylesheets/base.scss';
-import React, { Component } from 'react';
-import {Motion, spring} from 'react-motion';
+import '../assets/stylesheets/base.scss'
+import React, { Component } from 'react'
+import {Motion, spring} from 'react-motion'
 import Slider from 'react-rangeslider'
+
+// import caltrain_check5 from './img/test.jpg'
+
+
+
 
 // for testing purposes
 var STOP_STAGE = {
@@ -34,6 +39,7 @@ class Ride extends Component {
 		}.bind(this))
 	}
 
+
 	getStopName(stop_obj) {  	
 		return stop_obj.name
 	}
@@ -52,6 +58,20 @@ class Ride extends Component {
 		    return "da fuck?"
 		}
 	}
+
+/* -------------- TO DO -------------- 
+
+	create methods to identify ride stage based on stages of stops
+	eg. current stop = STOP, no upcoming, current = RIDE
+
+	dim all stops in current stop
+
+
+
+*/
+
+
+
 
 
 // for testing purposes
@@ -144,19 +164,29 @@ class Ride extends Component {
 	    if (!this.props.availableCaltrainsNB || !this.props.availableCaltrainsSB) return null
 
 	      var caltrain_etas_NB = this.props.availableCaltrainsNB.map( function(caltrainEtaNb) {
-	        return <div className='col-xs caltrain-time' key={caltrainEtaNb}> {caltrainEtaNb} </div>
+	        return <div className='caltrain-time' key={caltrainEtaNb}> {caltrainEtaNb} </div>
 	      })
 	      var caltrain_etas_SB = this.props.availableCaltrainsSB.map( function(caltrainEtaSb) {
-	        return <div className='col-xs caltrain-time' key={caltrainEtaSb}> {caltrainEtaSb} </div>
+	        return <div className=' caltrain-time' key={caltrainEtaSb}> {caltrainEtaSb} </div>
 	      })
 	    return (
-	      <div className='caltrain-container row around-xs '>
-	        <div className='col-xs'> Caltrains: </div>
-	        <div className='col-xs'> NB </div> 
-	        {caltrain_etas_NB} 
-	        <div className='col-xs'> SB </div>
-	        {caltrain_etas_SB}
-	      </div> 
+	      	<div className='bottom-container'>
+
+			<div className='driver-container '>
+			<img src={require("./img/driver_photo.png")} className='driver-photo' />
+			<div className='driver-name'> Derek </div>
+			</div>
+		      	<div className='caltrain-container '>
+		      	<img src={require("./img/caltrain_check.png")}  className='caltrain-check'/>
+		      		<div className='caltrain-text'>
+				        <div className='caltrain-heading'>  On time for Caltrain: </div>
+				        <div className='caltrain-direction'> NB {caltrain_etas_NB} </div> 
+				        	
+				        <div className='caltrain-direction'> SB {caltrain_etas_SB}</div>
+				        	
+			        </div>
+		        </div> 
+		    </div>
 	    )
 	 }
 
@@ -190,9 +220,7 @@ class Ride extends Component {
 					        </div>
 					    )}
 				    </Motion>
-				    <div className='time'>
-						{GLOBAL_current_leg_progress}
-					</div>
+				    
 					{this.renderCaltrains()}
 			    </div>
 
@@ -201,6 +229,9 @@ class Ride extends Component {
 			       <button onClick={this.toggleTestState.bind(this)}>
 				       {this.state.testState ? 'Back to location base' : 'Switch to test state'}
 				   </button> 
+				   <div className=''>
+						{GLOBAL_current_leg_progress}
+					</div>
 				   {this.state.testState ? 
 					    <div>
 						    <Slider
@@ -224,7 +255,11 @@ class Ride extends Component {
 
 	/*------------ Testing methods -------------- */
 
+/*
+	fix tezting environment to include leg_time, startime
 
+
+*/
 	toggleTestState() {
 		if(this.state.testState) {
 			this.setState({
