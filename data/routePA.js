@@ -1,5 +1,6 @@
 {
 	"route": [{
+		"address":"4th & King",
 		"name": "Opa!",
 		"lat": 37.444024, 
 		"lng":  -122.163411,
@@ -10,6 +11,7 @@
 		}
 	}, 
 	{
+		"address":"Forest & University",
 		"name": "Apple Store",
 		"lat": 37.446483, 
 		"lng": -122.160920,
@@ -20,6 +22,7 @@
 		}
 	}, 
 	{
+		"address":"Emerson & Alma",
 		"name": "Palo Alto Caltrain",
 		"lat": 37.444057,
 		"lng": -122.166216,
@@ -30,6 +33,7 @@
 		}
 	}, 
 	{
+		"address":"El Camino & Stanford Ave",
 		"name": "Stop 9",
 		"lat": 37.444057,
 		"lng": -122.166216,

@@ -1,6 +1,7 @@
 {
 	"route": [
 	{
+		"address":"4th & King",
 		"name": "JAsper",
 		"lat": 37.786144, 
 		"lng": -122.393883,
@@ -11,6 +12,7 @@
 		}
 	}, 
 	{
+		"address":"4th & King",
 		"name": "SF Caltrain",
 		"lat": 37.777037, 
 		"lng": -122.394892,
@@ -21,6 +23,7 @@
 		}
 	},
 	{
+		"address":"4th & King",
 		"name": "milbrea",
 		"lat": 37.599787, 
 		"lng": -122.386791,
@@ -31,6 +34,7 @@
 		}
 	},
 	{
+		"address":"4th & King",
 		"name": "redwood city ",
 		"lat": 37.485989, 
 		"lng": -122.231493,
@@ -41,6 +45,7 @@
 		}
 	},
 	{
+		"address":"4th & King",
 		"name": "Palo Alto Caltrain",
 		"lat": 37.444057,
 		"lng": -122.166216,
@@ -51,6 +56,7 @@
 		}
 	}, 
 	{
+		"address":"4th & King",
 		"name": "IDEO",
 		"lat": 37.442211, 
 		"lng": -122.160977,
@@ -61,6 +67,7 @@
 		}
 	}, 
 	{
+		"address":"4th & King",
 		"name": "Stop 7",
 		"lat": 37.429511, 
 		"lng": -122.122794,
@@ -71,6 +78,7 @@
 		}
 	}, 
 	{
+		"address":"4th & King",
 		"name": "Stop 8",
 		"lat": 37.428057,
 		"lng": -122.165364,
@@ -81,6 +89,7 @@
 		}
 	}, 
 	{
+		"address":"4th & King",
 		"name": "Stop 9",
 		"lat": 37.444057,
 		"lng": -122.166216,

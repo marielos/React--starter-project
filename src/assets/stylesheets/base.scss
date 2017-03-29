@@ -1,5 +1,6 @@
 
-$stop-width: 20%;
+$stop-width: 18%;
+$past-stop-margin: 10%;
 $stop-name-height: 50px;
 
 body{
@@ -31,121 +32,11 @@ h1 {
 
 .route-container {
   position: absolute;
+  top: 75px;
   width: 100%;
   white-space: nowrap;
   transition: left linear 1s;
 }
-
-
-
-
-.path-line {
-  height: 2px;
-  background-color: white;
-  margin: 3px 0;
-}
-
-/*move margin to a calculated variable*/
-.fixed-line {
-  position: fixed;
-  margin-top: $stop-name-height +3 ;
-  z-index: 9;
-}
-
-.past-line {
-  background-color: grey !important;
-  width: $stop-width;
-}
-
-.first-line {
-  width: $stop-width/2 + 10; /* 10 just for safety*/
-  left: $stop-width;
-}
-
-
-
-
-
-.stop {
-  width: $stop-width;
-  display: inline-block;
-  text-align: center;
-}
-
-.dim {
-  opacity: .5;
-}
-
-.stop-name {
-  height: $stop-name-height;
-  font-size: 17px;
-  transition: font-size 1s linear, opacity 1s linear;
-  z-index: 10;
-  position: relative;
-}
-
-.text-container {
-  bottom:0px;
-  position: absolute;
-  width:100%;
-}
-
-
-.stop_extras {
-  transition: opacity 1s linear;
-}
-
-.stop_eta {
-  font-size: 15px;
-}
-
-.stop_announcement {
-  border: solid 1px;
-
-  .stop-announcement-title {
-    opacity: .85;
-  }
-
-  .stop-announcement-text {
-    color: yellow;
-    font-weight: bold;
-  }
-
-  .stop-announcement-time {
-
-  }
-
-}
-
-
-
-.upcoming {
-  font-size: 20px;
-}
-
-.past {
-  opacity: .5;
-}
-
-.current {
-  font-size: 30px;
-}
-
-.hidden {
-  opacity: 0;
-}
-
-
-.stop-dot {
-  background-color: white;
-  height: 4px;
-  width: 4px;
-  border: black 3px solid;
-  border-radius: 7px;
-  margin: -9px auto;
-  margin-bottom: 2px;
-}
-
 
 
 .time {
@@ -155,12 +46,165 @@ h1 {
   font-size: x-large;
 }
 
+.chariot-id {
+  position: absolute;
+  right: $past-stop-margin;
+  margin: 10px 0;
+  top: 0px;
+  line-height: 28px;
+}
+
+
+/* ----------------------- Route Line classes -----------------------*/
+
+
+.path-line {
+  height: 2px;
+  background-color: white;
+  margin: 3px 0;
+}
+
+.fixed-past-container {
+  position: fixed;
+  margin-top: $stop-name-height +9 ;
+  z-index: 9;
+  width: 100%;
+
+
+  .past-line {
+     background-color: grey !important;
+     display: inline-block;
+  }
+
+  .past-stop-line {
+    width: $stop-width;
+    left: $past-stop-margin;
+  }
+
+  .past-margin-line {
+    width: $past-stop-margin;
+  }
+
+  .van-pic {
+    width: 50px;
+    margin-bottom: 8px;
+    margin-left: -25px;
+  }
+}
+/*move margin to a calculated variable*/
+
+
+
+/* ----------------------- Stop classes -----------------------*/
+
+
+.stop {
+  width: $stop-width;
+  display: inline-block;
+  text-align: left;
+  transition: opacity 1s linear;
+
+}
+
+.stop-name {
+  height: $stop-name-height;
+  font-size: 18px;
+  transition: font-size 1s linear, opacity 1s linear;
+  z-index: 10;
+  position: relative;
+
+  .text-container {
+    bottom:26px;
+    position: absolute;
+    width:100%;
+
+    .stop-address {
+      font-weight: bold;
+    }
+
+    .stop-poi {
+      font-weight: lighter;
+    }
+  }
+}
+
+
+.stop_extras {
+  height: 32px;
+  .stop_eta {
+    font-size: 20px;
+  }
+
+  .stop-dot {
+    background-color: white;
+    height: 6px;
+    width: 6px;
+    border: black 3px solid;
+    border-radius: 7px;
+    margin-top: -10px;
+    margin-left: 9px;
+    margin-bottom: 2px;
+  }
+
+  .fake-dot {
+    visibility: hidden;
+  } 
+}
+
+
+
+.stop_announcement {
+  position: absolute;
+  top: 90px;
+
+  .stop-announcement-title {
+    opacity: .85;
+  }
+
+  .stop-announcement-text {
+    font-weight: bold;
+  }
+
+  .stop-announcement-time {
+
+  }
+
+}
+
+/* ----------------------- Stop stage classes -----------------------*/
+
+
+
+
+.upcoming {
+  font-size: 25px;
+}
+
+.past {
+  opacity: .5;
+}
+
+.current {
+  font-size: 25px;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.dim {
+  opacity: .5;
+}
 
 
 .test-button {
   bottom: 0px;
   position: absolute;
 }
+
+
+
+/* ----------------------- Bottom Container -----------------------*/
 
 
 .bottom-container {
@@ -170,58 +214,71 @@ h1 {
   left: 0px;
   height: 30px;
   background-color: #333;
-  padding: 10px 10%;
+  padding: 10px $past-stop-margin;
 }
 
-.driver-photo {
+
+
+
+
+.driver-container {
+  display: inline-block;
+  line-height: 30px;
+
+  .driver-photo {
     bottom: 18px;
     height: 50px;
     width: 50px;
     z-index: 10;
     position: absolute;
+  }
+
+  .driver-name {
+    display: inline-block;
+    margin-left: 55px; /* based on driver photo size*/
+  }
 }
 
-.driver-name {
-  display: inline-block;
-  margin-left: 55px; /* based on driver photo size*/
-}
 
 .caltrain-container {
   float: right;
-}
 
-.driver-container {
-  display: inline-block;
-  line-height: 30px;
-}
-
-.caltrain-heading {
+  .caltrain-text {
+    line-height: 30px;
     display: inline;
-}
+    .caltrain-heading {
+      display: inline;
+    }
 
-.caltrain-direction {
+    .caltrain-direction {
+        display: inline;
+        border: solid 1px;
+        margin: 0 2px;
+        padding: 0 5px;
+
+      .caltrain-time {
+        width: 50px;
+        display: inline;
+      }
+    }
+  }
+
+  .caltrain-check {
+    height: 20px;
+    width: 20px;
     display: inline;
-    border: solid 1px;
-    margin: 0 2px;
-    padding: 0 5px;
+    vertical-align: middle;
+  }
 }
 
-.caltrain-text {
-  line-height: 30px;
-  display: inline;
-}
 
-.caltrain-check {
-  height: 20px;
-  width: 20px;
-  display: inline;
-  vertical-align: middle;
-}
 
-.caltrain-time {
-  width: 50px;
-  display: inline;
-}
+
+
+
+
+
+
 
 
 /* -----------------------react slider -----------------------*/

@@ -148,8 +148,9 @@ class App extends Component {
       num_calls = 0
     }
     num_calls++
-    fetch(this.getGMapsUrlWithCurrentLocation()).then(function(response) {
 
+    
+    fetch(this.getGMapsUrlWithCurrentLocation()).then(function(response) {
 		  return response.json()
 		}, function(error) {
 			console.log('error- '+ error);
@@ -197,7 +198,7 @@ class App extends Component {
       next_stop.eta = next_date
       if (next_stop.start_time) {
         next_stop.leg_time = new Date(next_stop.eta - new Date(next_stop.start_time))
-        console.log(next_stop.leg_time)
+        // console.log(next_stop.leg_time)
       }
       stop_etas.push(next_stop)
     }
@@ -410,6 +411,7 @@ class App extends Component {
     }
   }
 
+  // get rid of nextStop , currentStop, pastStop, futureStops
   renderRideStage() {
     return <Ride 
               currentDate={this.state.current_date}
@@ -418,7 +420,7 @@ class App extends Component {
               nextStop={this.getNextStop()}
               currentStop={this.getCurrentStop()}
               pastStop={this.getPastStop()}
-              futureStops={this.getFutureStops()}
+              // futureStops={this.getFutureStops()}
               availableCaltrainsNB={this.state.available_caltrains_nb}  
               availableCaltrainsSB={this.state.available_caltrains_sb}
             />
