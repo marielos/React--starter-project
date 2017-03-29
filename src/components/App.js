@@ -399,6 +399,9 @@ class App extends Component {
     )
   }
 
+
+
+  // make this render as much as possible without etas
   renderCurrentStage() {
     if (this.state.stop_etas){
       return this.renderRideStage()

@@ -16,6 +16,11 @@ var STOP_STAGE = {
   future_stop: 3
 }
 
+var RIDE_STAGE = {
+  STOP: 0,
+  RIDE: 1
+}
+
 var GLOBAL_current_leg_progress = 0,
 	GLOBAL_left = 0
 
@@ -69,6 +74,30 @@ class Ride extends Component {
 
 
 */
+
+	shouldDimStop(stop_obj) {
+		if (this.getRideState() == RIDE_STAGE.stop && stop_obj != this.props.currentStop) {
+			return 'dim'
+		}
+		return ''
+	}
+
+	shouldShowEta(stop_obj) {
+		if (stop_obj.stage === STOP_STAGE.past_stop || stop_obj.stage === STOP_STAGE.current_stop) {
+			return 'hidden'
+		} 
+		return ''
+	}
+
+
+	getRideState() {
+		if (this.props.currentStop) {
+			return RIDE_STAGE.stop
+		} else {
+			return RIDE_STAGE.ride
+		}
+	}
+
 
 
 
@@ -125,6 +154,30 @@ class Ride extends Component {
 
 
 
+	renderTestInfo(stop_obj) {
+		return (
+			<div>
+				<div className='stop-eta'>
+					{this.getStopDistance(stop_obj)}m	
+				</div>
+				<div className='stop-eta'>
+					{this.getStopStartTime(stop_obj)}	
+				</div>
+			</div>
+		)
+	}
+
+	renderStopAnnouncement(stop_obj) {
+		if(stop_obj !== this.props.nextStop) return ''
+		return (
+			<div className={'stop_announcement'}>
+				<div className='stop-announcement-title'> Upcoming Events </div>
+				<div className='stop-announcement-text'> {stop_obj.announcement.text} </div>
+				<div className='stop-announcement-time'> {stop_obj.announcement.time} </div>
+			</div>
+		)
+	}
+
 
 /* -------------- Render methods -------------- */
 // want to display start time as we test to check if its getting recalculated
@@ -133,7 +186,7 @@ class Ride extends Component {
 
 		return (
 		  this.props.stopEtas.map(function(stop_obj) {
-		    return <div className='stop' key={this.getStopName(stop_obj)}> 
+		    return <div className={this.shouldDimStop(stop_obj) +' stop'} key={this.getStopName(stop_obj)}> 
 		    			<div className={this.getStopClass(stop_obj) +' stop-name'}>
 		    				<div className='text-container'>
 		    					{this.getStopName(stop_obj)}
@@ -142,18 +195,13 @@ class Ride extends Component {
 		    			<div className='path-line'>
 		    			</div>
 		    			
-	    				<div className={stop_obj.stage === STOP_STAGE.past_stop ? 'hidden stop_extras' : 'stop_extras'}>
-			    			<div className='stop-dot'>
-			    			</div>
-			    			<div className='stop_eta'>
+	    				<div className='stop_extras'>
+			    			<div className='stop-dot'/>
+			    			<div className={this.shouldShowEta(stop_obj)  +' stop_eta'}>
 			    				{this.props.parseDate(stop_obj.eta)}
 			    			</div>
-			    			<div className='stop-eta'>
-		    					{this.getStopDistance(stop_obj)}m	
-		    				</div>
-		    				<div className='stop-eta'>
-		    					{this.getStopStartTime(stop_obj)}	
-		    				</div>
+							{this.renderStopAnnouncement(stop_obj)}
+			    			{this.renderTestInfo(stop_obj)}
 		    			</div>
 		    		</div>
 		  }.bind(this))

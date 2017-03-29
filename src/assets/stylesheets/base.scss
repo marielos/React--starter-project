@@ -72,6 +72,10 @@ h1 {
   text-align: center;
 }
 
+.dim {
+  opacity: .5;
+}
+
 .stop-name {
   height: $stop-name-height;
   font-size: 17px;
@@ -94,6 +98,26 @@ h1 {
 .stop_eta {
   font-size: 15px;
 }
+
+.stop_announcement {
+  border: solid 1px;
+
+  .stop-announcement-title {
+    opacity: .85;
+  }
+
+  .stop-announcement-text {
+    color: yellow;
+    font-weight: bold;
+  }
+
+  .stop-announcement-time {
+
+  }
+
+}
+
+
 
 .upcoming {
   font-size: 20px;
