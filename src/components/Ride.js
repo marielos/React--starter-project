@@ -30,23 +30,27 @@ var GLOBAL_current_leg_progress = 0,
 
 		click to toggle stage of stop 
 
-		create this.state.test_stop_etas
-
-
 	*/
 
 
 
 class Ride extends Component {
   
-	componentDidMount() {
+	componentWillMount() {
+		console.log('----- only see this once ------')
 		this.setState({
 			left: 0,
 			testDate: this.props.currentDate,
+			testStopEtas:  this.props.stopEtas,
 			testState: false,
 			isPaused: false
 		})
 
+	}
+
+
+	componentDidMount() {
+	
 
 		document.addEventListener('keydown', function(event) {
 			if (event.keyCode == "32") { // spacebar has been pressed
@@ -81,6 +85,13 @@ class Ride extends Component {
 		}
 	}
 
+	getStopEtas() {
+		if (this.state.testState) {
+			return this.state.testStopEtas
+		} else {
+			return this.props.stopEtas
+		}
+	}
 
 	shouldDimStop(stop_obj) {
 		if (this.getRideState() == RIDE_STAGE.stop && stop_obj.stage != STOP_STAGE.current_stop) {
@@ -89,12 +100,12 @@ class Ride extends Component {
 		return ''
 	}
 
-	shouldShowEta(stop_obj) {
-		if (stop_obj.stage === STOP_STAGE.past_stop || stop_obj.stage === STOP_STAGE.current_stop) {
-			return 'hidden'
-		} 
-		return ''
-	}
+	// shouldShowEta(stop_obj) {
+	// 	if (stop_obj.stage === STOP_STAGE.past_stop || stop_obj.stage === STOP_STAGE.current_stop) {
+	// 		return 'hidden'
+	// 	} 
+	// 	return ''
+	// }
 
 	shouldShowDot(stop_obj) {
 		if (stop_obj.stage === STOP_STAGE.past_stop) {
@@ -113,14 +124,14 @@ class Ride extends Component {
 
 
 
-// for testing purposes
-	getStopDistance(stop_obj) {
-		return stop_obj.distance
-	}
+// // for testing purposes
+// 	getStopDistance(stop_obj) {
+// 		return stop_obj.distance
+// 	}
 
-	getStopStartTime(stop_obj) {
-		return this.props.parseDate(stop_obj.start_time)
-	}
+// 	getStopStartTime(stop_obj) {
+// 		return this.props.parseDate(stop_obj.start_time)
+// 	}
 
 
 	
@@ -139,8 +150,6 @@ class Ride extends Component {
 				console.log('que paso?')
 			}
 
-			// console.log(next_stop.name)
-
 			GLOBAL_left = this.getAbsoluteRouteContainerPosition(past_stop, next_stop, date)
 		}
 	}
@@ -156,13 +165,21 @@ class Ride extends Component {
 			console.log('leg-time issue!')
 		}
 
+
+		if(next_stop && !next_stop.eta) {
+			console.log('adding a fake eta (in 5 min) to next stop')
+			next_stop.eta = new Date()
+			next_stop.eta.setMinutes(next_stop.eta.getMinutes() + 5) // in 5 minutes
+			next_stop.leg_time = new Date(5*60*1000) // 5 minutes
+		}
+
 		/*
 			what if we dont have any etas?
 			assume every stop.eta is 5min (5*60*1000) away
 		*/
 		var stop_width = document.getElementsByClassName('stop')[0].getBoundingClientRect().width, 
 			past_margin_width = document.getElementsByClassName('past-margin-line')[0].getBoundingClientRect().width,
-			index_past_stop = this.props.stopEtas.indexOf(past_stop), // -1 if no past position  
+			index_past_stop = this.getStopEtas().indexOf(past_stop), // -1 if no past position  
 			past_stop_left_pos = past_margin_width - index_past_stop*stop_width, 
 			current_leg_progress = 1-((next_stop.eta.getTime()-date.getTime())/next_stop.leg_time.getTime()),
 			animation_left = current_leg_progress * stop_width,
@@ -196,7 +213,7 @@ class Ride extends Component {
 	}
 
 	renderStopAnnouncement(stop_obj) {
-		if(stop_obj.stage === STOP_STAGE.past_stop || stop_obj.stage === STOP_STAGE.future_stop) return ''
+		if(stop_obj !== this.getNextStop()) return ''
 		
 		return (
 			<div className={'stop_announcement'}>
@@ -222,16 +239,16 @@ class Ride extends Component {
 /* -------------- Render methods -------------- */
 // want to display start time as we test to check if its getting recalculated
 	renderStops() {
-		if (!this.props.stopEtas) return null
+		if (!this.getStopEtas()) return null
 
 		return (
-		  this.props.stopEtas.map(function(stop_obj) {
+		  this.getStopEtas().map(function(stop_obj) {
 		    return <div className={this.shouldDimStop(stop_obj) +' stop'} key={this.getStopName(stop_obj)}> 
 		    			{this.renderStopName(stop_obj)}
 		    			<div className='path-line'/>		    			
 	    				<div className='stop_extras'>
 			    			<div className={this.shouldShowDot(stop_obj) +' stop-dot'}/>
-			    			<div className={this.shouldShowEta(stop_obj)  +' stop_eta'}>
+			    			<div className={this.shouldShowDot(stop_obj) +' stop_eta'}>
 			    				{this.props.parseDate(stop_obj.eta)}
 			    			</div>
 							{this.renderStopAnnouncement(stop_obj)}
@@ -387,11 +404,11 @@ class Ride extends Component {
 	getMinTime() {
 		return this.props.currentDate.getTime() -10*60*1000 // now - 10 min 
 
-		// return this.props.stopEtas[0].eta.getTime() -10*60*1000 // first eta - 10 min 
+		// return this.getStopEtas()[0].eta.getTime() -10*60*1000 // first eta - 10 min 
 	}
 
 	getMaxTime() {
-		return this.props.stopEtas[this.props.stopEtas.length-1].eta.getTime()
+		return this.getStopEtas()[this.getStopEtas().length-1].eta.getTime()
 	}
 
 	handleTimeChange(value) {
@@ -402,35 +419,39 @@ class Ride extends Component {
 	}
 
 
-	updateStopStageForTestDate(test_date) {
+	updateStopStageForTestDate() {
 		var stop = this.getNextStop()
 
+
+		// if GLOBAL_current_leg_progress < 1 we need to cycle backwards
 		if (stop.stage === STOP_STAGE.current_stop) {
 			if (GLOBAL_current_leg_progress - .1 > 1) {
-				console.log('leaving current stop ' + stop.name)
-				this.cycleStopStagesForward(test_date)
+				this.cycleStopStagesForward()
+			} else if (GLOBAL_current_leg_progress < .9) {
+				this.cycleStopStagesBackward()
 			}
 			// go to next stage if leaving current stop 
 
 		} else if (stop.stage === STOP_STAGE.upcoming_stop) {
 			if (GLOBAL_current_leg_progress + .1 > 1) {
-				console.log('current stop ' + stop.name)
-				this.cycleStopStagesForward(test_date)
+				this.cycleStopStagesForward()
+			} else if (GLOBAL_current_leg_progress < .7) {
+				this.cycleStopStagesBackward()
 			}
 			// go to next stage if upcoming stop has arrived
 
-		} else {
+		} else if (stop.stage === STOP_STAGE.future_stop) {
 			if (GLOBAL_current_leg_progress + .3 > 1) {
-				console.log('upcoming stop ' + stop.name)
-				this.cycleStopStagesForward(test_date)
+				this.cycleStopStagesForward()
+			} else if (GLOBAL_current_leg_progress < 0) {
+				this.cycleStopStagesBackward()
 			}
-			// go to next stage if next stop is getting close
 		} 
 	}
 
 
-	cycleStopStagesForward(test_date) {
-		var stops = this.props.stopEtas,
+	cycleStopStagesForward() {
+		var stops = this.getStopEtas(),
 			num_stops = stops.length
 
 		for(var i=0; i<num_stops; i++) {
@@ -450,9 +471,30 @@ class Ride extends Component {
 		}
 	}
 
+	cycleStopStagesBackward() {
+		var stops = this.getStopEtas(),
+			num_stops = stops.length
+
+		for(var i=0; i<num_stops; i++) {
+			var stop = stops[i]
+
+			if (stop.stage === STOP_STAGE.current_stop){
+				stop.stage = STOP_STAGE.upcoming_stop
+
+			} else if (stop.stage === STOP_STAGE.upcoming_stop){
+				stop.stage = STOP_STAGE.future_stop
+
+			} else if (stop === this.getPastStop()){
+				if (GLOBAL_current_leg_progress < 0) {
+					stop.stage = STOP_STAGE.current_stop
+				}
+			} 
+		}
+	}
+
 
 	getPastStop() {
-		var stops = this.props.stopEtas,
+		var stops = this.getStopEtas(),
 			num_stops = stops.length,
         	recent_past_stop = null
 
@@ -467,18 +509,16 @@ class Ride extends Component {
 	}
 
 	getNextStop() {
-		var stops = this.props.stopEtas,
+		var stops = this.getStopEtas(),
 			num_stops = stops.length
 
 		for(var i=0; i< num_stops; i++) {
 			var stop = stops[i]
 			if(stop.stage === STOP_STAGE.current_stop || stop.stage === STOP_STAGE.upcoming_stop) {
-				// console.log('near stop')
 				return stop
 			}
 
 			if (stop.stage === STOP_STAGE.future_stop) {
-				// console.log('next future')
 				return stop
 			}
 		}
