@@ -184,36 +184,56 @@ class App extends Component {
 		})
   }
 
-// want to display start time as we test to check if its getting recalculated
+
+// should keep initial leg_time constant
+// update stop_etas instead of returning new ones 
+// keep recalculating leg_time of future stops but not of next_stop
 
   addEtaToStops(route_data, date) { 
     if(!date) date = this.state.current_date
 
-    var stops = route_data.stops.route,
+    var new_stops = route_data.stops.route,
         legs = route_data.routes[0].legs,
-        num_stops = stops.length,
+        num_stops = new_stops.length,
         stop_etas = [],
         accumulated_seconds = 0,
-        num_past_stops = stops.indexOf(this.getPastStop(stops)) +1
+        num_past_stops = new_stops.indexOf(this.getPastStop(new_stops)) +1
 
     for (var i=0; i<num_stops; i++) {
-      var next_date = new Date(date.getTime()),
-          next_stop = stops[i]
-          
+      var new_eta = new Date(date.getTime()),
+          next_new_stop = new_stops[i],
+          next_stop = this.state.stop_etas ? this.state.stop_etas[i] : next_new_stop,
+          first_stop = true
 
+          next_stop.stage = next_new_stop.stage
+
+          if (next_stop.stage === STOP_STAGE.current_stop) {
+            this.refs.Ride.togglePause()
+          }
+          
       if(i >= num_past_stops) {
         var next_stop_leg_time = legs[i-num_past_stops].duration.value
-
         accumulated_seconds += next_stop_leg_time
-        next_date.setSeconds(next_date.getSeconds() +accumulated_seconds)
-        next_stop.eta = next_date
-        // if (next_stop.start_time) {
-        //   next_stop.leg_time = new Date(next_stop.eta - new Date(next_stop.start_time))
-        // } else {
-        //   // placeholder leg_time
-        next_stop.leg_time = new Date(next_stop_leg_time*1000)
+        new_eta.setSeconds(new_eta.getSeconds() +accumulated_seconds)
+
+
+        var eta_diff
+        if (next_stop.eta) {
+          eta_diff = new_eta.getTime() - next_stop.eta.getTime()
+        } else {
+          eta_diff = 0
+        }
+
+        next_stop.eta = new_eta
+
+        if (first_stop && next_stop.leg_time) { //dont recalculate leg time after it is set 
+          next_stop.leg_time = new Date(next_stop.leg_time.getTime() + eta_diff)
+        } else {
+          next_stop.leg_time = new Date(next_stop_leg_time*1000)
+        }
+        
+        first_stop = false
       }
-      // }
       stop_etas.push(next_stop)
     }
 
@@ -357,6 +377,7 @@ class App extends Component {
               parseDate={this.parseDate}
               availableCaltrainsNB={this.state.available_caltrains_nb}  
               availableCaltrainsSB={this.state.available_caltrains_sb}
+              ref='Ride'
             />
   }
 

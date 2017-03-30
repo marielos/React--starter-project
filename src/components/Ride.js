@@ -54,13 +54,17 @@ class Ride extends Component {
 
 		document.addEventListener('keydown', function(event) {
 			if (event.keyCode == "32") { // spacebar has been pressed
-				this.setState({
-					isPaused: !this.state.isPaused
-				})
+				this.togglePause()
 			}
 		}.bind(this))
 	}
 
+
+	togglePause() {
+		this.setState({
+			isPaused: !this.state.isPaused
+		})
+	}
 
 	getStopName(stop_obj) {  	
 		return stop_obj.name
@@ -99,7 +103,7 @@ class Ride extends Component {
 		}
 		return ''
 	}
-	
+
 
 	shouldShowDot(stop_obj) {
 		if (stop_obj.stage === STOP_STAGE.past_stop) {
@@ -124,7 +128,8 @@ class Ride extends Component {
 	}
 
 	getStopLegTime(stop_obj) {
-		return this.props.parseDate(stop_obj.leg_time)
+		if (!stop_obj.leg_time) return ''
+		return stop_obj.leg_time.getMinutes()
 	}
 
 
@@ -139,10 +144,6 @@ class Ride extends Component {
 			var next_stop = this.getNextStop(),
 				past_stop = this.getPastStop(),
 				date = this.state.testState ? this.state.testDate : this.props.currentDate
-
-			if(!next_stop) {
-				console.log('que paso?')
-			}
 
 			GLOBAL_left = this.getAbsoluteRouteContainerPosition(past_stop, next_stop, date)
 		}
@@ -207,6 +208,9 @@ class Ride extends Component {
 	}
 
 	renderStopAnnouncement(stop_obj) {
+		return '' // no stop announcements :(
+
+
 		if(stop_obj !== this.getNextStop()) return ''
 		
 		return (
@@ -243,7 +247,7 @@ class Ride extends Component {
 	    				<div className='stop_extras'>
 			    			<div className={this.shouldShowDot(stop_obj) +' stop-dot'}/>
 			    			<div className={this.shouldShowDot(stop_obj) +' stop_eta'}>
-			    				{this.props.parseDate(stop_obj.eta)}
+			    				{stop_obj.eta ? this.props.parseDate(stop_obj.eta) : ''}
 			    			</div>
 							{this.renderStopAnnouncement(stop_obj)}
 			    			{this.renderTestInfo(stop_obj)}
@@ -270,8 +274,6 @@ class Ride extends Component {
 	}
 
 
-
-	//
 	renderCaltrains() {
 		var caltrain_etas_NB,
 			caltrain_etas_SB
@@ -351,6 +353,9 @@ class Ride extends Component {
 			    <div className='slider'>
 			       <button onClick={this.toggleTestState.bind(this)}>
 				       {this.state.testState ? 'Back to location base' : 'Switch to test state'}
+				   </button> 
+				   <button onClick={this.togglePause.bind(this)}>
+				       {this.state.isPaused ? 'Continue ride' : 'Pause ride'}
 				   </button> 
 				   <div className=''>
 						{GLOBAL_current_leg_progress}
@@ -456,6 +461,7 @@ class Ride extends Component {
 
 			} else if (stop.stage === STOP_STAGE.upcoming_stop){
 				stop.stage = STOP_STAGE.current_stop
+				this.togglePause()
 
 			} else if (stop === this.getNextStop()){
 				if (GLOBAL_current_leg_progress < 1 && GLOBAL_current_leg_progress + .3 > 1) {

@@ -34,7 +34,7 @@ var STAGE = {
 },
   UPCOMING_DISTANCE = 300, //----- testing values are different than driving values
   ARRIVED_DISTANCE = 80,
-  stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePA.js', 'utf8'))
+  stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8'))
 
 
 /*--------------- Get Caltrain ETAs ----------------*/
@@ -124,14 +124,15 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
       var legs = directions_data.routes[0].legs,
           num_legs = legs.length,
           num_stops = stops_GLOBAL.route.length,
-          leg_i = 0
+          leg_i = 0,
+          next_stop = true
 
           // more stops than legs
       for(var stop_i=0; stop_i<num_stops; stop_i++) {
 
         var stop_distance = legs[leg_i].distance.value,
-            stop_obj = stops_GLOBAL.route[stop_i], // in meters
-            next_stop = true
+            stop_obj = stops_GLOBAL.route[stop_i] // in meters
+            
 
         if (stop_obj.stage === STAGE.past_stop) { // || stop_obj.stage === STAGE.current_stop ) {
           continue
