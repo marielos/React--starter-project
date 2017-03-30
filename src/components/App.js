@@ -210,9 +210,9 @@ class App extends Component {
       next_stop.distance = next_new_stop.distance
 
       if (next_stop.stage === STOP_STAGE.current_stop) {
-        if (!next_stop.have_arrived) {
-          this.refs.Ride.togglePause()
-        }
+        // if (!next_stop.have_arrived) {
+        //   this.refs.Ride.togglePause()
+        // }
         next_stop.have_arrived = true
       }
           

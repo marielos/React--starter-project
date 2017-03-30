@@ -113,6 +113,10 @@ class Ride extends Component {
 	}
 
 	getRideState() {
+		if (!this.getNextStop()) {
+			console.log('da fuck?')
+		}
+
 		if (this.getNextStop().stage ===  STOP_STAGE.current_stop) {
 			return RIDE_STAGE.stop
 		} else {
@@ -227,8 +231,14 @@ class Ride extends Component {
 	}
 
 	renderStopName(stop_obj) {
+		var shouldHide = ''
+		if (stop_obj.stage === STOP_STAGE.past_stop && stop_obj !== this.getPastStop()) {
+			shouldHide = ' hidden '
+		}
+
+
 		return (
-			<div className={this.getStopClass(stop_obj) +' stop-name '+ this.shouldDimStop(stop_obj)}>
+			<div className={this.getStopClass(stop_obj) +' stop-name '+ this.shouldDimStop(stop_obj) + shouldHide}>
 				<div className='text-container'>
 					<div className='stop-address'> {this.getStopAddress(stop_obj)} </div>
 					<div className='stop-poi'> {this.getStopName(stop_obj)} </div>
@@ -470,7 +480,7 @@ class Ride extends Component {
 
 			} else if (stop.stage === STOP_STAGE.upcoming_stop){
 				stop.stage = STOP_STAGE.current_stop
-				this.togglePause()
+				// this.togglePause()
 
 			} else if (stop === this.getNextStop()){
 				if (GLOBAL_current_leg_progress < .9 && GLOBAL_current_leg_progress + .3 > 1) {
@@ -523,13 +533,18 @@ class Ride extends Component {
 
 		for(var i=0; i< num_stops; i++) {
 			var stop = stops[i]
-			if(stop.stage === STOP_STAGE.current_stop || stop.stage === STOP_STAGE.upcoming_stop) {
+
+			if (stop.stage !== STOP_STAGE.past_stop) {
 				return stop
 			}
 
-			if (stop.stage === STOP_STAGE.future_stop) {
-				return stop
-			}
+			// if(stop.stage === STOP_STAGE.current_stop || stop.stage === STOP_STAGE.upcoming_stop) {
+			// 	return stop
+			// }
+
+			// if (stop.stage === STOP_STAGE.future_stop) {
+			// 	return stop
+			// }
 		}
 	}
 
