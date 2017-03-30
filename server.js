@@ -31,9 +31,10 @@ var STAGE = {
   current_stop: 1,
   past_stop: 2,
   future_stop: 3
-}
-
-var stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePA.js', 'utf8'))
+},
+  UPCOMING_DISTANCE = 300, //----- testing values are different than driving values
+  ARRIVED_DISTANCE = 80,
+  stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePA.js', 'utf8'))
 
 
 /*--------------- Get Caltrain ETAs ----------------*/
@@ -67,7 +68,7 @@ app.get('/route/etas', function(request, response) {
           lng = stop_obj.lng
 
           // dont factor in past stops for route
-      if (stop_obj.stage === STAGE.past_stop || stop_obj.stage === STAGE.current_stop ) {
+      if (stop_obj.stage === STAGE.past_stop){ // || stop_obj.stage === STAGE.current_stop ) {
         continue
       }
 
@@ -123,34 +124,39 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
       var legs = directions_data.routes[0].legs,
           num_legs = legs.length,
           num_stops = stops_GLOBAL.route.length,
-          upcoming_distance = 400, //----- testing values are different than driving values
-          arrived_to_distance = 100,
           leg_i = 0
 
           // more stops than legs
       for(var stop_i=0; stop_i<num_stops; stop_i++) {
 
         var stop_distance = legs[leg_i].distance.value,
-            stop_obj = stops_GLOBAL.route[stop_i] // in meters
+            stop_obj = stops_GLOBAL.route[stop_i], // in meters
+            next_stop = true
 
-        if (stop_obj.stage === STAGE.past_stop || stop_obj.stage === STAGE.current_stop ) {
+        if (stop_obj.stage === STAGE.past_stop) { // || stop_obj.stage === STAGE.current_stop ) {
           continue
         }
 
-        if (stop_distance < arrived_to_distance) {              // currently at this stop
+        // only nextStop() should have the chance to change to upcoming or current if (stop)
 
-          if (stop_obj['stage'] === STAGE.upcoming_stop) {
+        if (stop_distance < ARRIVED_DISTANCE) {              // currently at this stop
+
+          if (next_stop) { //stop_obj['stage'] === STAGE.upcoming_stop) {
             stop_obj['stage'] = STAGE.current_stop   
+            next_stop = false
           }
 
-        } else if (stop_distance < upcoming_distance) {         // upcoming at this stop
-          if (stop_obj['stage'] === STAGE.future_stop) {
-            stop_obj['stage'] = STAGE.upcoming_stop   
+        } else if (stop_distance < UPCOMING_DISTANCE) {         // upcoming at this stop
+          if (next_stop) { 
 
-          } else if (stop_obj['stage'] === STAGE.current_stop) {  
-            stop_obj['stage'] = STAGE.past_stop       //leaving this spot
-    
-          } 
+            if (stop_obj['stage'] === STAGE.future_stop) {
+              stop_obj['stage'] = STAGE.upcoming_stop   
+
+            } else if (stop_obj['stage'] === STAGE.current_stop) {  
+              stop_obj['stage'] = STAGE.past_stop       //leaving this spot
+            } 
+            next_stop = false
+          }
         } else {                                                 // out of range
           if (stop_obj['stage'] === STAGE.current_stop) {
              // probably never gets here since we move to upcoming distance before out of range, unless we jump out really quickly
@@ -160,6 +166,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
         }
 
         stop_obj['distance'] = stop_distance
+
         leg_i++
       }
       return stops_GLOBAL

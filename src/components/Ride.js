@@ -99,13 +99,7 @@ class Ride extends Component {
 		}
 		return ''
 	}
-
-	// shouldShowEta(stop_obj) {
-	// 	if (stop_obj.stage === STOP_STAGE.past_stop || stop_obj.stage === STOP_STAGE.current_stop) {
-	// 		return 'hidden'
-	// 	} 
-	// 	return ''
-	// }
+	
 
 	shouldShowDot(stop_obj) {
 		if (stop_obj.stage === STOP_STAGE.past_stop) {
@@ -125,13 +119,13 @@ class Ride extends Component {
 
 
 // // for testing purposes
-// 	getStopDistance(stop_obj) {
-// 		return stop_obj.distance
-// 	}
+	getStopDistance(stop_obj) {
+		return stop_obj.distance
+	}
 
-// 	getStopStartTime(stop_obj) {
-// 		return this.props.parseDate(stop_obj.start_time)
-// 	}
+	getStopLegTime(stop_obj) {
+		return this.props.parseDate(stop_obj.leg_time)
+	}
 
 
 	
@@ -198,15 +192,15 @@ class Ride extends Component {
 
 	renderTestInfo(stop_obj) {
 
-		return null // comment out when testing
+		// return null // comment out when testing
 
 		return (
-			<div>
-				<div className='stop-eta'>
+			<div className='stop-test'>
+				<div>
 					{this.getStopDistance(stop_obj)}m	
 				</div>
-				<div className='stop-eta'>
-					{this.getStopStartTime(stop_obj)}	
+				<div>
+					{this.getStopLegTime(stop_obj)}	
 				</div>
 			</div>
 		)

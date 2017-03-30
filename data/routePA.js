@@ -1,10 +1,21 @@
 {
 	"route": [{
 		"address":"4th & King",
+		"name": "Ace Hardware",
+		"lat": 37.440506, 
+		"lng":  -122.158962,
+		"stage": 3,
+		"announcement" : {
+			"text": "Local Art Walk, SFMOMA",
+			"time": "Thursdays at 6pm"
+		}
+	},
+	{
+		"address":"4th & King",
 		"name": "Opa!",
 		"lat": 37.444024, 
 		"lng":  -122.163411,
-		"stage": 2,
+		"stage": 3,
 		"announcement" : {
 			"text": "Local Art Walk, SFMOMA",
 			"time": "Thursdays at 6pm"
