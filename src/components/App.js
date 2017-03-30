@@ -19,7 +19,6 @@ class App extends Component {
 
   componentWillMount(){
     this.setCurrentTime()
-    // calls every location change
     this.trackLocation()
     this.setCaltrainData()
   }
@@ -68,8 +67,7 @@ class App extends Component {
     if (navigator.geolocation) {
 
       // gets called everytime we change position
-      // might want to change to getPosition every  
-      TRACKING_ID = navigator.geolocation.watchPosition(function(position) { //watchPosition(function(position) {
+      TRACKING_ID = navigator.geolocation.watchPosition(function(position) { 
         var pos = {
           lat: position.coords.latitude.toFixed(5),
           lng: position.coords.longitude.toFixed(5)
@@ -107,15 +105,13 @@ class App extends Component {
 
   }
 
-  // force get location
-  // doesnt work
+
   forceGetLocation() {
 
     if (navigator.geolocation) { 
       console.log('forcing')
 
       navigator.geolocation.clearWatch(TRACKING_ID);
-      // I believe its not working because we need to clear watch position
       navigator.geolocation.getCurrentPosition(function(position) {
         console.log('forced succesful')
         var pos = {
@@ -193,7 +189,6 @@ class App extends Component {
   addEtaToStops(route_data, date) { 
     if(!date) date = this.state.current_date
 
-    // var seconds_between_stops = this.getSecondsBetweenStops(route_data),
     var stops = route_data.stops.route,
         legs = route_data.routes[0].legs,
         num_stops = stops.length,
@@ -306,45 +301,6 @@ class App extends Component {
 
 /* -------------- GetStop methods  -------------- */
 
-
-  // getCurrentStop() {
-  //   var stops = this.state.stop_etas,
-  //       num_stops = stops.length
-
-  //   for (var i=0; i<num_stops; i++) {
-  //     var stop = stops[i]
-  //     if (stop.stage === STOP_STAGE.current_stop) {
-  //       return stop
-  //     }
-  //   }
-  //   return null
-  // }
-
-  // getNextStop() {
-  //   var stops = this.state.stop_etas,
-  //       num_stops = stops.length,
-  //       mid_ride = this.checkIfMidRide(stops, num_stops),
-  //       first_future = true
-
-  //   if (mid_ride) { // get first future
-  //     for (var i=0; i<num_stops; i++) {
-  //       var stop = stops[i]
-  //       if (stop.stage === STOP_STAGE.future_stop && first_future) {
-  //         first_future = false
-  //         return stop
-  //       }
-  //     }
-  //   } else { // get upcoming or ?current?
-  //     for (var i=0; i<num_stops; i++) {
-  //       var stop = stops[i]
-  //       if (stop.stage === STOP_STAGE.upcoming_stop || stop.stage === STOP_STAGE.current_stop) {
-  //         return stop
-  //       }
-  //     }
-  //   }
-  //   return null
-  // }
-
   getPastStop(stops_data) {
     var stops = stops_data ? stops_data : this.state.stop_etas,
         num_stops = stops.length,
@@ -358,42 +314,6 @@ class App extends Component {
     }
     return recent_past_stop
   }
-
-  // getFutureStops() { // next 3 future spots after next stop
-  //   var stops = this.state.stop_etas,
-  //       num_stops = stops.length,
-  //       next_stop = this.getNextStop(),
-  //       future_stops = []
-
-  //   if (!next_stop) return future_stops // return empty if at the end of the line, no next stop
-
-  //   for (var i=stops.indexOf(next_stop)+ 1; i<num_stops; i++) {
-  //     if (future_stops.length < 3) {
-  //       future_stops.push(stops[i])
-  //     }
-  //   }
-  //   return future_stops
-  // }
-
-  // checkIfMidRide(stops, num_stops) {
-  //   for (var i=0; i<num_stops; i++) {
-  //     var stop_obj = stops[i]
-  //     if(stop_obj.stage ===  STOP_STAGE.current_stop ||  stop_obj.stage ===  STOP_STAGE.upcoming_stop) {
-  //       return false
-  //     }
-  //   }
-  //   return true
-  // }
-
-  // checkIfAllPast(stops, num_stops) {
-  //   for (var i=0; i<num_stops; i++) {
-  //     var stop_obj = stops[i]
-  //     if(stop_obj.stage !==  STOP_STAGE.past_stop) {
-  //       return false
-  //     }
-  //   }
-  //   return true
-  // }
 
 /*------------ Render methods -------------- */
 
@@ -430,16 +350,11 @@ class App extends Component {
     }
   }
 
-  // get rid of nextStop , currentStop, pastStop, futureStops
   renderRideStage() {
     return <Ride 
               currentDate={this.state.current_date}
               stopEtas={this.state.stop_etas} 
               parseDate={this.parseDate}
-              // nextStop={this.getNextStop()}
-              // currentStop={this.getCurrentStop()}
-              // pastStop={this.getPastStop()}
-              // futureStops={this.getFutureStops()}
               availableCaltrainsNB={this.state.available_caltrains_nb}  
               availableCaltrainsSB={this.state.available_caltrains_sb}
             />
@@ -463,64 +378,6 @@ class App extends Component {
       </div>
     )
   }
-
-
-
-// Only show this once it works 
-
-
-/*------------ Testing methods -------------- */
-
-// // if all past change to all future
-//   nextStage() {
-//     var stops = this.state.stop_etas,
-//         num_stops = stops.length,
-//         // next_app_stage,
-//         first_future = true,
-//         mid_ride = this.checkIfMidRide(stops, num_stops),
-//         all_past = this.checkIfAllPast(stops, num_stops)
-
-//     this.getFutureStops()
-
-//     if (all_past) {
-//       for (var i=0; i<num_stops; i++) {
-//         var stop_obj = stops[i]
-//         stop_obj.stage = STOP_STAGE.future_stop
-//       }
-//       return null
-//     }
-
-
-//     if (mid_ride) {
-//       for (var i=0; i<num_stops; i++) {
-//         var stop_obj = stops[i]
-//         if(stop_obj.stage === STOP_STAGE.future_stop && first_future) { //first future stop
-//           stop_obj.stage = STOP_STAGE.upcoming_stop
-//           first_future = false
-//         }
-//       }
-//     } else { // theres an upcoming or a current stop 
-//       for (var i=0; i<num_stops; i++) {
-//           var stop_obj = stops[i]
-//           if (stop_obj.stage === STOP_STAGE.upcoming_stop) {
-//             stop_obj.stage = STOP_STAGE.current_stop
-//           } else if (stop_obj.stage === STOP_STAGE.current_stop) {
-//             stop_obj.stage = STOP_STAGE.past_stop
-//           }
-//       }
-//     }
-//   }
-
-  // toggleLocationVClickThrough() {
-  //   if (this.state.testing_state) { //switching out of testing state, reload stop_data based on location
-  //     this.setRouteData(this.state.num_calls)
-  //   }
-  //     this.setState({
-  //       testing_state: !this.state.testing_state
-  //     })
-  // }
-
-
 
 
 };

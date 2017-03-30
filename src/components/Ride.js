@@ -139,7 +139,7 @@ class Ride extends Component {
 				console.log('que paso?')
 			}
 
-			console.log(next_stop.name)
+			// console.log(next_stop.name)
 
 			GLOBAL_left = this.getAbsoluteRouteContainerPosition(past_stop, next_stop, date)
 		}
@@ -406,15 +406,24 @@ class Ride extends Component {
 		var stop = this.getNextStop()
 
 		if (stop.stage === STOP_STAGE.current_stop) {
-			if (GLOBAL_current_leg_progress - .1 > 1) this.cycleStopStagesForward(test_date)
+			if (GLOBAL_current_leg_progress - .1 > 1) {
+				console.log('leaving current stop ' + stop.name)
+				this.cycleStopStagesForward(test_date)
+			}
 			// go to next stage if leaving current stop 
 
 		} else if (stop.stage === STOP_STAGE.upcoming_stop) {
-			if (GLOBAL_current_leg_progress + .1 > 1) this.cycleStopStagesForward(test_date)
+			if (GLOBAL_current_leg_progress + .1 > 1) {
+				console.log('current stop ' + stop.name)
+				this.cycleStopStagesForward(test_date)
+			}
 			// go to next stage if upcoming stop has arrived
 
 		} else {
-			if (GLOBAL_current_leg_progress + .3 > 1) this.cycleStopStagesForward(test_date)
+			if (GLOBAL_current_leg_progress + .3 > 1) {
+				console.log('upcoming stop ' + stop.name)
+				this.cycleStopStagesForward(test_date)
+			}
 			// go to next stage if next stop is getting close
 		} 
 	}
@@ -434,7 +443,7 @@ class Ride extends Component {
 				stop.stage = STOP_STAGE.current_stop
 
 			} else if (stop === this.getNextStop()){
-				if (GLOBAL_current_leg_progress + .3 > 1) {
+				if (GLOBAL_current_leg_progress < 1 && GLOBAL_current_leg_progress + .3 > 1) {
 					stop.stage = STOP_STAGE.upcoming_stop
 				}
 			} 
@@ -464,12 +473,12 @@ class Ride extends Component {
 		for(var i=0; i< num_stops; i++) {
 			var stop = stops[i]
 			if(stop.stage === STOP_STAGE.current_stop || stop.stage === STOP_STAGE.upcoming_stop) {
-				console.log('near stop')
+				// console.log('near stop')
 				return stop
 			}
 
 			if (stop.stage === STOP_STAGE.future_stop) {
-				console.log('next future')
+				// console.log('next future')
 				return stop
 			}
 		}
