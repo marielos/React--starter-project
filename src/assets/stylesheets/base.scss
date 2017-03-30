@@ -20,7 +20,7 @@ h1 {
 
 .vehicle-screen {
   position: absolute;
-  height: 300px;
+  height: 335px;
   width: 100%;
   bottom: 0px;
   border: solid 1px black;
@@ -117,6 +117,7 @@ h1 {
     bottom:26px;
     position: absolute;
     width:100%;
+    margin-left: -9px;
 
     .stop-address {
       font-weight: bold;
@@ -142,7 +143,6 @@ h1 {
     border: black 3px solid;
     border-radius: 7px;
     margin-top: -10px;
-    margin-left: 9px;
     margin-bottom: 2px;
   }
 
@@ -156,6 +156,7 @@ h1 {
 .stop_announcement {
   position: absolute;
   top: 90px;
+  margin-left: -9px;
 
   .stop-announcement-title {
     opacity: .85;

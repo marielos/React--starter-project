@@ -149,7 +149,7 @@ class App extends Component {
     }
     num_calls++
 
-    
+
     fetch(this.getGMapsUrlWithCurrentLocation()).then(function(response) {
 		  return response.json()
 		}, function(error) {
@@ -185,21 +185,27 @@ class App extends Component {
         legs = route_data.routes[0].legs,
         num_stops = stops.length,
         stop_etas = [],
-        accumulated_seconds = 0
-        // last_eta = date
+        accumulated_seconds = 0,
+        num_past_stops = stops.indexOf(this.getPastStop(stops)) +1
 
     for (var i=0; i<num_stops; i++) {
       var next_date = new Date(date.getTime()),
-          next_stop = stops[i],
-          next_stop_leg_time = legs[i].duration.value
+          next_stop = stops[i]
+          
 
-      accumulated_seconds += next_stop_leg_time
-      next_date.setSeconds(next_date.getSeconds() +accumulated_seconds)
-      next_stop.eta = next_date
-      if (next_stop.start_time) {
-        next_stop.leg_time = new Date(next_stop.eta - new Date(next_stop.start_time))
-        // console.log(next_stop.leg_time)
+      if(i >= num_past_stops) {
+        var next_stop_leg_time = legs[i-num_past_stops].duration.value
+
+        accumulated_seconds += next_stop_leg_time
+        next_date.setSeconds(next_date.getSeconds() +accumulated_seconds)
+        next_stop.eta = next_date
+        // if (next_stop.start_time) {
+        //   next_stop.leg_time = new Date(next_stop.eta - new Date(next_stop.start_time))
+        // } else {
+        //   // placeholder leg_time
+        next_stop.leg_time = new Date(next_stop_leg_time*1000)
       }
+      // }
       stop_etas.push(next_stop)
     }
 
@@ -288,46 +294,46 @@ class App extends Component {
 /* -------------- GetStop methods  -------------- */
 
 
-  getCurrentStop() {
-    var stops = this.state.stop_etas,
-        num_stops = stops.length
+  // getCurrentStop() {
+  //   var stops = this.state.stop_etas,
+  //       num_stops = stops.length
 
-    for (var i=0; i<num_stops; i++) {
-      var stop = stops[i]
-      if (stop.stage === STOP_STAGE.current_stop) {
-        return stop
-      }
-    }
-    return null
-  }
+  //   for (var i=0; i<num_stops; i++) {
+  //     var stop = stops[i]
+  //     if (stop.stage === STOP_STAGE.current_stop) {
+  //       return stop
+  //     }
+  //   }
+  //   return null
+  // }
 
-  getNextStop() {
-    var stops = this.state.stop_etas,
-        num_stops = stops.length,
-        mid_ride = this.checkIfMidRide(stops, num_stops),
-        first_future = true
+  // getNextStop() {
+  //   var stops = this.state.stop_etas,
+  //       num_stops = stops.length,
+  //       mid_ride = this.checkIfMidRide(stops, num_stops),
+  //       first_future = true
 
-    if (mid_ride) { // get first future
-      for (var i=0; i<num_stops; i++) {
-        var stop = stops[i]
-        if (stop.stage === STOP_STAGE.future_stop && first_future) {
-          first_future = false
-          return stop
-        }
-      }
-    } else { // get upcoming or ?current?
-      for (var i=0; i<num_stops; i++) {
-        var stop = stops[i]
-        if (stop.stage === STOP_STAGE.upcoming_stop || stop.stage === STOP_STAGE.current_stop) {
-          return stop
-        }
-      }
-    }
-    return null
-  }
+  //   if (mid_ride) { // get first future
+  //     for (var i=0; i<num_stops; i++) {
+  //       var stop = stops[i]
+  //       if (stop.stage === STOP_STAGE.future_stop && first_future) {
+  //         first_future = false
+  //         return stop
+  //       }
+  //     }
+  //   } else { // get upcoming or ?current?
+  //     for (var i=0; i<num_stops; i++) {
+  //       var stop = stops[i]
+  //       if (stop.stage === STOP_STAGE.upcoming_stop || stop.stage === STOP_STAGE.current_stop) {
+  //         return stop
+  //       }
+  //     }
+  //   }
+  //   return null
+  // }
 
-  getPastStop() {
-    var stops = this.state.stop_etas,
+  getPastStop(stops_data) {
+    var stops = stops_data ? stops_data : this.state.stop_etas,
         num_stops = stops.length,
         recent_past_stop = null
     for (var i=0; i<num_stops; i++) {
@@ -340,41 +346,41 @@ class App extends Component {
     return recent_past_stop
   }
 
-  getFutureStops() { // next 3 future spots after next stop
-    var stops = this.state.stop_etas,
-        num_stops = stops.length,
-        next_stop = this.getNextStop(),
-        future_stops = []
+  // getFutureStops() { // next 3 future spots after next stop
+  //   var stops = this.state.stop_etas,
+  //       num_stops = stops.length,
+  //       next_stop = this.getNextStop(),
+  //       future_stops = []
 
-    if (!next_stop) return future_stops // return empty if at the end of the line, no next stop
+  //   if (!next_stop) return future_stops // return empty if at the end of the line, no next stop
 
-    for (var i=stops.indexOf(next_stop)+ 1; i<num_stops; i++) {
-      if (future_stops.length < 3) {
-        future_stops.push(stops[i])
-      }
-    }
-    return future_stops
-  }
+  //   for (var i=stops.indexOf(next_stop)+ 1; i<num_stops; i++) {
+  //     if (future_stops.length < 3) {
+  //       future_stops.push(stops[i])
+  //     }
+  //   }
+  //   return future_stops
+  // }
 
-  checkIfMidRide(stops, num_stops) {
-    for (var i=0; i<num_stops; i++) {
-      var stop_obj = stops[i]
-      if(stop_obj.stage ===  STOP_STAGE.current_stop ||  stop_obj.stage ===  STOP_STAGE.upcoming_stop) {
-        return false
-      }
-    }
-    return true
-  }
+  // checkIfMidRide(stops, num_stops) {
+  //   for (var i=0; i<num_stops; i++) {
+  //     var stop_obj = stops[i]
+  //     if(stop_obj.stage ===  STOP_STAGE.current_stop ||  stop_obj.stage ===  STOP_STAGE.upcoming_stop) {
+  //       return false
+  //     }
+  //   }
+  //   return true
+  // }
 
-  checkIfAllPast(stops, num_stops) {
-    for (var i=0; i<num_stops; i++) {
-      var stop_obj = stops[i]
-      if(stop_obj.stage !==  STOP_STAGE.past_stop) {
-        return false
-      }
-    }
-    return true
-  }
+  // checkIfAllPast(stops, num_stops) {
+  //   for (var i=0; i<num_stops; i++) {
+  //     var stop_obj = stops[i]
+  //     if(stop_obj.stage !==  STOP_STAGE.past_stop) {
+  //       return false
+  //     }
+  //   }
+  //   return true
+  // }
 
 /*------------ Render methods -------------- */
 
@@ -417,9 +423,9 @@ class App extends Component {
               currentDate={this.state.current_date}
               stopEtas={this.state.stop_etas} 
               parseDate={this.parseDate}
-              nextStop={this.getNextStop()}
-              currentStop={this.getCurrentStop()}
-              pastStop={this.getPastStop()}
+              // nextStop={this.getNextStop()}
+              // currentStop={this.getCurrentStop()}
+              // pastStop={this.getPastStop()}
               // futureStops={this.getFutureStops()}
               availableCaltrainsNB={this.state.available_caltrains_nb}  
               availableCaltrainsSB={this.state.available_caltrains_sb}

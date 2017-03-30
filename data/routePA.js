@@ -4,7 +4,7 @@
 		"name": "Opa!",
 		"lat": 37.444024, 
 		"lng":  -122.163411,
-		"stage": 3,
+		"stage": 2,
 		"announcement" : {
 			"text": "Local Art Walk, SFMOMA",
 			"time": "Thursdays at 6pm"
@@ -35,8 +35,8 @@
 	{
 		"address":"El Camino & Stanford Ave",
 		"name": "Stop 9",
-		"lat": 37.444057,
-		"lng": -122.166216,
+		"lat": 37.444357,
+		"lng": -122.166416,
 		"stage": 3,
 		"announcement" : {
 			"text": "The office is now open on weekends!",

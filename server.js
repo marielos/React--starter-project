@@ -20,9 +20,9 @@ var STAGE = {
   future_stop: 3
 }
 
-var stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePA.js', 'utf8')),
-    first_stop = stops_GLOBAL.route[0]
-first_stop['start_time'] = new Date()
+var stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePA.js', 'utf8'))
+//     first_stop = stops_GLOBAL.route[0]
+// first_stop['start_time'] = new Date()
 
 
 // using webpack-dev-server and middleware in development environment
@@ -63,9 +63,34 @@ app.get('/route/etas', function(request, response) {
 
   // console.log(request.query)
 
-  var origin  = function(data) {
+  var origin  = function() {
     return [request.query.lat, request.query.lng]
-  }(stops_GLOBAL)
+  }()
+
+  var waypoints  = function() {
+    var stops = []
+    // iterate through route stops skipping first and last stop
+    for(var i=0; i < stops_GLOBAL.route.length-1; i++) {
+      var stop_obj = stops_GLOBAL.route[i],
+          lat = stop_obj.lat,
+          lng = stop_obj.lng
+
+      if (stop_obj.stage === STAGE.past_stop || stop_obj.stage === STAGE.current_stop ) {
+        continue
+      }
+
+      stops.push([lat, lng])    
+    }
+    return stops
+  }()
+
+  var destination  = function() {
+    var destination_obj = stops_GLOBAL.route[stops_GLOBAL.route.length-1],
+        lat = destination_obj.lat,
+        lng = destination_obj.lng
+   
+    return [lat, lng]
+  }()
 
 
 /*
@@ -81,29 +106,6 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
  array, but will instead route the journey through the provided waypoint.
 
 */
-
-
-  var waypoints  = function(data) {
-    var stops = []
-    // iterate through route stops skipping first and last stop
-    for(var i=0; i < data.route.length-1; i++) {
-      var stop_obj = data.route[i],
-          lat = stop_obj.lat,
-          lng = stop_obj.lng
-
-      stops.push([lat, lng])    
-    }
-    return stops
-  }(stops_GLOBAL)
-
-  var destination  = function(data) {
-    var destination_obj = data.route[data.route.length-1],
-        lat = destination_obj.lat,
-        lng = destination_obj.lng
-   
-    return [lat, lng]
-  }(stops_GLOBAL)
-
   googleMapsDirectionsClient.directions({
     origin: origin,
     waypoints: waypoints,
@@ -125,15 +127,30 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
         stop stage persists because were updating stops_GLOBAL
         ideally we would be storing this info in a database in a server
     */
+
+
+    // **************** TEST TEST TEST  no longer getting directions for past stops **************
+    // **************** TEST TEST TEST  no longer getting directions for past stops **************
+    // **************** TEST TEST TEST  no longer getting directions for past stops **************
+    // **************** TEST TEST TEST  no longer getting directions for past stops **************
+    // **************** TEST TEST TEST  no longer getting directions for past stops **************
     var updateStageOfStops = function(directions_data) {
       var legs = directions_data.routes[0].legs,
           num_legs = legs.length,
-          upcoming_distance = 200, //400, ----- testing values are different than driving values
-          arrived_to_distance = 70
+          num_stops = stops_GLOBAL.route.length,
+          upcoming_distance = 400, //----- testing values are different than driving values
+          arrived_to_distance = 100,
+          leg_i = 0
 
-      for(var i=0; i<num_legs; i++) {
-        var stop_distance = legs[i].distance.value,
-            stop_obj = stops_GLOBAL.route[i] // in meters
+          // more stops than legs
+      for(var stop_i=0; stop_i<num_stops; stop_i++) {
+
+        var stop_distance = legs[leg_i].distance.value,
+            stop_obj = stops_GLOBAL.route[stop_i] // in meters
+
+        if (stop_obj.stage === STAGE.past_stop || stop_obj.stage === STAGE.current_stop ) {
+          continue
+        }
 
         if (stop_distance < arrived_to_distance) {              // currently at this stop
 
@@ -147,10 +164,10 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
 
           } else if (stop_obj['stage'] === STAGE.current_stop) {  
             stop_obj['stage'] = STAGE.past_stop       //leaving this spot
-            var next_stop_obj = stops_GLOBAL.route[i+1]
-            if (next_stop_obj) {
-              next_stop_obj['start_time'] = new Date()
-            }
+            // var next_stop_obj = stops_GLOBAL.route[stop_i+1]
+            // if (next_stop_obj) {
+            //   next_stop_obj['start_time'] = new Date()
+            // }
           } 
         } else {                                                 // out of range
           if (stop_obj['stage'] === STAGE.current_stop) {
@@ -161,6 +178,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
         }
 
         stop_obj['distance'] = stop_distance
+        leg_i++
       }
       return stops_GLOBAL
     }
