@@ -22,9 +22,6 @@ var GLOBAL_current_leg_progress = 0,
 	GLOBAL_left = 0
 
 
-
-
-
 	/* ---------------------- TO DO ----------------------
 
 
@@ -50,8 +47,6 @@ class Ride extends Component {
 
 
 	componentDidMount() {
-	
-
 		document.addEventListener('keydown', function(event) {
 			if (event.keyCode == "32") { // spacebar has been pressed
 				this.togglePause()
@@ -313,7 +308,7 @@ class Ride extends Component {
 
 	renderCurrentTime() {
 		return (
-		  <div className='time'>
+		  <div className={this.getRideState() === RIDE_STAGE.stop ? 'were-here time' : 'time'}>
 		     {this.props.parseDate(this.state.testState ? this.state.testDate : this.props.currentDate)}
 		  </div>
 		)
@@ -326,9 +321,7 @@ class Ride extends Component {
 		return(
 			<div>
 				<div className='vehicle-screen'>
-					<div className='time'>
-						{this.renderCurrentTime()}
-					</div>
+					{this.renderCurrentTime()}
 					<div className='chariot-id'> Chariot #10 </div>
 
 					<div className='fixed-past-container'>

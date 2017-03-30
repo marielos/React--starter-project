@@ -206,6 +206,7 @@ class App extends Component {
           first_stop = true
 
           next_stop.stage = next_new_stop.stage
+          next_stop.distance = next_new_stop.distance
 
           if (next_stop.stage === STOP_STAGE.current_stop) {
             this.refs.Ride.togglePause()

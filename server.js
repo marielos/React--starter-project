@@ -138,13 +138,15 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
           continue
         }
 
+        stop_obj['distance'] = stop_distance
+        leg_i++
+
         // only nextStop() should have the chance to change to upcoming or current if (stop)
 
         if (stop_distance < ARRIVED_DISTANCE) {              // currently at this stop
 
           if (next_stop) { //stop_obj['stage'] === STAGE.upcoming_stop) {
             stop_obj['stage'] = STAGE.current_stop   
-            next_stop = false
           }
 
         } else if (stop_distance < UPCOMING_DISTANCE) {         // upcoming at this stop
@@ -156,7 +158,6 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
             } else if (stop_obj['stage'] === STAGE.current_stop) {  
               stop_obj['stage'] = STAGE.past_stop       //leaving this spot
             } 
-            next_stop = false
           }
         } else {                                                 // out of range
           if (stop_obj['stage'] === STAGE.current_stop) {
@@ -166,9 +167,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
           } 
         }
 
-        stop_obj['distance'] = stop_distance
-
-        leg_i++
+        next_stop = false
       }
       return stops_GLOBAL
     }
