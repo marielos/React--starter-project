@@ -61,6 +61,11 @@ class Ride extends Component {
 		})
 	}
 
+	continueToNextStop() {
+		this.cycleStopStagesForward()
+		this.togglePause()
+	}
+
 	getStopName(stop_obj) {  	
 		return stop_obj.name
 	}
@@ -176,6 +181,10 @@ class Ride extends Component {
 			current_left_position = past_stop_left_pos - animation_left
 
 		GLOBAL_current_leg_progress = current_leg_progress
+
+		if(GLOBAL_current_leg_progress >10) {
+			console.log('why the face')
+		}
 	
 		if (index_past_stop === -1) {
 			return past_margin_width + stop_width  - animation_left
@@ -219,7 +228,7 @@ class Ride extends Component {
 
 	renderStopName(stop_obj) {
 		return (
-			<div className={this.getStopClass(stop_obj) +' stop-name'}>
+			<div className={this.getStopClass(stop_obj) +' stop-name '+ this.shouldDimStop(stop_obj)}>
 				<div className='text-container'>
 					<div className='stop-address'> {this.getStopAddress(stop_obj)} </div>
 					<div className='stop-poi'> {this.getStopName(stop_obj)} </div>
@@ -236,12 +245,12 @@ class Ride extends Component {
 
 		return (
 		  this.getStopEtas().map(function(stop_obj) {
-		    return <div className={this.shouldDimStop(stop_obj) +' stop'} key={this.getStopName(stop_obj)}> 
+		    return <div className='stop' key={this.getStopName(stop_obj)}> 
 		    			{this.renderStopName(stop_obj)}
 		    			<div className='path-line'/>		    			
 	    				<div className='stop_extras'>
 			    			<div className={this.shouldShowDot(stop_obj) +' stop-dot'}/>
-			    			<div className={this.shouldShowDot(stop_obj) +' stop_eta'}>
+			    			<div className={this.shouldShowDot(stop_obj) +' stop_eta ' + this.shouldDimStop(stop_obj)}>
 			    				{stop_obj.eta ? this.props.parseDate(stop_obj.eta) : ''}
 			    			</div>
 							{this.renderStopAnnouncement(stop_obj)}
@@ -350,6 +359,13 @@ class Ride extends Component {
 				   <button onClick={this.togglePause.bind(this)}>
 				       {this.state.isPaused ? 'Continue ride' : 'Pause ride'}
 				   </button> 
+				   {this.state.isPaused ?
+						<button onClick={this.continueToNextStop.bind(this)}>
+					       Continue to next stop
+					    </button> 
+					    : ''
+				   }
+				   
 				   <div className=''>
 						{GLOBAL_current_leg_progress}
 					</div>
@@ -394,7 +410,7 @@ class Ride extends Component {
 	}
 
 	getMinTime() {
-		return this.props.currentDate.getTime() -10*60*1000 // now - 10 min 
+		return this.props.currentDate.getTime() //   -10*60*1000 // now - 10 min 
 
 		// return this.getStopEtas()[0].eta.getTime() -10*60*1000 // first eta - 10 min 
 	}
@@ -457,7 +473,7 @@ class Ride extends Component {
 				this.togglePause()
 
 			} else if (stop === this.getNextStop()){
-				if (GLOBAL_current_leg_progress < 1 && GLOBAL_current_leg_progress + .3 > 1) {
+				if (GLOBAL_current_leg_progress < .9 && GLOBAL_current_leg_progress + .3 > 1) {
 					stop.stage = STOP_STAGE.upcoming_stop
 				}
 			} 

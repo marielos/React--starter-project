@@ -197,20 +197,24 @@ class App extends Component {
         num_stops = new_stops.length,
         stop_etas = [],
         accumulated_seconds = 0,
-        num_past_stops = new_stops.indexOf(this.getPastStop(new_stops)) +1
+        num_past_stops = new_stops.indexOf(this.getPastStop(new_stops)) +1,
+        first_stop = true
 
     for (var i=0; i<num_stops; i++) {
       var new_eta = new Date(date.getTime()),
           next_new_stop = new_stops[i],
-          next_stop = this.state.stop_etas ? this.state.stop_etas[i] : next_new_stop,
-          first_stop = true
+          next_stop = this.state.stop_etas ? this.state.stop_etas[i] : next_new_stop
+          
 
-          next_stop.stage = next_new_stop.stage
-          next_stop.distance = next_new_stop.distance
+      next_stop.stage = next_new_stop.stage
+      next_stop.distance = next_new_stop.distance
 
-          if (next_stop.stage === STOP_STAGE.current_stop) {
-            this.refs.Ride.togglePause()
-          }
+      if (next_stop.stage === STOP_STAGE.current_stop) {
+        if (!next_stop.have_arrived) {
+          this.refs.Ride.togglePause()
+        }
+        next_stop.have_arrived = true
+      }
           
       if(i >= num_past_stops) {
         var next_stop_leg_time = legs[i-num_past_stops].duration.value
@@ -228,6 +232,7 @@ class App extends Component {
         next_stop.eta = new_eta
 
         if (first_stop && next_stop.leg_time) { //dont recalculate leg time after it is set 
+          console.log(next_stop.name)
           next_stop.leg_time = new Date(next_stop.leg_time.getTime() + eta_diff)
         } else {
           next_stop.leg_time = new Date(next_stop_leg_time*1000)

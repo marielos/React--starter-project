@@ -146,7 +146,8 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
         if (stop_distance < ARRIVED_DISTANCE) {              // currently at this stop
 
           if (next_stop) { //stop_obj['stage'] === STAGE.upcoming_stop) {
-            stop_obj['stage'] = STAGE.current_stop   
+            stop_obj['stage'] = STAGE.current_stop
+               
           }
 
         } else if (stop_distance < UPCOMING_DISTANCE) {         // upcoming at this stop
