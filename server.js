@@ -4,27 +4,6 @@ var app = express();
 var PORT = process.env.PORT || 8080
 var fs = require('fs');
 
-var googleMapsDirectionsClient = require('@google/maps').createClient({
-  key: 'AIzaSyDVl65wW5zqkICh0c1UrabLIn4MV8ryIfk'
-});
-
-// var googleMapsDistanceClient = require('@google/maps').createClient({
-//   key: 'AIzaSyA-iU4qAgyz1J6OA-JJ0_LKJxeXJTt78nU'
-// });
-
-// must match App.js --- eventually change
-var STAGE = {
-  upcoming_stop: 0,
-  current_stop: 1,
-  past_stop: 2,
-  future_stop: 3
-}
-
-var stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePA.js', 'utf8'))
-//     first_stop = stops_GLOBAL.route[0]
-// first_stop['start_time'] = new Date()
-
-
 // using webpack-dev-server and middleware in development environment
 if(process.env.NODE_ENV !== 'production') {
   var webpackDevMiddleware = require('webpack-dev-middleware');
@@ -39,7 +18,22 @@ if(process.env.NODE_ENV !== 'production') {
 
 app.use(express.static(path.join(__dirname, 'dist')));
 
+/*--------------- ^^^ Express Server Setup ^^^ ----------------*/
 
+
+var googleMapsDirectionsClient = require('@google/maps').createClient({
+  key: 'AIzaSyDVl65wW5zqkICh0c1UrabLIn4MV8ryIfk'
+});
+
+// must match App.js --- eventually export
+var STAGE = {
+  upcoming_stop: 0,
+  current_stop: 1,
+  past_stop: 2,
+  future_stop: 3
+}
+
+var stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePA.js', 'utf8'))
 
 
 /*--------------- Get Caltrain ETAs ----------------*/
@@ -61,20 +55,18 @@ app.get('/caltrain/etas', function(request, response) {
 
 app.get('/route/etas', function(request, response) {
 
-  // console.log(request.query)
-
   var origin  = function() {
     return [request.query.lat, request.query.lng]
   }()
 
   var waypoints  = function() {
     var stops = []
-    // iterate through route stops skipping first and last stop
     for(var i=0; i < stops_GLOBAL.route.length-1; i++) {
       var stop_obj = stops_GLOBAL.route[i],
           lat = stop_obj.lat,
           lng = stop_obj.lng
 
+          // dont factor in past stops for route
       if (stop_obj.stage === STAGE.past_stop || stop_obj.stage === STAGE.current_stop ) {
         continue
       }
@@ -119,21 +111,14 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
       response.json(directions_data)
     } else {
       console.log('err-' + err);
+
+      response.json({
+        stops: stops_GLOBAL
+      })
     }
   });
 
-    /*
-    ----------------------------------------------------------------------
-        stop stage persists because were updating stops_GLOBAL
-        ideally we would be storing this info in a database in a server
-    */
 
-
-    // **************** TEST TEST TEST  no longer getting directions for past stops **************
-    // **************** TEST TEST TEST  no longer getting directions for past stops **************
-    // **************** TEST TEST TEST  no longer getting directions for past stops **************
-    // **************** TEST TEST TEST  no longer getting directions for past stops **************
-    // **************** TEST TEST TEST  no longer getting directions for past stops **************
     var updateStageOfStops = function(directions_data) {
       var legs = directions_data.routes[0].legs,
           num_legs = legs.length,
@@ -164,10 +149,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
 
           } else if (stop_obj['stage'] === STAGE.current_stop) {  
             stop_obj['stage'] = STAGE.past_stop       //leaving this spot
-            // var next_stop_obj = stops_GLOBAL.route[stop_i+1]
-            // if (next_stop_obj) {
-            //   next_stop_obj['start_time'] = new Date()
-            // }
+    
           } 
         } else {                                                 // out of range
           if (stop_obj['stage'] === STAGE.current_stop) {

@@ -79,25 +79,27 @@ class App extends Component {
           current_location : pos
         })
 
-
-        if(!this.state.testing_state) { // only make api calls out of testing state
-          console.log('about to set Route Data')
-          this.setRouteData(this.state.num_calls)
-        }
+        this.setRouteData(this.state.num_calls)
         
       }.bind(this), function(failure) {
         console.log('error with navigator.geolocation- '+ failure.message)
-
-        /*
-            try and use IDEO's location as current location and go from there
-        */
-
         if(failure.message.indexOf("Only secure origins are allowed") == 0) {
           console.log('Secure Origin issue')
         }
+
+        /*
+          use IDEO's location as current location and go from there
+        */
+        var ideo_pos = {
+          lat: 37.442211,
+          lng: -122.16097
+        }
+
         this.setState({
-          fucked: 'were fucked'
+          current_location : ideo_pos
         })
+        this.setRouteData(this.state.num_calls)
+        
       }.bind(this));
     } else {
       console.log('browser doesnt support navigator.geolocation')
@@ -156,19 +158,30 @@ class App extends Component {
 			console.log('error- '+ error);
 		}).then(function(data) {
       if(data) {
-        var stop_etas = that.addEtaToStops(data),
-            available_caltrains = that.getAvailableCaltrains(stop_etas),
-            caltrain_keys = Object.keys(available_caltrains),
-            available_caltrains_nb = available_caltrains[caltrain_keys[0]],
-            available_caltrains_sb = available_caltrains[caltrain_keys[1]]
-        console.log(stop_etas)
-        that.setState({
-          route_data: data,
-          stop_etas: stop_etas, // stores date obj
-          available_caltrains_nb: available_caltrains_nb,  //move to etas recalculation after
-          available_caltrains_sb: available_caltrains_sb,
-          num_calls : num_calls // for testing 
-        })
+     
+        if (data.routes) {   
+          var stop_etas = that.addEtaToStops(data),
+              available_caltrains = that.getAvailableCaltrains(stop_etas),
+              caltrain_keys = Object.keys(available_caltrains),
+              available_caltrains_nb = available_caltrains[caltrain_keys[0]],
+              available_caltrains_sb = available_caltrains[caltrain_keys[1]]
+
+          that.setState({
+            // route_data: data,
+            stop_etas: stop_etas, 
+            available_caltrains_nb: available_caltrains_nb, 
+            available_caltrains_sb: available_caltrains_sb,
+            num_calls : num_calls // for testing 
+          })
+
+        } else {          // if we didnt get route directions 
+          num_calls-=.9
+          that.setState({
+            stop_etas: data.stops.route, 
+            num_calls : num_calls // for testing 
+          })
+        }
+      
       } else {
         console.log('didnt get any Route Data!!!!!!')
       }
@@ -446,7 +459,6 @@ class App extends Component {
           </button> 
         </div>
         <div className='row'>
-        {this.state.fucked}
         </div>
       </div>
     )
