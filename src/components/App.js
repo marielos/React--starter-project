@@ -185,6 +185,7 @@ class App extends Component {
   }
 
 
+
 // should keep initial leg_time constant
 // update stop_etas instead of returning new ones 
 // keep recalculating leg_time of future stops but not of next_stop
@@ -383,6 +384,7 @@ class App extends Component {
               parseDate={this.parseDate}
               availableCaltrainsNB={this.state.available_caltrains_nb}  
               availableCaltrainsSB={this.state.available_caltrains_sb}
+              setRouteData={this.setRouteData.bind(this)}
               ref='Ride'
             />
   }

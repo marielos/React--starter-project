@@ -1,7 +1,8 @@
 import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
-import {Motion, spring} from 'react-motion'
+import {Motion} from 'react-motion'
 import Slider from 'react-rangeslider'
+import 'whatwg-fetch'
 
 
 
@@ -53,7 +54,6 @@ class Ride extends Component {
 			}
 		}.bind(this))
 	}
-
 
 	togglePause() {
 		this.setState({
@@ -375,6 +375,9 @@ class Ride extends Component {
 					    </button> 
 					    : ''
 				   }
+				   <button onClick={() => this.resetData()} className='reset-button'>
+				       RESET DATA
+				   </button> 
 				   
 				   <div className=''>
 						{GLOBAL_current_leg_progress}
@@ -398,6 +401,27 @@ class Ride extends Component {
 
 		)
 	}
+
+
+
+	resetData(pm) {
+	    var url = '/reset/am',
+	    that = this
+	    if (pm) {
+	      url = 'reset/pm'
+	    }
+
+	    fetch(url).then(function(response) {
+	          return response
+	        }, function(error) {
+	          console.log('error- '+ error);
+	        }).then(function(data) {
+	          console.log('successful reset')
+	          this.props.setRouteData(0)
+	        }.bind(this))
+	}
+
+
 
 
 	/*------------ Testing methods -------------- */

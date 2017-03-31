@@ -37,6 +37,21 @@ var STAGE = {
   stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8'))
 
 
+
+
+app.get('/reset/am', function(request, response) {
+  stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8'))
+  response.send('success')
+})
+
+
+app.get('/reset/pm', function(request, response) {
+  stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePM.js', 'utf8'))
+  response.send('success')
+})
+
+
+
 /*--------------- Get Caltrain ETAs ----------------*/
 app.get('/caltrain/etas', function(request, response) {
 
@@ -147,7 +162,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
 
           if (next_stop) { //stop_obj['stage'] === STAGE.upcoming_stop) {
             stop_obj['stage'] = STAGE.current_stop
-               
+
           }
 
         } else if (stop_distance < UPCOMING_DISTANCE) {         // upcoming at this stop
