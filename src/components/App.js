@@ -362,7 +362,7 @@ class App extends Component {
 
           new_stop.stage = old_stop.stage
     }
-    return new_stop
+    return new_stops
   }
 
 
@@ -373,7 +373,7 @@ class App extends Component {
           new_stop.stage = STOP_STAGE.future_stop
     }
     new_stops[0].stage = STOP_STAGE.past_stop // make first stop past stop
-    return new_stop
+    return new_stops
   }
 
 

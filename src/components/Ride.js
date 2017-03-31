@@ -509,48 +509,48 @@ class Ride extends Component {
 	}
 
 
-	// cycleStopStagesForward() {
-	// 	var stops = this.getStopEtas(),
-	// 		num_stops = stops.length
+	cycleStopStagesForward() {
+		var stops = this.getStopEtas(),
+			num_stops = stops.length
 
-	// 	for(var i=0; i<num_stops; i++) {
-	// 		var stop = stops[i]
+		for(var i=0; i<num_stops; i++) {
+			var stop = stops[i]
 
-	// 		if (stop.stage === STOP_STAGE.current_stop){
-	// 			stop.stage = STOP_STAGE.past_stop
+			if (stop.stage === STOP_STAGE.current_stop){
+				stop.stage = STOP_STAGE.past_stop
 
-	// 		} else if (stop.stage === STOP_STAGE.upcoming_stop){
-	// 			stop.stage = STOP_STAGE.current_stop
-	// 			// this.togglePause()
+			} else if (stop.stage === STOP_STAGE.upcoming_stop){
+				stop.stage = STOP_STAGE.current_stop
+				// this.togglePause()
 
-	// 		} else if (stop === this.getNextStop()){
-	// 			if (GLOBAL_current_leg_progress < .9 && GLOBAL_current_leg_progress + .3 > 1) {
-	// 				stop.stage = STOP_STAGE.upcoming_stop
-	// 			}
-	// 		} 
-	// 	}
-	// }
+			} else if (stop === this.getNextStop()){
+				if (GLOBAL_current_leg_progress < .9 && GLOBAL_current_leg_progress + .3 > 1) {
+					stop.stage = STOP_STAGE.upcoming_stop
+				}
+			} 
+		}
+	}
 
-	// cycleStopStagesBackward() {
-	// 	var stops = this.getStopEtas(),
-	// 		num_stops = stops.length
+	cycleStopStagesBackward() {
+		var stops = this.getStopEtas(),
+			num_stops = stops.length
 
-	// 	for(var i=0; i<num_stops; i++) {
-	// 		var stop = stops[i]
+		for(var i=0; i<num_stops; i++) {
+			var stop = stops[i]
 
-	// 		if (stop.stage === STOP_STAGE.current_stop){
-	// 			stop.stage = STOP_STAGE.upcoming_stop
+			if (stop.stage === STOP_STAGE.current_stop){
+				stop.stage = STOP_STAGE.upcoming_stop
 
-	// 		} else if (stop.stage === STOP_STAGE.upcoming_stop){
-	// 			stop.stage = STOP_STAGE.future_stop
+			} else if (stop.stage === STOP_STAGE.upcoming_stop){
+				stop.stage = STOP_STAGE.future_stop
 
-	// 		} else if (stop === this.getPastStop()){
-	// 			if (GLOBAL_current_leg_progress < 0) {
-	// 				stop.stage = STOP_STAGE.current_stop
-	// 			}
-	// 		} 
-	// 	}
-	// }
+			} else if (stop === this.getPastStop()){
+				if (GLOBAL_current_leg_progress < 0) {
+					stop.stage = STOP_STAGE.current_stop
+				}
+			} 
+		}
+	}
 
 
 	getPastStop() {
