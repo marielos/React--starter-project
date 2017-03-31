@@ -220,6 +220,7 @@ class App extends Component {
         // console.log(num_stops)
     // new_stops[num_past_stops].distance = 220 // fake upcoming 
     // based on the distance of next_stop decide to cycle stages forward 
+
     new_stops = this.updateStageofStops(new_stops, num_past_stops)
 
     
@@ -290,11 +291,17 @@ class App extends Component {
 
 
   updateStageofStops(new_stops, num_past_stops) {
+
+    if(this.state.stop_etas) {
+      new_stops = this.setPreviousStageofStops(new_stops)
+    } else {
+      new_stops = this.setInitialStageofStops(new_stops)
+    }
+
     var next_stop = this.getNextStop(new_stops),
         old_stop = this.state.stop_etas ? this.state.stop_etas[num_past_stops] : next_stop,
         stop_distance = next_stop.distance,
         old_stop_distance = old_stop.distance
-
 
     if (next_stop.stage === STOP_STAGE.current_stop) {
       next_stop.address = 'c'
@@ -308,6 +315,8 @@ class App extends Component {
       if (stop_distance < ARRIVED_DISTANCE) {           // have moved into current_stop radius
         next_stop.address = 'u->c'
         return this.cycleStopStagesForward(new_stops)
+      } else {
+        next_stop.address = 'u XXXX c'
       }
 
     } else if (next_stop.stage === STOP_STAGE.future_stop) {
@@ -344,6 +353,27 @@ class App extends Component {
       }
     }
     return stops
+  }
+
+  setPreviousStageofStops(new_stops) {
+    for(var i=0; i<new_stops.length; i++) {
+      var new_stop = new_stops[i],
+          old_stop = this.stop_etas[i]
+
+          new_stop.stage = old_stop.stage
+    }
+    return new_stop
+  }
+
+
+  setInitialStageofStops(new_stops) {
+    for(var i=0; i<new_stops.length; i++) {
+      var new_stop = new_stops[i]
+          
+          new_stop.stage = STOP_STAGE.future_stop
+    }
+    new_stops[0].stage = STOP_STAGE.past_stop // make first stop past stop
+    return new_stop
   }
 
 
