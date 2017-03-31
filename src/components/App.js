@@ -494,7 +494,7 @@ class App extends Component {
     this.getNextStop(this.state.stop_etas).distance = event.target.value;
     var num_past_stops = this.state.stop_etas.indexOf(this.getPastStop(this.state.stop_etas)) +1
 
-    this.updateStageofStops(this.state.stop_etas, num_past_stops) 
+    // this.updateStageofStops(this.state.stop_etas, num_past_stops) 
 
   }
 
