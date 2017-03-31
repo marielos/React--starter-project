@@ -32,7 +32,7 @@ var STAGE = {
   past_stop: 2,
   future_stop: 3
 },
-  UPCOMING_DISTANCE = 300, //----- testing values are different than driving values
+  UPCOMING_DISTANCE = 250, //----- testing values are different than driving values
   ARRIVED_DISTANCE = 80,
   stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8'))
 
@@ -162,7 +162,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
 
           if (next_stop) { //stop_obj['stage'] === STAGE.upcoming_stop) {
             stop_obj['stage'] = STAGE.current_stop
-
+            stop_obj['eta'] = new Date()
           }
 
         } else if (stop_distance < UPCOMING_DISTANCE) {         // upcoming at this stop
