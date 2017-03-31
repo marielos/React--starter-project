@@ -208,16 +208,8 @@ class App extends Component {
           next_new_stop = new_stops[i],
           next_stop = this.state.stop_etas ? this.state.stop_etas[i] : next_new_stop
           
-
       next_stop.stage = next_new_stop.stage
       next_stop.distance = next_new_stop.distance
-
-      if (next_stop.stage === STOP_STAGE.current_stop) {
-        // if (!next_stop.have_arrived) {
-        //   this.refs.Ride.togglePause()
-        // }
-        next_stop.have_arrived = true
-      }
           
       if(i >= num_past_stops) {
         var next_stop_leg_time = legs[i-num_past_stops].duration.value
@@ -232,7 +224,14 @@ class App extends Component {
           eta_diff = 0
         }
 
-        next_stop.eta = new_eta
+        if (next_stop.stage === STOP_STAGE.current_stop) {
+          if(!next_stop.have_arrived) {
+            next_stop.eta = new Date()
+            next_stop.have_arrived = true
+          }
+        } else {
+          next_stop.eta = new_eta
+        }
 
         if (first_stop && next_stop.leg_time) { //dont recalculate leg time after it is set 
           console.log(next_stop.name)
@@ -262,7 +261,7 @@ class App extends Component {
   setCaltrainData(){
     var data = {},
         that = this
-    //console.log('here')
+
     fetch('/caltrain/etas').then(function(response) {
       return response.json()
     }, function(error) {

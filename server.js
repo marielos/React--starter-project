@@ -162,7 +162,6 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
 
           if (next_stop) { //stop_obj['stage'] === STAGE.upcoming_stop) {
             stop_obj['stage'] = STAGE.current_stop
-            stop_obj['eta'] = new Date()
           }
 
         } else if (stop_distance < UPCOMING_DISTANCE) {         // upcoming at this stop
