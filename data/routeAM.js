@@ -5,7 +5,7 @@
 		"address":"4th & King",
 		"lat": 37.44198, 
 		"lng": -122.16025,
-		"stage": 3
+		"stage": 2
 	}, 
 	{
 		"name": "City Hall",
