@@ -66,6 +66,19 @@ class Ride extends Component {
 		this.togglePause()
 	}
 
+	parseDate(date_sec) {
+	    var date = new Date(date_sec),
+	        hours = date.getHours(),
+	        minutes = date.getMinutes(),
+	        seconds = date.getSeconds()
+	    if( hours > 12 ){ hours -= 12; }
+	    if( minutes < 10) { minutes = '0'+ minutes}
+	    if( seconds < 10) { seconds = '0'+ seconds}
+	    var time = hours + ':' + minutes //+ ':' + seconds
+
+	    return time
+	}
+
 	getStopName(stop_obj) {  	
 		return stop_obj.name
 	}
@@ -158,7 +171,10 @@ class Ride extends Component {
 		return minutes+ ':' + seconds
 	}
 
-
+	shouldShowCaltrain() {
+		if (this.props.isAM) return ''
+		return 'invisible'
+	}
 	
 
 /* -------------- Animation methods -------------- */
@@ -253,7 +269,7 @@ class Ride extends Component {
 	}
 
 	renderStopAnnouncement(stop_obj, index) {
-		return '' // no stop announcements :(
+		if (this.props.isAM) return '' // no stop announcements :(
 
 
 		if(stop_obj !== this.getNextStop()) return ''
@@ -319,31 +335,14 @@ class Ride extends Component {
 	    				<div className='stop_extras'>
 			    			<div className={this.shouldShowDot(stop_obj, index) +' stop-dot'}/>
 			    			<div className={this.shouldShowEta(stop_obj, index) +' stop_eta ' + this.shouldDimStop(stop_obj)}>
-			    				{stop_obj.eta ? this.props.parseDate(stop_obj.eta) : '---'}
+			    				{stop_obj.eta ? this.parseDate(stop_obj.eta) : '---'}
 			    			</div>
 							{this.renderStopAnnouncement(stop_obj, index)}
-			    			{this.renderTestInfo(stop_obj, index)}
 		    			</div>
 		    		</div>
 		  }.bind(this))
 		)
 	}
-
-	// renderFirstFakeStop() {
-	// 	return(
-	// 			<div className='fake-stop stop'>
-	// 				<div className='stop-name'>
-	//     				<div className='text-container'>
-	//     				</div>
-	//     			</div>
-	// 				<div className='path-line'/>
-	// 				<div className='stop_extras'>
-	// 					<div className='fake-dot stop-dot'/>
-	// 					<div className='stop_eta'/>
-	// 				</div>
-	// 			</div>
-	// 	)
-	// }
 
 	renderPastFakeStop() {
 		return(
@@ -377,20 +376,8 @@ class Ride extends Component {
 
 			</div>
 		)
-
-/*
-		<div className='fixed-past-container'>
-
-			<div className='path-line past-line past-stop-line'/>
-			<div className='path-line past-line past-margin-line'/>
-			<img className='van-pic' src={require("./img/van-pic.png")}/>
-		</div>
-
-*/
-
-
-
 	}
+
 
 
 	renderCaltrains() {
@@ -413,10 +400,10 @@ class Ride extends Component {
 	      	<div className='bottom-container'>
 
 			<div className='driver-container '>
-			<img className='driver-photo' src={require("./img/driver_photo.png")}  />
-			<div className='driver-name'> Derek </div>
+				<img className='driver-photo' src={require("./img/driver_photo.png")}  />
+				<div className='driver-name'> Derek </div>
 			</div>
-		      	<div className='caltrain-container '>
+		      	<div className={'caltrain-container '+ this.shouldShowCaltrain()}>
 		      	<img className='caltrain-check' src={require("./img/caltrain_check.png")} />
 		      		<div className='caltrain-text'>
 				        <div className='caltrain-heading'>  On time for Caltrain: </div>
@@ -435,22 +422,11 @@ class Ride extends Component {
 	renderCurrentTime() {
 		return (
 		  <div className={this.getRideState() === RIDE_STAGE.stop ? 'were-here time' : 'time'}>
-		     {this.props.parseDate(this.state.testState ? this.state.testDate : this.props.currentDate)} {this.props.AM_PM}
+		     {this.parseDate(this.state.testState ? this.state.testDate : this.props.currentDate)} {this.props.isAM ? ' AM' : ' PM'}
 		  </div>
 		)
 	}
 		
-
-		/*
-
-	<div className='fixed-past-container'>
-						<div className='path-line past-line past-stop-line'/>
-						<div className='path-line past-line past-margin-line'/>
-						<img className='van-pic' src={require("./img/van-pic.png")}/>
-					</div>
-
-
-		*/
 	render() {	
 		if (!this.state) return null
 		this.getAnimationPosition()
@@ -460,9 +436,7 @@ class Ride extends Component {
 				<div className='vehicle-screen'>
 					{this.renderCurrentTime()}
 					<div className='chariot-id'> 
-						
 							Chariot #10 
-					
 					</div>
 
 					{this.renderPastFakeStop()}
@@ -499,8 +473,11 @@ class Ride extends Component {
 				        RESET PM DATA 
 				   </button> 
 				   <div className='time'>
-						{GLOBAL_current_leg_progress}
+						{GLOBAL_current_leg_progress} 
+						<br/>
+						{this.getStopDistance(this.getNextStop())}m
 					</div>
+
 				   {this.state.testState ? 
 					    <div>
 						    <Slider
@@ -689,7 +666,7 @@ class Ride extends Component {
 	}
 
 	getTestDate() {
-		return this.props.parseDate(this.state.testDate)
+		return this.parseDate(this.state.testDate)
 	}
 
 }

@@ -40,20 +40,6 @@ class App extends Component {
       current_date: date
     })  
   }
-  
-
-  parseDate(date_sec) {
-    var date = new Date(date_sec),
-        hours = date.getHours(),
-        minutes = date.getMinutes(),
-        seconds = date.getSeconds()
-    if( hours > 12 ){ hours -= 12; }
-    if( minutes < 10) { minutes = '0'+ minutes}
-    if( seconds < 10) { seconds = '0'+ seconds}
-    var time = hours + ':' + minutes + ':' + seconds
-
-    return time
-  }
 
   convertSecToMins(date_sec){
     var date = new Date(date_sec),
@@ -534,10 +520,11 @@ class App extends Component {
     return <Ride 
               currentDate={this.state.current_date}
               stopEtas={this.state.stop_etas} 
-              parseDate={this.parseDate}
+              // parseDate={this.parseDate}
               availableCaltrainsNB={this.state.available_caltrains_nb}  
               availableCaltrainsSB={this.state.available_caltrains_sb}
               setRouteData={this.setRouteData.bind(this)}
+              isAM={this.state.isAM}
               ref='Ride'
             />
   }

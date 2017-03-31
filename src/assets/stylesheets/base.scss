@@ -3,8 +3,8 @@ $stop-width: 18%;
 $past-stop-margin: 10%;
 $stop-name-height: 50px;
 $stop-info-left-margin: -12px;
-$top-margin: 65px;
-$top-margin-adjusted: 52px;
+$top-margin: 50px;
+$top-margin-adjusted: 37px;
 
 $dark-gray: #444;
 
@@ -44,15 +44,15 @@ body{
   width:100%;
   text-align: center;
   margin: 20px 0;
-  font-size: x-large;
+  font-size: 18px;
 }
 
 .chariot-id {
   position: absolute;
   right: $past-stop-margin;
-  margin: 25px 15px;
+  margin: 22px 15px;
   top: 0px;
-  line-height: 28px;
+  line-height: 18px;
   font-size: 14px;
   
 }
@@ -190,11 +190,13 @@ body{
 
 .stop_announcement {
   position: absolute;
-  top: 75px;
+  top: 80px;
   margin-left: $stop-info-left-margin;
+  font-size: 12px;
 
   .stop-announcement-title {
     opacity: .85;
+    font-size: 10px;
   }
 
   .stop-announcement-text {
