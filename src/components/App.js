@@ -168,6 +168,7 @@ class App extends Component {
 
           that.setState({
             // route_data: data,
+            isAM: data.isAM,
             stop_etas: stop_etas, 
             available_caltrains_nb: available_caltrains_nb, 
             available_caltrains_sb: available_caltrains_sb,
@@ -209,6 +210,13 @@ class App extends Component {
   addEtaToStops(route_data, date) { 
     if(!date) date = this.state.current_date
 
+
+    if (route_data.isAM !== this.state.isAM) {   // reset everything if were switching from AM <-> PM
+      this.setState({
+        stop_etas: null 
+      })
+    }
+
     var new_stops = route_data.stops.route,
         legs = route_data.routes[0].legs,
         num_legs = legs.length,
@@ -216,7 +224,10 @@ class App extends Component {
         accumulated_seconds = 0,
         first_stop = true
 
+    // console.log(new_stops)
 
+
+    // realize if switched from PM <-> AM
     if(this.state.stop_etas) {
       new_stops = this.setPreviousStageofStops(new_stops)
     } else {
@@ -227,7 +238,6 @@ class App extends Component {
     var num_past_stops = new_stops.indexOf(this.getPastStop(new_stops)) +1
         
 
-
     for (var i=0; i<num_past_stops; i++) {    // push old stops onto stop_eta
       stop_etas.push(new_stops[i])
     }
@@ -236,10 +246,6 @@ class App extends Component {
     new_stops = this.updateStageofStops(new_stops, num_past_stops)
 
     
-    
-
-
-
                                               // push future stops onto stop_eta
     for (var i=0; i<num_legs; i++) {
       var new_eta = new Date(date.getTime()),
@@ -276,7 +282,7 @@ class App extends Component {
                           }
 
                           if (first_stop && stop.leg_time) { //dont recalculate leg time after it is set 
-                            console.log(stop.name)
+                            // console.log(stop.name)
                             stop.leg_time = new Date(stop.leg_time.getTime() + eta_diff)
                           } else {
                             stop.leg_time = new Date(next_stop_leg_time*1000)
@@ -550,7 +556,7 @@ class App extends Component {
 
     return(
     	<div>
-       <div className='row box'>
+       <div className='box'>
           {this.renderCurrentLocation()}
           {this.renderAPICalls()}
           {this.state.stop_etas ?

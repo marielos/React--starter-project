@@ -2,21 +2,21 @@
 	"route": [
 	{
 		"name": "City Hall",
-		"address":"Forest & University",
-		"lat": 37.44501, 
-		"lng": -122.16009
+		"address":"Hamilton & Ramona",
+		"lat": 37.444601, 
+		"lng": -122.160809
 	},
 	{
-		"name": "Cogswell Plaza",
-		"address":"4th & King",
-		"lat": 37.44627, 
-		"lng": -122.16337
+		"name": "Johnson Park",
+		"address":"Kipling & Everett",
+		"lat": 37.449299, 
+		"lng": -122.162398
 	},
 	{
 		"name": "Palo Alto Caltrain",
-		"address":"4th & King",
-		"lat": 37.44255, 
-		"lng": -122.16304
+		"address":"Alma & Lytton",
+		"lat": 37.444167,
+		"lng": -122.165692
 	},
 	{
 		"name": "Reposado",

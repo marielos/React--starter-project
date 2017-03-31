@@ -32,18 +32,20 @@ var STAGE = {
   past_stop: 2,
   future_stop: 3
 },
-  stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8'))
-
+  stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8')),
+  isAM = true
 
 app.get('/reset/am', function(request, response) {
   stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8'))
-  response.send('success')
+  isAM = true 
+  response.send('success am')
 })
 
 
 app.get('/reset/pm', function(request, response) {
   stops_GLOBAL = JSON.parse(fs.readFileSync('data/routePM.js', 'utf8'))
-  response.send('success')
+  isAM = false 
+  response.send('success pm')
 })
 
 
@@ -80,14 +82,11 @@ app.get('/route/etas', function(request, response) {
           lat = stop_obj.lat,
           lng = stop_obj.lng
 
-          // dont factor in past stops for route
-      // if (stop_obj.stage === STAGE.past_stop){ // || stop_obj.stage === STAGE.current_stop ) {
-      //   continue
-      // }
+      // console.log(stop_obj.name)
 
       stops.push([lat, lng])    
     }
-    console.log('finished getting waypointe')
+    // console.log('finished getting waypointe')
     return stops
   }()
 
@@ -121,9 +120,10 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
     traffic_model: 'best_guess'
   }, function(err, res) {    
     if (!err) {
-      console.log('finished getting data')
+      // console.log('finished getting data')
       var directions_data = res.json
       directions_data['stops'] = updateDistanceOfStops(directions_data)
+      directions_data['isAM'] = isAM
       response.json(directions_data)
     } else {
       console.log('err-' + err);
@@ -146,18 +146,18 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
           // next_stop = true
 
           // more stops than legs
-          console.log('num_legs-'+num_legs)
-          console.log('num_stops-'+num_stops)
-          console.log('num_past_stops-'+num_past_stops)
+          // console.log('num_legs-'+num_legs)
+          // console.log('num_stops-'+num_stops)
+          // console.log('num_past_stops-'+num_past_stops)
 
       for (var leg_i=0; leg_i<num_legs; leg_i++) {
         // console.log('in loop-'+leg_i)
         // console.log('stop_i-'+leg_i+''+num_past_stops)
-        
+
         var stop_distance = legs[leg_i].distance.value,
             stop_i = leg_i+num_past_stops,
             stop_obj = stops_GLOBAL.route[stop_i] // in meters
-        console.log('stop_obj-'+stop_obj.name)
+        // console.log('stop_obj-'+stop_obj.name)
         // if (stop_obj.stage === STAGE.past_stop) { // || stop_obj.stage === STAGE.current_stop ) {
         //   continue
         // }
@@ -165,10 +165,10 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
         stop_obj['distance'] = stop_distance
         // leg_i++
 
-        console.log('distance-'+stop_obj['distance'])
+        // console.log('distance-'+stop_obj['distance'])
 
       }
-      console.log('finished adding distance to stops')
+      // console.log('finished adding distance to stops')
       return stops_GLOBAL
     }
 });

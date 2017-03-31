@@ -99,16 +99,32 @@ class Ride extends Component {
 
 	shouldDimStop(stop_obj) {
 		if (this.getRideState() == RIDE_STAGE.stop && stop_obj.stage != STOP_STAGE.current_stop) {
-			return 'dim'
+			return 'hidden'
 		}
 		return ''
 	}
 
 
-	shouldShowDot(stop_obj) {
+	shouldShowDot(stop_obj, index) {
+		if (index === 0) {	// first fake stop
+			return 'invisible'
+		}
+
 		if (stop_obj.stage === STOP_STAGE.past_stop) {
-			return 'hidden'
+			return 'gray-dot'
 		} 
+		return ''
+	}
+
+	shouldShowEta(stop_obj, index) {
+		if (index === 0) {	// first fake stop
+			return 'invisible'
+		}
+
+		if (!stop_obj.eta) {
+			return 'invisible'
+		}
+
 		return ''
 	}
 
@@ -217,12 +233,15 @@ class Ride extends Component {
 
 
 
-	renderTestInfo(stop_obj) {
+	renderTestInfo(stop_obj, index) {
 
 		// return null // comment out when testing
-
+		var shouldHide = ''
+		if (index === 0) {	// first fake stop
+			shouldHide = 'invisible'
+		}
 		return (
-			<div className='stop-test'>
+			<div className={'stop-test ' + shouldHide}>
 				<div>
 					{this.getStopDistance(stop_obj)}m	
 				</div>
@@ -233,14 +252,20 @@ class Ride extends Component {
 		)
 	}
 
-	renderStopAnnouncement(stop_obj) {
+	renderStopAnnouncement(stop_obj, index) {
 		return '' // no stop announcements :(
 
 
 		if(stop_obj !== this.getNextStop()) return ''
 		
+		var shouldHide = ''
+		if (index === 0) {	// first fake stop
+			shouldHide = 'invisible'
+		}
+
+
 		return (
-			<div className={'stop_announcement'}>
+			<div className={'stop_announcement '+ shouldHide}>
 				<div className='stop-announcement-title'> Upcoming Events </div>
 				<div className='stop-announcement-text'> {stop_obj.announcement.text} </div>
 				<div className='stop-announcement-time'> {stop_obj.announcement.time} </div>
@@ -248,62 +273,77 @@ class Ride extends Component {
 		)
 	}
 
-	renderStopName(stop_obj) {
+	renderStopName(stop_obj, index) {
 		var shouldHide = ''
 		if (stop_obj.stage === STOP_STAGE.past_stop && stop_obj !== this.getPastStop()) {
 			shouldHide = ' hidden '
+		}
+
+		if (index === 0) {	// first fake stop
+			shouldHide = 'invisible'
 		}
 
 
 		return (
 			<div className={this.getStopClass(stop_obj) +' stop-name '+ this.shouldDimStop(stop_obj) + shouldHide}>
 				<div className='text-container'>
-					<div className='stop-address'> {this.getStopAddress(stop_obj)} </div>
-					<div className='stop-poi'> {this.getStopName(stop_obj)} </div>
+					<div className='stop-text'> 
+						<span className='stop-address'> {this.getStopAddress(stop_obj)} </span>
+						<br/>
+						<span className='stop-poi'> {this.getStopName(stop_obj)} </span>
+					</div>
 				</div>
 			</div>
 		)
 
 	}
 
+
+
 /* -------------- Render methods -------------- */
 // want to display start time as we test to check if its getting recalculated
 	renderStops() {
 		if (!this.getStopEtas()) return null
 
+
+		var stopEtasWithExtraStop = this.getStopEtas().slice(0, this.getStopEtas().length +1)
+
+		stopEtasWithExtraStop.unshift(stopEtasWithExtraStop[0])
+		// console.log(stopEtasWithExtraStop)
+
 		return (
-		  this.getStopEtas().map(function(stop_obj) {
-		    return <div className='stop' key={this.getStopName(stop_obj)}> 
-		    			{this.renderStopName(stop_obj)}
+		  stopEtasWithExtraStop.map(function(stop_obj, index) {
+		    return <div className='stop' key={index}> 
+		    			{this.renderStopName(stop_obj, index)}
 		    			<div className='path-line'/>		    			
 	    				<div className='stop_extras'>
-			    			<div className={this.shouldShowDot(stop_obj) +' stop-dot'}/>
-			    			<div className={this.shouldShowDot(stop_obj) +' stop_eta ' + this.shouldDimStop(stop_obj)}>
-			    				{stop_obj.eta ? this.props.parseDate(stop_obj.eta) : ''}
+			    			<div className={this.shouldShowDot(stop_obj, index) +' stop-dot'}/>
+			    			<div className={this.shouldShowEta(stop_obj, index) +' stop_eta ' + this.shouldDimStop(stop_obj)}>
+			    				{stop_obj.eta ? this.props.parseDate(stop_obj.eta) : '---'}
 			    			</div>
-							{this.renderStopAnnouncement(stop_obj)}
-			    			{this.renderTestInfo(stop_obj)}
+							{this.renderStopAnnouncement(stop_obj, index)}
+			    			{this.renderTestInfo(stop_obj, index)}
 		    			</div>
 		    		</div>
 		  }.bind(this))
 		)
 	}
 
-	renderFirstFakeStop() {
-		return(
-				<div className='fake-stop stop'>
-					<div className='stop-name'>
-	    				<div className='text-container'>
-	    				</div>
-	    			</div>
-					<div className='path-line'/>
-					<div className='stop_extras'>
-						<div className='fake-dot stop-dot'/>
-						<div className='stop_eta'/>
-					</div>
-				</div>
-		)
-	}
+	// renderFirstFakeStop() {
+	// 	return(
+	// 			<div className='fake-stop stop'>
+	// 				<div className='stop-name'>
+	//     				<div className='text-container'>
+	//     				</div>
+	//     			</div>
+	// 				<div className='path-line'/>
+	// 				<div className='stop_extras'>
+	// 					<div className='fake-dot stop-dot'/>
+	// 					<div className='stop_eta'/>
+	// 				</div>
+	// 			</div>
+	// 	)
+	// }
 
 	renderPastFakeStop() {
 		return(
@@ -390,10 +430,12 @@ class Ride extends Component {
 	    )
 	 }
 
+
+// change AM/PM
 	renderCurrentTime() {
 		return (
 		  <div className={this.getRideState() === RIDE_STAGE.stop ? 'were-here time' : 'time'}>
-		     {this.props.parseDate(this.state.testState ? this.state.testDate : this.props.currentDate)}
+		     {this.props.parseDate(this.state.testState ? this.state.testDate : this.props.currentDate)} {this.props.AM_PM}
 		  </div>
 		)
 	}
@@ -424,7 +466,6 @@ class Ride extends Component {
 			    	<Motion style={{left: GLOBAL_left}}>
 			    		{({left}) => (
 							<div className='route-container' style={{left: `${left}px` }}>
-							  {this.renderFirstFakeStop()}
 					          {this.renderStops()}
 					        </div>
 					    )}
@@ -448,9 +489,11 @@ class Ride extends Component {
 					    : ''
 				   }
 				   <button onClick={() => this.resetData()} className='reset-button'>
-				       RESET DATA
+				        RESET AM DATA 
 				   </button> 
-				   
+				   <button onClick={() => this.resetData(true)} className='reset-button'>
+				        RESET PM DATA 
+				   </button> 
 				   <div className='time'>
 						{GLOBAL_current_leg_progress}
 					</div>
@@ -477,6 +520,7 @@ class Ride extends Component {
 
 
 	resetData(pm) {
+
 	    var url = '/reset/am',
 	    that = this
 	    if (pm) {
