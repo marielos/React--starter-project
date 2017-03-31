@@ -183,7 +183,7 @@ class Ride extends Component {
 			assume every stop.eta is 5min (5*60*1000) away
 		*/
 		var stop_width = document.getElementsByClassName('stop')[0].getBoundingClientRect().width, 
-			past_margin_width = document.getElementsByClassName('past-margin-line')[0].getBoundingClientRect().width,
+			past_margin_width = document.getElementsByClassName('stop-margin')[0].getBoundingClientRect().width,
 			index_past_stop = this.getStopEtas().indexOf(past_stop), // -1 if no past position  
 			past_stop_left_pos = past_margin_width - index_past_stop*stop_width, 
 			current_leg_progress = 1-((next_stop.eta.getTime()-date.getTime())/next_stop.leg_time.getTime())
@@ -305,6 +305,53 @@ class Ride extends Component {
 		)
 	}
 
+	renderPastFakeStop() {
+		return(
+			<div className='fixed-past-container'>
+			<img className='van-pic' src={require("./img/van-pic.png")}/>
+				<div className='fake-stop stop'>
+					<div className='stop-name'>
+	    				<div className='text-container'>
+	    				</div>
+	    			</div>
+					<div className='path-line past-line'/>
+					<div className='stop_extras'>
+						<div className='fake-dot stop-dot'/>
+						<div className='stop_eta'/>
+					</div>
+				</div>
+
+
+				<div className='fake-stop stop stop-margin'>
+					<div className='stop-name'>
+	    				<div className='text-container'>
+	    				</div>
+	    			</div>
+					<div className='path-line past-line'/>
+					<div className='stop_extras'>
+						<div className='fake-dot stop-dot'/>
+						<div className='stop_eta'/>
+					</div>
+				</div>
+
+
+			</div>
+		)
+
+/*
+		<div className='fixed-past-container'>
+
+			<div className='path-line past-line past-stop-line'/>
+			<div className='path-line past-line past-margin-line'/>
+			<img className='van-pic' src={require("./img/van-pic.png")}/>
+		</div>
+
+*/
+
+
+
+	}
+
 
 	renderCaltrains() {
 		var caltrain_etas_NB,
@@ -351,6 +398,17 @@ class Ride extends Component {
 		)
 	}
 		
+
+		/*
+
+	<div className='fixed-past-container'>
+						<div className='path-line past-line past-stop-line'/>
+						<div className='path-line past-line past-margin-line'/>
+						<img className='van-pic' src={require("./img/van-pic.png")}/>
+					</div>
+
+
+		*/
 	render() {	
 		if (!this.state) return null
 		this.getAnimationPosition()
@@ -361,12 +419,8 @@ class Ride extends Component {
 					{this.renderCurrentTime()}
 					<div className='chariot-id'> Chariot #10 </div>
 
-					<div className='fixed-past-container'>
-						<div className='path-line past-line past-stop-line'/>
-						<div className='path-line past-line past-margin-line'/>
-						<img className='van-pic' src={require("./img/van-pic.png")}/>
-					</div>
-
+					{this.renderPastFakeStop()}
+					
 			    	<Motion style={{left: GLOBAL_left}}>
 			    		{({left}) => (
 							<div className='route-container' style={{left: `${left}px` }}>

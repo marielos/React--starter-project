@@ -313,25 +313,26 @@ class App extends Component {
         old_stop_distance = old_stop.distance
 
     if (next_stop.stage === STOP_STAGE.current_stop) {
-      next_stop.address = 'c'
+      // next_stop.address = 'c'
       if ((stop_distance > old_stop_distance + 30) || (stop_distance >ARRIVED_DISTANCE) ) {     // have moved farther away since arriving
-        next_stop.address = 'c->o'
+        // next_stop.address = 'c->o'
         return this.cycleStopStagesForward(new_stops)
       }
 
     } else if (next_stop.stage === STOP_STAGE.upcoming_stop) {
-      next_stop.address = 'u'
+      // next_stop.address = 'u'
       if (stop_distance < ARRIVED_DISTANCE) {           // have moved into current_stop radius
-        next_stop.address = 'u->c'
+        // next_stop.address = 'u->c'
         return this.cycleStopStagesForward(new_stops)
-      } else {
-        next_stop.address = 'u XXXX c'
-      }
+      } 
+      // else {
+      //   // next_stop.address = 'u XXXX c'
+      // }
 
     } else if (next_stop.stage === STOP_STAGE.future_stop) {
-      next_stop.address = 'f'
+      // next_stop.address = 'f'
       if (stop_distance < UPCOMING_DISTANCE) {          // have moved into upcoming_stop radius
-        next_stop.address = 'f->u'
+        // next_stop.address = 'f->u'
         return this.cycleStopStagesForward(new_stops)
       }
     } 
@@ -348,18 +349,19 @@ class App extends Component {
 
       if (stop.stage === STOP_STAGE.current_stop){
         stop.stage = STOP_STAGE.past_stop
-        stop.address = 'now-past'
+        // stop.address = 'now-past'
       } else if (stop.stage === STOP_STAGE.upcoming_stop){
         stop.stage = STOP_STAGE.current_stop
-        stop.address = 'now-current'
+        // stop.address = 'now-current'
       } else if (stop === next_stop){
         if (stop.distance < UPCOMING_DISTANCE) {    // only make the first future stop upcoming if within the radius
           stop.stage = STOP_STAGE.upcoming_stop
-          stop.address = 'now-upcoming'
+          // stop.address = 'now-upcoming'
         }
-      } else {
-        stop.address = 'still-future'
-      }
+      } 
+      // else {
+      //   // stop.address = 'still-future'
+      // }
     }
     return stops
   }

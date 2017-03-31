@@ -35,6 +35,7 @@ h1 {
   position: absolute;
   top: 75px;
   width: 100%;
+  height: 100px;
   white-space: nowrap;
   transition: left linear 1s;
 }
@@ -67,14 +68,15 @@ h1 {
 
 .fixed-past-container {
   position: absolute;
-  margin-top: $stop-name-height +9 ;
+  top: 69px;
   z-index: 9;
   width: 100%;
-
+  height: 100px;
 
   .past-line {
      background-color: grey !important;
      display: inline-block;
+     width: 100%;
   }
 
   .past-stop-line {
@@ -88,8 +90,10 @@ h1 {
 
   .van-pic {
     width: 50px;
-    margin-bottom: 8px;
-    margin-left: -25px;
+    left: 25%;
+    top: 30px;
+    z-index: 15;
+    position: absolute;
   }
 }
 /*move margin to a calculated variable*/
@@ -159,6 +163,9 @@ h1 {
   }
 }
 
+.stop-margin {
+  width: $past-stop-margin !important;
+}
 
 
 .stop_announcement {
