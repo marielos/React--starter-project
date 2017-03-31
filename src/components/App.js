@@ -217,6 +217,8 @@ class App extends Component {
         num_past_stops = new_stops.indexOf(this.getPastStop(new_stops)) +1,
         first_stop = true
 
+        // console.log(num_stops)
+    // new_stops[num_past_stops].distance = 220 // fake upcoming 
     // based on the distance of next_stop decide to cycle stages forward 
     new_stops = this.updateStageofStops(new_stops, num_past_stops)
 
@@ -296,7 +298,7 @@ class App extends Component {
 
     if (next_stop.stage === STOP_STAGE.current_stop) {
 
-      if (stop_distance > old_stop_distance + 30) {     // have moved farther away since arriving
+      if ((stop_distance > old_stop_distance + 30) || (stop_distance >ARRIVED_DISTANCE) ) {     // have moved farther away since arriving
         return this.cycleStopStagesForward(new_stops)
       }
 
@@ -481,6 +483,15 @@ class App extends Component {
             />
   }
 
+
+  handleDistanceChange(event) {
+    this.getNextStop(this.state.stop_etas).distance = event.target.value;
+    var num_past_stops = this.state.stop_etas.indexOf(this.getPastStop(this.state.stop_etas)) +1
+
+    this.updateStageofStops(this.state.stop_etas, num_past_stops) 
+
+  }
+
   render() {
   	if (!this.state) return null
 
@@ -489,6 +500,11 @@ class App extends Component {
        <div className='row box'>
           {this.renderCurrentLocation()}
           {this.renderAPICalls()}
+          {this.state.stop_etas ?
+             <input type="text" onChange={this.handleDistanceChange.bind(this)}/>
+             : ''
+          }
+          
           <button onClick={() => this.forceGetLocation()}>
             Force API Call
           </button> 
