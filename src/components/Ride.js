@@ -459,7 +459,11 @@ class Ride extends Component {
 			<div>
 				<div className='vehicle-screen'>
 					{this.renderCurrentTime()}
-					<div className='chariot-id'> Chariot #10 </div>
+					<div className='chariot-id'> 
+						
+							Chariot #10 
+					
+					</div>
 
 					{this.renderPastFakeStop()}
 					

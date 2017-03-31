@@ -3,6 +3,10 @@ $stop-width: 18%;
 $past-stop-margin: 10%;
 $stop-name-height: 50px;
 $stop-info-left-margin: -12px;
+$top-margin: 65px;
+$top-margin-adjusted: 52px;
+
+$dark-gray: #444;
 
 body{
   margin: 0px;
@@ -17,9 +21,9 @@ body{
 
 .vehicle-screen {
   position: absolute;
-  height: 300px;
+  height: 200px;
   width: 100%;
-  bottom: 0px;
+  bottom: 10px;
   overflow-x: hidden;
   background-color: black;
   color: white;
@@ -28,7 +32,7 @@ body{
 
 .route-container {
   position: absolute;
-  top: 75px;
+  top: $top-margin;
   width: 100%;
   height: 100px;
   white-space: nowrap;
@@ -39,19 +43,27 @@ body{
 .time {
   width:100%;
   text-align: center;
-  margin: 10px 0;
+  margin: 20px 0;
   font-size: x-large;
 }
 
 .chariot-id {
   position: absolute;
   right: $past-stop-margin;
-  margin: 10px 0;
+  margin: 25px 15px;
   top: 0px;
   line-height: 28px;
+  font-size: 14px;
+  
 }
 
+/*
+.chariot-text {
+    position: absolute;
+    bottom: 0px;
+  }
 
+*/
 /* ----------------------- Route Line classes -----------------------*/
 
 
@@ -63,13 +75,13 @@ body{
 
 .fixed-past-container {
   position: absolute;
-  top: 69px;
+  top: $top-margin-adjusted;
   z-index: 9;
   width: 100%;
   height: 100px;
 
   .past-line {
-     background-color: grey !important;
+     background-color: $dark-gray !important;
      display: inline-block;
      width: 100%;
   }
@@ -86,7 +98,7 @@ body{
   .van-pic {
     width: 45px;
     left: 25%;
-    top: 41px;
+    top: 48px;
     z-index: 15;
     position: absolute;
   }
@@ -158,7 +170,7 @@ body{
   }
 
   .gray-dot {
-    background-color: grey !important;
+    background-color: $dark-gray !important;
   }
 
   .fake-dot {
@@ -242,9 +254,10 @@ body{
   bottom: 0px;
   right: 0px;
   left: 0px;
-  height: 30px;
+  height: 20px;
   background-color: #333;
-  padding: 10px $past-stop-margin;
+  padding: 5px $past-stop-margin;
+  font-size: 14px;
 }
 
 
@@ -253,10 +266,10 @@ body{
 
 .driver-container {
   display: inline-block;
-  line-height: 30px;
+  line-height: 20px;
 
   .driver-photo {
-    bottom: 18px;
+    bottom: 9px;
     height: 50px;
     width: 50px;
     z-index: 10;
@@ -274,7 +287,7 @@ body{
   float: right;
 
   .caltrain-text {
-    line-height: 30px;
+    line-height: 20px;
     display: inline;
     .caltrain-heading {
       display: inline;
