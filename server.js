@@ -72,19 +72,22 @@ app.get('/route/etas', function(request, response) {
   }()
 
   var waypoints  = function() {
-    var stops = []
-    for(var i=0; i < stops_GLOBAL.route.length-1; i++) {
+    var stops = [],
+        num_past_stops = request.query.num_past_stops
+    
+    for(var i=num_past_stops; i < stops_GLOBAL.route.length-1; i++) {
       var stop_obj = stops_GLOBAL.route[i],
           lat = stop_obj.lat,
           lng = stop_obj.lng
 
           // dont factor in past stops for route
-      if (stop_obj.stage === STAGE.past_stop){ // || stop_obj.stage === STAGE.current_stop ) {
-        continue
-      }
+      // if (stop_obj.stage === STAGE.past_stop){ // || stop_obj.stage === STAGE.current_stop ) {
+      //   continue
+      // }
 
       stops.push([lat, lng])    
     }
+    console.log('finished getting waypointe')
     return stops
   }()
 
@@ -118,6 +121,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
     traffic_model: 'best_guess'
   }, function(err, res) {    
     if (!err) {
+      console.log('finished getting data')
       var directions_data = res.json
       directions_data['stops'] = updateDistanceOfStops(directions_data)
       response.json(directions_data)
@@ -137,56 +141,34 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
       var legs = directions_data.routes[0].legs,
           num_legs = legs.length,
           num_stops = stops_GLOBAL.route.length,
-          leg_i = 0,
-          next_stop = true
+          num_past_stops = parseInt(request.query.num_past_stops)
+          // leg_i = 0,
+          // next_stop = true
 
           // more stops than legs
-      for(var stop_i=0; stop_i<num_stops; stop_i++) {
+          console.log('num_legs-'+num_legs)
+          console.log('num_stops-'+num_stops)
+          console.log('num_past_stops-'+num_past_stops)
 
+      for (var leg_i=0; leg_i<num_legs; leg_i++) {
+        // console.log('in loop-'+leg_i)
+        // console.log('stop_i-'+leg_i+''+num_past_stops)
+        
         var stop_distance = legs[leg_i].distance.value,
+            stop_i = leg_i+num_past_stops,
             stop_obj = stops_GLOBAL.route[stop_i] // in meters
-            
-
-        if (stop_obj.stage === STAGE.past_stop) { // || stop_obj.stage === STAGE.current_stop ) {
-          continue
-        }
-
-        stop_obj['distance'] = stop_distance
-        leg_i++
-
-
-// ------------------- move to client side from here -------------------------
-
-        // only nextStop() should have the chance to change to upcoming or current if (stop)
-
-        // if (stop_distance < ARRIVED_DISTANCE) {              // currently at this stop
-
-        //   if (next_stop) { //stop_obj['stage'] === STAGE.upcoming_stop) {
-        //     stop_obj['stage'] = STAGE.current_stop
-        //   }
-
-        // } else if (stop_distance < UPCOMING_DISTANCE) {         // upcoming at this stop
-        //   if (next_stop) { 
-
-        //     if (stop_obj['stage'] === STAGE.future_stop) {
-        //       stop_obj['stage'] = STAGE.upcoming_stop   
-
-        //     } else if (stop_obj['stage'] === STAGE.current_stop) {  
-        //       stop_obj['stage'] = STAGE.past_stop       //leaving this spot
-        //     } 
-        //   }
-        // } else {                                                 // out of range
-        //   if (stop_obj['stage'] === STAGE.current_stop) {
-        //      // probably never gets here since we move to upcoming distance before out of range, unless we jump out really quickly
-        //      // safety check 
-        //     stop_obj['stage'] = STAGE.past_stop   // leaving  this stop
-        //   } 
+        console.log('stop_obj-'+stop_obj.name)
+        // if (stop_obj.stage === STAGE.past_stop) { // || stop_obj.stage === STAGE.current_stop ) {
+        //   continue
         // }
 
-        // next_stop = false
-// ----------------------------------------------------------------------------------------
- 
+        stop_obj['distance'] = stop_distance
+        // leg_i++
+
+        console.log('distance-'+stop_obj['distance'])
+
       }
+      console.log('finished adding distance to stops')
       return stops_GLOBAL
     }
 });

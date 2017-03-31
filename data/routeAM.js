@@ -1,12 +1,6 @@
 {
 	"route": [
 	{
-		"name": "Ideo",
-		"address":"4th & King",
-		"lat": 37.44198, 
-		"lng": -122.16025
-	}, 
-	{
 		"name": "City Hall",
 		"address":"Forest & University",
 		"lat": 37.44501, 
@@ -41,5 +35,11 @@
 		"address":"4th & King",
 		"lat": 37.44769, 
 		"lng": -122.15974
+	},
+	{
+		"name": "Ideo",
+		"address":"4th & King",
+		"lat": 37.44198, 
+		"lng": -122.16025
 	}]
 }

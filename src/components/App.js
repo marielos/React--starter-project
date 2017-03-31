@@ -211,36 +211,51 @@ class App extends Component {
 
     var new_stops = route_data.stops.route,
         legs = route_data.routes[0].legs,
-        num_stops = new_stops.length,
+        num_legs = legs.length,
         stop_etas = [],
         accumulated_seconds = 0,
-        num_past_stops = new_stops.indexOf(this.getPastStop(new_stops)) +1,
         first_stop = true
 
-        // console.log(num_stops)
-    // new_stops[num_past_stops].distance = 220 // fake upcoming 
-    // based on the distance of next_stop decide to cycle stages forward 
+
+    if(this.state.stop_etas) {
+      new_stops = this.setPreviousStageofStops(new_stops)
+    } else {
+      new_stops = this.setInitialStageofStops(new_stops)
+    }
+
+
+    var num_past_stops = new_stops.indexOf(this.getPastStop(new_stops)) +1
+        
+
+
+    for (var i=0; i<num_past_stops; i++) {    // push old stops onto stop_eta
+      stop_etas.push(new_stops[i])
+    }
+
 
     new_stops = this.updateStageofStops(new_stops, num_past_stops)
 
     
-    for (var i=0; i<num_stops; i++) {
+    
+
+
+
+                                              // push future stops onto stop_eta
+    for (var i=0; i<num_legs; i++) {
       var new_eta = new Date(date.getTime()),
-          new_stop = new_stops[i],
-          stop = this.state.stop_etas ? this.state.stop_etas[i] : new_stop
+          new_stop = new_stops[i+num_past_stops],
+          stop = this.state.stop_etas ? this.state.stop_etas[i+num_past_stops] : new_stop
 
         // set client side 
       stop.stage = new_stop.stage
-
-
         // set server side
       stop.distance = new_stop.distance
           
 
           // set stop.eta & stop.leg_time
-                        if(i >= num_past_stops) {
+                        // if(i >= num_past_stops) {
 
-                          var next_stop_leg_time = legs[i-num_past_stops].duration.value
+                          var next_stop_leg_time = legs[i].duration.value
                           accumulated_seconds += next_stop_leg_time
                           new_eta.setSeconds(new_eta.getSeconds() +accumulated_seconds)
 
@@ -268,7 +283,7 @@ class App extends Component {
                           }
                           
                           first_stop = false
-                        }
+                        // }
 
 
       stop_etas.push(stop)
@@ -291,12 +306,6 @@ class App extends Component {
 
 
   updateStageofStops(new_stops, num_past_stops) {
-
-    if(this.state.stop_etas) {
-      new_stops = this.setPreviousStageofStops(new_stops)
-    } else {
-      new_stops = this.setInitialStageofStops(new_stops)
-    }
 
     var next_stop = this.getNextStop(new_stops),
         old_stop = this.state.stop_etas ? this.state.stop_etas[num_past_stops] : next_stop,
@@ -358,7 +367,7 @@ class App extends Component {
   setPreviousStageofStops(new_stops) {
     for(var i=0; i<new_stops.length; i++) {
       var new_stop = new_stops[i],
-          old_stop = this.stop_etas[i]
+          old_stop = this.state.stop_etas[i]
 
           new_stop.stage = old_stop.stage
     }
@@ -372,13 +381,19 @@ class App extends Component {
           
           new_stop.stage = STOP_STAGE.future_stop
     }
-    new_stops[0].stage = STOP_STAGE.past_stop // make first stop past stop
+    // new_stops[0].stage = STOP_STAGE.past_stop // make first stop past stop
     return new_stops
   }
 
 
   getGMapsUrlWithCurrentLocation() {
-    var query_string = 'lat='+encodeURIComponent(this.state.current_location.lat) + '&lng='+encodeURIComponent(this.state.current_location.lng),
+    var num_past_stops = 0
+    if (this.state.stop_etas) {
+      num_past_stops = this.state.stop_etas.indexOf(this.getPastStop(this.state.stop_etas)) +1
+    }
+    var query_string =  'lat='+encodeURIComponent(this.state.current_location.lat) + 
+                        '&lng='+encodeURIComponent(this.state.current_location.lng) + 
+                        '&num_past_stops='+encodeURIComponent(num_past_stops),
         url = '/route/etas?' + query_string
 
     return url
