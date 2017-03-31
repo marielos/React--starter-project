@@ -43,10 +43,12 @@ class App extends Component {
   parseDate(date_sec) {
     var date = new Date(date_sec),
         hours = date.getHours(),
-        minutes = date.getMinutes()
+        minutes = date.getMinutes(),
+        seconds = date.getSeconds()
     if( hours > 12 ){ hours -= 12; }
     if( minutes < 10) { minutes = '0'+ minutes}
-    var time = hours + ':' + minutes
+    if( seconds < 10) { seconds = '0'+ seconds}
+    var time = hours + ':' + minutes + ':' + seconds
 
     return time
   }
@@ -394,16 +396,16 @@ class App extends Component {
 
     return(
     	<div>
-        {this.renderCurrentStage()}
-        <div className='row box'>
+       <div className='row box'>
           {this.renderCurrentLocation()}
           {this.renderAPICalls()}
           <button onClick={() => this.forceGetLocation()}>
             Force API Call
           </button> 
         </div>
-        <div className='row'>
-        </div>
+
+        {this.renderCurrentStage()}
+        
       </div>
     )
   }

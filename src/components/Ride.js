@@ -48,11 +48,11 @@ class Ride extends Component {
 
 
 	componentDidMount() {
-		document.addEventListener('keydown', function(event) {
-			if (event.keyCode == "32") { // spacebar has been pressed
-				this.togglePause()
-			}
-		}.bind(this))
+		// document.addEventListener('keydown', function(event) {
+		// 	if (event.keyCode == "32") { // spacebar has been pressed
+		// 		this.togglePause()
+		// 	}
+		// }.bind(this))
 	}
 
 	togglePause() {
@@ -133,7 +133,13 @@ class Ride extends Component {
 
 	getStopLegTime(stop_obj) {
 		if (!stop_obj.leg_time) return ''
-		return stop_obj.leg_time.getMinutes()
+			var minutes = stop_obj.leg_time.getMinutes(),
+				seconds = stop_obj.leg_time.getSeconds()
+
+			if( minutes < 10) { minutes = '0'+ minutes}
+		    if( seconds < 10) { seconds = '0'+ seconds}
+
+		return minutes+ ':' + seconds
 	}
 
 
@@ -379,7 +385,7 @@ class Ride extends Component {
 				       RESET DATA
 				   </button> 
 				   
-				   <div className=''>
+				   <div className='time'>
 						{GLOBAL_current_leg_progress}
 					</div>
 				   {this.state.testState ? 
