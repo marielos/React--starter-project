@@ -32,11 +32,7 @@ var STAGE = {
   past_stop: 2,
   future_stop: 3
 },
-  UPCOMING_DISTANCE = 250, //----- testing values are different than driving values
-  ARRIVED_DISTANCE = 80,
   stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8'))
-
-
 
 
 app.get('/reset/am', function(request, response) {
@@ -123,7 +119,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
   }, function(err, res) {    
     if (!err) {
       var directions_data = res.json
-      directions_data['stops'] = updateStageOfStops(directions_data)
+      directions_data['stops'] = updateDistanceOfStops(directions_data)
       response.json(directions_data)
     } else {
       console.log('err-' + err);
@@ -135,7 +131,9 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
   });
 
 
-    var updateStageOfStops = function(directions_data) {
+
+  // should all of this be done client side and we pass the index of nextStop to start
+    var updateDistanceOfStops = function(directions_data) {
       var legs = directions_data.routes[0].legs,
           num_legs = legs.length,
           num_stops = stops_GLOBAL.route.length,
@@ -156,33 +154,38 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
         stop_obj['distance'] = stop_distance
         leg_i++
 
+
+// ------------------- move to client side from here -------------------------
+
         // only nextStop() should have the chance to change to upcoming or current if (stop)
 
-        if (stop_distance < ARRIVED_DISTANCE) {              // currently at this stop
+        // if (stop_distance < ARRIVED_DISTANCE) {              // currently at this stop
 
-          if (next_stop) { //stop_obj['stage'] === STAGE.upcoming_stop) {
-            stop_obj['stage'] = STAGE.current_stop
-          }
+        //   if (next_stop) { //stop_obj['stage'] === STAGE.upcoming_stop) {
+        //     stop_obj['stage'] = STAGE.current_stop
+        //   }
 
-        } else if (stop_distance < UPCOMING_DISTANCE) {         // upcoming at this stop
-          if (next_stop) { 
+        // } else if (stop_distance < UPCOMING_DISTANCE) {         // upcoming at this stop
+        //   if (next_stop) { 
 
-            if (stop_obj['stage'] === STAGE.future_stop) {
-              stop_obj['stage'] = STAGE.upcoming_stop   
+        //     if (stop_obj['stage'] === STAGE.future_stop) {
+        //       stop_obj['stage'] = STAGE.upcoming_stop   
 
-            } else if (stop_obj['stage'] === STAGE.current_stop) {  
-              stop_obj['stage'] = STAGE.past_stop       //leaving this spot
-            } 
-          }
-        } else {                                                 // out of range
-          if (stop_obj['stage'] === STAGE.current_stop) {
-             // probably never gets here since we move to upcoming distance before out of range, unless we jump out really quickly
-             // safety check 
-            stop_obj['stage'] = STAGE.past_stop   // leaving  this stop
-          } 
-        }
+        //     } else if (stop_obj['stage'] === STAGE.current_stop) {  
+        //       stop_obj['stage'] = STAGE.past_stop       //leaving this spot
+        //     } 
+        //   }
+        // } else {                                                 // out of range
+        //   if (stop_obj['stage'] === STAGE.current_stop) {
+        //      // probably never gets here since we move to upcoming distance before out of range, unless we jump out really quickly
+        //      // safety check 
+        //     stop_obj['stage'] = STAGE.past_stop   // leaving  this stop
+        //   } 
+        // }
 
-        next_stop = false
+        // next_stop = false
+// ----------------------------------------------------------------------------------------
+ 
       }
       return stops_GLOBAL
     }

@@ -10,7 +10,9 @@ var STOP_STAGE = {
   past_stop: 2,
   future_stop: 3
 },
-  TRACKING_ID = 0
+  TRACKING_ID = 0,
+  UPCOMING_DISTANCE = 250, //----- testing values are different than driving values
+  ARRIVED_DISTANCE = 80
 
 
 
@@ -192,6 +194,18 @@ class App extends Component {
 // update stop_etas instead of returning new ones 
 // keep recalculating leg_time of future stops but not of next_stop
 
+  getNextStop(stops) {
+
+    for(var i=0; i<stops.length; i++) {
+      var stop = stops[i]
+
+      if (stop.stage !== STOP_STAGE.past_stop) {
+        return stop
+      }
+    }
+    return stops[0]
+  }
+
   addEtaToStops(route_data, date) { 
     if(!date) date = this.state.current_date
 
@@ -203,50 +217,127 @@ class App extends Component {
         num_past_stops = new_stops.indexOf(this.getPastStop(new_stops)) +1,
         first_stop = true
 
+    // based on the distance of next_stop decide to cycle stages forward 
+    new_stops = this.updateStageofStops(new_stops, num_past_stops)
+
+    
     for (var i=0; i<num_stops; i++) {
       var new_eta = new Date(date.getTime()),
-          next_new_stop = new_stops[i],
-          next_stop = this.state.stop_etas ? this.state.stop_etas[i] : next_new_stop
+          new_stop = new_stops[i],
+          stop = this.state.stop_etas ? this.state.stop_etas[i] : new_stop
+
+        // set client side 
+      stop.stage = new_stop.stage
+
+
+        // set server side
+      stop.distance = new_stop.distance
           
-      next_stop.stage = next_new_stop.stage
-      next_stop.distance = next_new_stop.distance
-          
-      if(i >= num_past_stops) {
-        var next_stop_leg_time = legs[i-num_past_stops].duration.value
-        accumulated_seconds += next_stop_leg_time
-        new_eta.setSeconds(new_eta.getSeconds() +accumulated_seconds)
+
+          // set stop.eta & stop.leg_time
+                        if(i >= num_past_stops) {
+
+                          var next_stop_leg_time = legs[i-num_past_stops].duration.value
+                          accumulated_seconds += next_stop_leg_time
+                          new_eta.setSeconds(new_eta.getSeconds() +accumulated_seconds)
+
+                          var eta_diff
+                          if (stop.eta) {
+                            eta_diff = new_eta.getTime() - stop.eta.getTime()
+                          } else {
+                            eta_diff = 0
+                          }
+
+                          if (stop.stage === STOP_STAGE.current_stop) {
+                            if(!stop.have_arrived) {
+                              stop.eta = new Date()
+                              stop.have_arrived = true
+                            }
+                          } else {
+                            stop.eta = new_eta
+                          }
+
+                          if (first_stop && stop.leg_time) { //dont recalculate leg time after it is set 
+                            console.log(stop.name)
+                            stop.leg_time = new Date(stop.leg_time.getTime() + eta_diff)
+                          } else {
+                            stop.leg_time = new Date(next_stop_leg_time*1000)
+                          }
+                          
+                          first_stop = false
+                        }
 
 
-        var eta_diff
-        if (next_stop.eta) {
-          eta_diff = new_eta.getTime() - next_stop.eta.getTime()
-        } else {
-          eta_diff = 0
-        }
-
-        if (next_stop.stage === STOP_STAGE.current_stop) {
-          if(!next_stop.have_arrived) {
-            next_stop.eta = new Date()
-            next_stop.have_arrived = true
-          }
-        } else {
-          next_stop.eta = new_eta
-        }
-
-        if (first_stop && next_stop.leg_time) { //dont recalculate leg time after it is set 
-          console.log(next_stop.name)
-          next_stop.leg_time = new Date(next_stop.leg_time.getTime() + eta_diff)
-        } else {
-          next_stop.leg_time = new Date(next_stop_leg_time*1000)
-        }
-        
-        first_stop = false
-      }
-      stop_etas.push(next_stop)
+      stop_etas.push(stop)
     }
 
     return stop_etas
   }
+
+
+
+
+  // -------- updating stop STAGE and DISTANCE --------------
+
+      // use distance and set stage here instead of server and use same logic as test state
+      // instead of current leg progress, we use distance and have a method of cycle forward 
+      // only based on nextStop
+      // if current_stop: new_distance > current_stop.distance + 30m -> cycle forward 
+      // if upcoming: current_radius -> cycle forward
+      // if future: upcoming_radius -> cycle forward 
+
+
+  updateStageofStops(new_stops, num_past_stops) {
+    var next_stop = this.getNextStop(new_stops),
+        old_stop = this.state.stop_etas ? this.state.stop_etas[num_past_stops] : next_stop,
+        stop_distance = next_stop.distance,
+        old_stop_distance = old_stop.distance
+
+
+    if (next_stop.stage === STOP_STAGE.current_stop) {
+
+      if (stop_distance > old_stop_distance + 30) {     // have moved farther away since arriving
+        return this.cycleStopStagesForward(new_stops)
+      }
+
+    } else if (next_stop.stage === STOP_STAGE.upcoming_stop) {
+
+      if (stop_distance < ARRIVED_DISTANCE) {           // have moved into current_stop radius
+        return this.cycleStopStagesForward(new_stops)
+      }
+
+    } else if (next_stop.stage === STOP_STAGE.future_stop) {
+
+      if (stop_distance < UPCOMING_DISTANCE) {          // have moved into upcoming_stop radius
+        return this.cycleStopStagesForward(new_stops)
+      }
+    } 
+
+    return new_stops // no need for a state change
+  }
+
+
+  cycleStopStagesForward(stops) {
+    var next_stop = this.getNextStop(stops)
+
+    for(var i=0; i<stops.length; i++) {
+      var stop = stops[i]
+
+      if (stop.stage === STOP_STAGE.current_stop){
+        stop.stage = STOP_STAGE.past_stop
+
+      } else if (stop.stage === STOP_STAGE.upcoming_stop){
+        stop.stage = STOP_STAGE.current_stop
+
+      } else if (stop === next_stop){
+        if (stop.distance < UPCOMING_DISTANCE) {    // only make the first future stop upcoming if within the radius
+          stop.stage = STOP_STAGE.upcoming_stop
+        }
+      } 
+    }
+    return stops
+  }
+
 
   getGMapsUrlWithCurrentLocation() {
     var query_string = 'lat='+encodeURIComponent(this.state.current_location.lat) + '&lng='+encodeURIComponent(this.state.current_location.lng),

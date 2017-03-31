@@ -165,18 +165,18 @@ class Ride extends Component {
 	getAbsoluteRouteContainerPosition(past_stop, next_stop, date) {
 
 		if (document.getElementsByClassName('stop').length === 0) return 0
-
-		if(!next_stop.leg_time) {
+		
+		if (!next_stop.leg_time) {
 			console.log('leg-time issue!')
 		}
 
-
-		if(next_stop && !next_stop.eta) {
+		if (next_stop && !next_stop.eta) {
 			console.log('adding a fake eta (in 5 min) to next stop')
 			next_stop.eta = new Date()
 			next_stop.eta.setMinutes(next_stop.eta.getMinutes() + 5) // in 5 minutes
 			next_stop.leg_time = new Date(5*60*1000) // 5 minutes
 		}
+
 
 		/*
 			what if we dont have any etas?
@@ -186,21 +186,33 @@ class Ride extends Component {
 			past_margin_width = document.getElementsByClassName('past-margin-line')[0].getBoundingClientRect().width,
 			index_past_stop = this.getStopEtas().indexOf(past_stop), // -1 if no past position  
 			past_stop_left_pos = past_margin_width - index_past_stop*stop_width, 
-			current_leg_progress = 1-((next_stop.eta.getTime()-date.getTime())/next_stop.leg_time.getTime()),
-			animation_left = current_leg_progress * stop_width,
+			current_leg_progress = 1-((next_stop.eta.getTime()-date.getTime())/next_stop.leg_time.getTime())
+			
+
+			// dont mess with current leg process in test state, 
+			// stop stages depend on it
+		if (!this.state.testState){ 
+			if (next_stop.stage === STOP_STAGE.current_stop) {
+				current_leg_progress = 1 // stay at stop
+			}
+			current_leg_progress = Math.max(current_leg_progress, 0) // never have negative progress
+		} 
+		
+
+		var animation_left = current_leg_progress * stop_width,
 			current_left_position = past_stop_left_pos - animation_left
 
 		GLOBAL_current_leg_progress = current_leg_progress
 
-		if(GLOBAL_current_leg_progress >10) {
-			console.log('why the face')
-		}
-	
+		// if(GLOBAL_current_leg_progress >10) {
+		// 	console.log('why the face')
+		// }
+
 		if (index_past_stop === -1) {
 			return past_margin_width + stop_width  - animation_left
 		}
 
-		return current_left_position
+		return current_left_position 
 	}
 
 
@@ -470,10 +482,9 @@ class Ride extends Component {
 	updateStopStageForTestDate() {
 		var stop = this.getNextStop()
 
-
 		// if GLOBAL_current_leg_progress < 1 we need to cycle backwards
 		if (stop.stage === STOP_STAGE.current_stop) {
-			if (GLOBAL_current_leg_progress - .1 > 1) {
+			if (GLOBAL_current_leg_progress > 1.05) {
 				this.cycleStopStagesForward()
 			} else if (GLOBAL_current_leg_progress < .9) {
 				this.cycleStopStagesBackward()
@@ -491,7 +502,7 @@ class Ride extends Component {
 		} else if (stop.stage === STOP_STAGE.future_stop) {
 			if (GLOBAL_current_leg_progress + .3 > 1) {
 				this.cycleStopStagesForward()
-			} else if (GLOBAL_current_leg_progress < 0) {
+			} else if (GLOBAL_current_leg_progress <= 0) {
 				this.cycleStopStagesBackward()
 			}
 		} 
@@ -567,15 +578,8 @@ class Ride extends Component {
 			if (stop.stage !== STOP_STAGE.past_stop) {
 				return stop
 			}
-
-			// if(stop.stage === STOP_STAGE.current_stop || stop.stage === STOP_STAGE.upcoming_stop) {
-			// 	return stop
-			// }
-
-			// if (stop.stage === STOP_STAGE.future_stop) {
-			// 	return stop
-			// }
 		}
+		return stops[0]
 	}
 
 	getTestDateValue() {

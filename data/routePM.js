@@ -4,7 +4,7 @@
 		"name": "Palo Alto Caltrain",
 		"lat": 37.44255, 
 		"lng": -122.16304,
-		"stage": 1
+		"stage": 2
 	}, 
 	{
 		"name": "Apple Store",
