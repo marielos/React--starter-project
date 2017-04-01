@@ -227,7 +227,7 @@ class Ride extends Component {
 			if (next_stop.stage === STOP_STAGE.current_stop) {
 				current_leg_progress = 1 // stay at stop
 			}
-			current_leg_progress = Math.max(current_leg_progress, 0) // never have negative progress
+			current_leg_progress = Math.min(Math.max(current_leg_progress, 0),1) // never have negative progress, or more than 1 
 		} 
 		
 
@@ -270,8 +270,7 @@ class Ride extends Component {
 
 	renderStopAnnouncement(stop_obj, index) {
 		if (this.props.isAM) return '' // no stop announcements :(
-
-
+		if (!this.stop_obj.announcement) return ''
 		if(stop_obj !== this.getNextStop()) return ''
 		
 		var shouldHide = ''
@@ -346,34 +345,36 @@ class Ride extends Component {
 
 	renderPastFakeStop() {
 		return(
-			<div className='fixed-past-container'>
-			<img className='van-pic' src={require("./img/van-pic.png")}/>
-				<div className='fake-stop stop'>
-					<div className='stop-name'>
-	    				<div className='text-container'>
-	    				</div>
-	    			</div>
-					<div className='path-line past-line'/>
-					<div className='stop_extras'>
-						<div className='fake-dot stop-dot'/>
-						<div className='stop_eta'/>
+			<div>
+				<img className='van-pic' src={require("./img/van-pic.png")}/>
+
+				<div className='fixed-past-container'>
+					<div className='fake-stop stop'>
+						<div className='stop-name'>
+		    				<div className='text-container'>
+		    				</div>
+		    			</div>
+						<div className='path-line past-line'/>
+						<div className='stop_extras'>
+							<div className='fake-dot stop-dot'/>
+							<div className='stop_eta'/>
+						</div>
 					</div>
-				</div>
 
 
-				<div className='fake-stop stop stop-margin'>
-					<div className='stop-name'>
-	    				<div className='text-container'>
-	    				</div>
-	    			</div>
-					<div className='path-line past-line'/>
-					<div className='stop_extras'>
-						<div className='fake-dot stop-dot'/>
-						<div className='stop_eta'/>
+					<div className='fake-stop stop stop-margin'>
+						<div className='stop-name'>
+		    				<div className='text-container'>
+		    				</div>
+		    			</div>
+						<div className='path-line past-line'/>
+						<div className='stop_extras'>
+							<div className='fake-dot stop-dot'/>
+							<div className='stop_eta'/>
+						</div>
 					</div>
+
 				</div>
-
-
 			</div>
 		)
 	}
@@ -400,19 +401,30 @@ class Ride extends Component {
 	      	<div className='bottom-container'>
 
 			<div className='driver-container '>
-				<img className='driver-photo' src={require("./img/driver_photo.png")}  />
-				<div className='driver-name'> Derek </div>
+				<div className='chariot-container'>
+					<img className='driver-photo' src={require("./img/driver_photo.png")}  />
+
+					<div className='driver-name'>Derek</div>
+				</div>
+				<div className='chariot-id'> 
+					Chariot #10
+				</div>
 			</div>
-		      	<div className={'caltrain-container '+ this.shouldShowCaltrain()}>
-		      	<img className='caltrain-check' src={require("./img/caltrain_check.png")} />
-		      		<div className='caltrain-text'>
-				        <div className='caltrain-heading'>  On time for Caltrain: </div>
-				        <div className='caltrain-direction'> NB {caltrain_etas_NB} </div> 
-				        	
-				        <div className='caltrain-direction'> SB {caltrain_etas_SB}</div>
-				        	
-			        </div>
-		        </div> 
+
+			<div className='time-container'>
+				{this.parseDate(this.state.testState ? this.state.testDate : this.props.currentDate)} {this.props.isAM ? ' AM' : ' PM'}
+			</div>
+
+	      	<div className={'caltrain-container '+ this.shouldShowCaltrain()}>
+	      		<img className='caltrain-check' src={require("./img/caltrain_check.png")} />
+	      		<div className='caltrain-text'>
+			        <div className='caltrain-heading'>  On time for Caltrain: </div>
+			        <div className='caltrain-direction'> NB {caltrain_etas_NB} </div> 
+			        	
+			        <div className='caltrain-direction'> SB {caltrain_etas_SB}</div>
+			        	
+		        </div>
+	        </div> 
 		    </div>
 	    )
 	 }
@@ -421,7 +433,7 @@ class Ride extends Component {
 // change AM/PM
 	renderCurrentTime() {
 		return (
-		  <div className={this.getRideState() === RIDE_STAGE.stop ? 'were-here time' : 'time'}>
+		  <div className='time'>
 		     {this.parseDate(this.state.testState ? this.state.testDate : this.props.currentDate)} {this.props.isAM ? ' AM' : ' PM'}
 		  </div>
 		)
@@ -432,54 +444,62 @@ class Ride extends Component {
 		this.getAnimationPosition()
 
 		return(
-			<div>
-				<div className='vehicle-screen'>
-					{this.renderCurrentTime()}
-					<div className='chariot-id'> 
-							Chariot #10 
+			<div className='main-container'>
+
+			<div className='testing-container'>
+				<div className='row around-xs'>
+					<div className='test-col col-xs'>
+						<div className='test-title'>
+						Reset
+						</div>
+						<div className='test-info-container'>
+							<div className='row around-xs'>
+								<button onClick={() => this.resetData()} className='reset-button col-xs'>
+							    	AM 
+							   </button> 
+							   <button onClick={() => this.resetData(true)} className='reset-button col-xs'>
+							        PM 
+							   </button> 
+						   </div>
+						</div>
 					</div>
 
-					{this.renderPastFakeStop()}
-					
-			    	<Motion style={{left: GLOBAL_left}}>
-			    		{({left}) => (
-							<div className='route-container' style={{left: `${left}px` }}>
-					          {this.renderStops()}
-					        </div>
-					    )}
-				    </Motion>
-				    
-					{this.renderCaltrains()}
-			    </div>
-
-
-			    <div className='slider'>
-			       <button onClick={this.toggleTestState.bind(this)}>
-				       {this.state.testState ? 'Back to location base' : 'Switch to test state'}
-				   </button> 
-				   <button onClick={this.togglePause.bind(this)}>
-				       {this.state.isPaused ? 'Continue ride' : 'Pause ride'}
-				   </button> 
-				   {this.state.isPaused ?
-						<button onClick={this.continueToNextStop.bind(this)}>
-					       Continue to next stop
-					    </button> 
-					    : ''
-				   }
-				   <button onClick={() => this.resetData()} className='reset-button'>
-				        RESET AM DATA 
-				   </button> 
-				   <button onClick={() => this.resetData(true)} className='reset-button'>
-				        RESET PM DATA 
-				   </button> 
-				   <div className='time'>
-						{GLOBAL_current_leg_progress} 
-						<br/>
-						{this.getStopDistance(this.getNextStop())}m
+					<div className='test-col col-xs'>
+						<div className='test-title'>
+						Progress
+						</div>
+						<div className='test-info-container'>
+							<div className='row around-xs'>
+								<div className='col-xs test-info'>
+									{GLOBAL_current_leg_progress.toFixed(3)} 
+								</div>
+								<div className='col-xs test-info'>
+									{this.getStopDistance(this.getNextStop())}m
+								</div>
+							</div>
+							<button onClick={this.toggleTestState.bind(this)}>
+						       {this.state.testState ? 'Back to location base' : 'Switch to test state'}
+						   </button> 
+						</div>
 					</div>
 
-				   {this.state.testState ? 
-					    <div>
+					<div className='test-col col-xs'>
+						<div className='test-title'>
+						API Calls
+						</div>
+						<div className='test-info-container'>
+							<div className='test-info'>
+								{this.props.numAPICalls} 
+							</div>
+							<button onClick={() => this.props.forceAPICall()} className='force-api-button'>
+						        Force API call
+						   </button> 
+						</div>
+					</div>
+				</div>
+
+  				{this.state.testState ? 
+					    <div className='slider'>
 						    <Slider
 					          min={this.getMinTime()}
 					          max={this.getMaxTime()}
@@ -491,15 +511,40 @@ class Ride extends Component {
 				        </div>
 				        : ''
 			    	}
-		        </div>
 		    </div>
 
-
+		    <div className='vehicle-screen'>
+				{this.renderPastFakeStop()}
+		    	<Motion style={{left: GLOBAL_left}}>
+		    		{({left}) => (
+						<div className='route-container' style={{left: `${left}px` }}>
+				          {this.renderStops()}
+				        </div>
+				    )}
+			    </Motion>
+			    
+				{this.renderCaltrains()}
+		    </div>
+		 </div>
 		)
 	}
 
 
+/*
 
+			       
+				   <button onClick={this.togglePause.bind(this)}>
+				       {this.state.isPaused ? 'Continue ride' : 'Pause ride'}
+				   </button> 
+				   {this.state.isPaused ?
+						<button onClick={this.continueToNextStop.bind(this)}>
+					       Continue to next stop
+					    </button> 
+					    : ''
+				   }
+
+
+*/
 	resetData(pm) {
 
 	    var url = '/reset/am',

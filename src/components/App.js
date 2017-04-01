@@ -12,7 +12,7 @@ var STOP_STAGE = {
 },
   TRACKING_ID = 0,
   UPCOMING_DISTANCE = 250, //----- testing values are different than driving values
-  ARRIVED_DISTANCE = 80
+  ARRIVED_DISTANCE = 60
 
 
 
@@ -305,8 +305,8 @@ class App extends Component {
         old_stop_distance = old_stop.distance
 
     if (next_stop.stage === STOP_STAGE.current_stop) {
-      // next_stop.address = 'c'
-      if ((stop_distance > old_stop_distance + 30) || (stop_distance >ARRIVED_DISTANCE) ) {     // have moved farther away since arriving
+      // could add this.state.readyToMoveToNextStop
+      if ((stop_distance > old_stop_distance + 30) || (stop_distance >ARRIVED_DISTANCE+30) ) {     // have moved farther away since arriving
         // next_stop.address = 'c->o'
         return this.cycleStopStagesForward(new_stops)
       }
@@ -509,10 +509,13 @@ class App extends Component {
 
   // make this render as much as possible without etas
   renderCurrentStage() {
+
+
+
     if (this.state.stop_etas){
       return this.renderRideStage()
     } else {
-      return "LOADING"
+      return (<div className='loading'> LOADING </div>)
     }
   }
 
@@ -520,46 +523,39 @@ class App extends Component {
     return <Ride 
               currentDate={this.state.current_date}
               stopEtas={this.state.stop_etas} 
-              // parseDate={this.parseDate}
               availableCaltrainsNB={this.state.available_caltrains_nb}  
               availableCaltrainsSB={this.state.available_caltrains_sb}
               setRouteData={this.setRouteData.bind(this)}
               isAM={this.state.isAM}
               ref='Ride'
+              forceAPICall={this.forceGetLocation.bind(this)}
+              numAPICalls={this.state.num_calls}
             />
   }
 
 
-  handleDistanceChange(event) {
-    this.getNextStop(this.state.stop_etas).distance = event.target.value;
-    var num_past_stops = this.state.stop_etas.indexOf(this.getPastStop(this.state.stop_etas)) +1
+  // handleDistanceChange(event) {
+  //   this.getNextStop(this.state.stop_etas).distance = event.target.value;
+  //   var num_past_stops = this.state.stop_etas.indexOf(this.getPastStop(this.state.stop_etas)) +1
 
-    // this.updateStageofStops(this.state.stop_etas, num_past_stops) 
+  //   // this.updateStageofStops(this.state.stop_etas, num_past_stops) 
 
+  // }
+
+
+/*
+
+  {this.state.stop_etas ?
+     <input type="text" onChange={this.handleDistanceChange.bind(this)}/>
+     : ''
   }
 
+*/
   render() {
   	if (!this.state) return null
 
-    return(
-    	<div>
-       <div className='box'>
-          {this.renderCurrentLocation()}
-          {this.renderAPICalls()}
-          {this.state.stop_etas ?
-             <input type="text" onChange={this.handleDistanceChange.bind(this)}/>
-             : ''
-          }
-          
-          <button onClick={() => this.forceGetLocation()}>
-            Force API Call
-          </button> 
-        </div>
-
-        {this.renderCurrentStage()}
-        
-      </div>
-    )
+    return this.renderCurrentStage()
+    
   }
 
 

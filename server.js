@@ -112,6 +112,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
  array, but will instead route the journey through the provided waypoint.
 
 */
+
   googleMapsDirectionsClient.directions({
     origin: origin,
     waypoints: waypoints,
