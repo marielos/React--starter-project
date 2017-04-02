@@ -1,10 +1,13 @@
+$top-margin: 25px;
+$top-margin-adjusted-mobile: 12px;
+$top-margin-adjusted-desktop: 19px;
+
 
 $stop-width: 18%;
 $past-stop-margin: 10%;
 $stop-name-height: 50px;
 $stop-info-left-margin: -12px;
-$top-margin: 25px;
-$top-margin-adjusted: 12px;
+
 $dark-gray: #444;
 
 body{
@@ -59,14 +62,6 @@ body{
 }
 
 
-
-/*
-.chariot-text {
-    position: absolute;
-    bottom: 0px;
-  }
-
-*/
 /* ----------------------- Route Line classes -----------------------*/
 
 
@@ -78,7 +73,7 @@ body{
 
 .fixed-past-container {
   position: absolute;
-  top: $top-margin-adjusted;
+  top: $top-margin-adjusted-desktop; /* $top-margin-adjusted-mobile*/
   z-index: 9;
   width: 100%;
   height: 100px;
@@ -96,10 +91,9 @@ body{
 
   .past-margin-line {
     width: $past-stop-margin;
-  }
-
-  
+  }  
 }
+
 .van-pic {
     width: 45px;
     left: 28%;
@@ -155,11 +149,12 @@ body{
 
 .stop_extras {
   height: 32px;
-
+  
   .stop_eta {
     font-size: 20px;
     margin-left: $stop-info-left-margin;
     height: 25px;
+    transition: opacity 1s linear;
   }
 
   .stop-dot {
@@ -195,10 +190,10 @@ body{
 
 .stop_announcement {
   position: absolute;
-  top: 80px;
+  top: 85px;
   margin-left: $stop-info-left-margin;
   font-size: 12px;
-
+  transition: opacity 1s linear;
   .stop-announcement-title {
     opacity: .85;
     font-size: 10px;
