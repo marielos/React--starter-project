@@ -305,26 +305,18 @@ class App extends Component {
         old_stop_distance = old_stop.distance
 
     if (next_stop.stage === STOP_STAGE.current_stop) {
-      // could add this.state.readyToMoveToNextStop
       if ((stop_distance > old_stop_distance + 30) || (stop_distance >ARRIVED_DISTANCE+30) ) {     // have moved farther away since arriving
-        // next_stop.address = 'c->o'
         return this.cycleStopStagesForward(new_stops)
       }
 
     } else if (next_stop.stage === STOP_STAGE.upcoming_stop) {
-      // next_stop.address = 'u'
       if (stop_distance < ARRIVED_DISTANCE) {           // have moved into current_stop radius
-        // next_stop.address = 'u->c'
         return this.cycleStopStagesForward(new_stops)
       } 
-      // else {
-      //   // next_stop.address = 'u XXXX c'
-      // }
+
 
     } else if (next_stop.stage === STOP_STAGE.future_stop) {
-      // next_stop.address = 'f'
       if (stop_distance < UPCOMING_DISTANCE) {          // have moved into upcoming_stop radius
-        // next_stop.address = 'f->u'
         return this.cycleStopStagesForward(new_stops)
       }
     } 

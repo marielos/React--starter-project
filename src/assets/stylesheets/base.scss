@@ -102,7 +102,8 @@ body{
 }
 .van-pic {
     width: 45px;
-    left: 25%;
+    left: 28%;
+    margin-left: -24px;
     top: 61px;
     z-index: 15;
     position: absolute;
@@ -373,18 +374,22 @@ body{
 
   .test-title {
     text-align: center;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: solid 1px;
+    margin-top: 10px;
+    padding-top: 5px;
+    border-top: solid 1px;
   }
 
   .test-info-container {
     padding: 10px;
+    height: 100px;
   }
 
   .test-info {
-      text-align: center;
+    text-align: center;
+    font-size: 16px;
+    margin: 10px 0;
   }
+
   button {
     height: 30px;
     margin: 10px;
@@ -392,7 +397,6 @@ body{
 
   .reset-button {
     background-color: red;
-    width: 40%;
     color: white;
     font-weight: bolder;
   }

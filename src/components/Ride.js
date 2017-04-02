@@ -61,10 +61,10 @@ class Ride extends Component {
 		})
 	}
 
-	continueToNextStop() {
-		this.cycleStopStagesForward()
-		this.togglePause()
-	}
+	// continueToNextStop() {
+	// 	this.cycleStopStagesForward()
+	// 	this.togglePause()
+	// }
 
 	parseDate(date_sec) {
 	    var date = new Date(date_sec),
@@ -112,7 +112,7 @@ class Ride extends Component {
 
 	shouldDimStop(stop_obj) {
 		if (this.getRideState() == RIDE_STAGE.stop && stop_obj.stage != STOP_STAGE.current_stop) {
-			return 'hidden'
+			return ' hidden '
 		}
 		return ''
 	}
@@ -120,22 +120,22 @@ class Ride extends Component {
 
 	shouldShowDot(stop_obj, index) {
 		if (index === 0) {	// first fake stop
-			return 'invisible'
+			return ' invisible '
 		}
 
 		if (stop_obj.stage === STOP_STAGE.past_stop) {
-			return 'gray-dot'
+			return ' gray-dot '
 		} 
 		return ''
 	}
 
 	shouldShowEta(stop_obj, index) {
 		if (index === 0) {	// first fake stop
-			return 'invisible'
+			return ' invisible '
 		}
 
 		if (!stop_obj.eta) {
-			return 'invisible'
+			return ' invisible '
 		}
 
 		return ''
@@ -173,7 +173,7 @@ class Ride extends Component {
 
 	shouldShowCaltrain() {
 		if (this.props.isAM) return ''
-		return 'invisible'
+		return ' invisible '
 	}
 	
 
@@ -210,6 +210,9 @@ class Ride extends Component {
 		}
 
 
+
+
+
 		/*
 			what if we dont have any etas?
 			assume every stop.eta is 5min (5*60*1000) away
@@ -220,25 +223,29 @@ class Ride extends Component {
 			past_stop_left_pos = past_margin_width - index_past_stop*stop_width, 
 			current_leg_progress = 1-((next_stop.eta.getTime()-date.getTime())/next_stop.leg_time.getTime())
 			
+		if (next_stop.stage === STOP_STAGE.current_stop) {
+			current_leg_progress = 1 // stay at stop
+		}
+			
+		if (this.state.testState) {	// animate middle stages
+			if (next_stop.stage === STOP_STAGE.upcoming_stop){
+				current_leg_progress = .8
 
-			// dont mess with current leg process in test state, 
-			// stop stages depend on it
-		if (!this.state.testState){ 
-			if (next_stop.stage === STOP_STAGE.current_stop) {
-				current_leg_progress = 1 // stay at stop
-			}
-			current_leg_progress = Math.min(Math.max(current_leg_progress, 0),1) // never have negative progress, or more than 1 
-		} 
+			} else if (next_stop.stage === STOP_STAGE.future_stop){
+				current_leg_progress = .4
+			} 
+		}
+
+		 
+		
+
+		current_leg_progress = Math.min(Math.max(current_leg_progress, 0),1) // never have negative progress, or more than 1 
 		
 
 		var animation_left = current_leg_progress * stop_width,
 			current_left_position = past_stop_left_pos - animation_left
 
 		GLOBAL_current_leg_progress = current_leg_progress
-
-		// if(GLOBAL_current_leg_progress >10) {
-		// 	console.log('why the face')
-		// }
 
 		if (index_past_stop === -1) {
 			return past_margin_width + stop_width  - animation_left
@@ -270,8 +277,9 @@ class Ride extends Component {
 
 	renderStopAnnouncement(stop_obj, index) {
 		if (this.props.isAM) return '' // no stop announcements :(
+		if (!this.stop_obj) return ''
 		if (!this.stop_obj.announcement) return ''
-		if(stop_obj !== this.getNextStop()) return ''
+		if (stop_obj !== this.getNextStop()) return ''
 		
 		var shouldHide = ''
 		if (index === 0) {	// first fake stop
@@ -441,6 +449,7 @@ class Ride extends Component {
 		
 	render() {	
 		if (!this.state) return null
+		var progress = GLOBAL_current_leg_progress*100
 		this.getAnimationPosition()
 
 		return(
@@ -449,68 +458,79 @@ class Ride extends Component {
 			<div className='testing-container'>
 				<div className='row around-xs'>
 					<div className='test-col col-xs'>
-						<div className='test-title'>
-						Reset
+						
+						<div className='row bottom-xs test-info-container'>
+							<div className='col-xs'>
+								<div className='row around-xs'>
+									<button onClick={() => this.resetData()} className='reset-button col-xs'>
+								    	AM 
+								   </button> 
+								   <button onClick={() => this.resetData(true)} className='reset-button col-xs'>
+								        PM 
+								   </button> 
+							   </div>
+							</div>
 						</div>
-						<div className='test-info-container'>
-							<div className='row around-xs'>
-								<button onClick={() => this.resetData()} className='reset-button col-xs'>
-							    	AM 
-							   </button> 
-							   <button onClick={() => this.resetData(true)} className='reset-button col-xs'>
-							        PM 
-							   </button> 
-						   </div>
-						</div>
+
+						<div className='test-title'> Routes </div>
 					</div>
 
 					<div className='test-col col-xs'>
-						<div className='test-title'>
-						Progress
-						</div>
-						<div className='test-info-container'>
-							<div className='row around-xs'>
-								<div className='col-xs test-info'>
-									{GLOBAL_current_leg_progress.toFixed(3)} 
-								</div>
-								<div className='col-xs test-info'>
-									{this.getStopDistance(this.getNextStop())}m
-								</div>
+						
+						<div className='row bottom-xs test-info-container'>
+							<div className='col-xs'>
+								
+									{this.state.testState ?
+										<div className='row around-xs'>
+											<button onClick={() => this.cycleStopStagesBackward()} className='col-xs'>
+										    	Previous
+										    </button> 
+										    <button onClick={() => this.cycleStopStagesForward()} className='col-xs'>
+										        Next
+										    </button> 
+										</div>
+									    :
+									    <div className='row around-xs'>
+										    <div className='col-xs test-info'>
+											{progress.toFixed(1)} %
+											</div>
+											<div className='col-xs test-info'>
+												{this.getStopDistance(this.getNextStop())}m away
+											</div>
+										</div>
+									}
+									
+								
+								<div className='row around-xs'>
+									<button className='col-xs test-state-button' onClick={this.toggleTestState.bind(this)}>
+								       {this.state.testState ? 'Back to location base' : 'Switch to test state'}
+								   </button> 
+							   </div>
 							</div>
-							<button onClick={this.toggleTestState.bind(this)}>
-						       {this.state.testState ? 'Back to location base' : 'Switch to test state'}
-						   </button> 
 						</div>
+
+						<div className='test-title'> Current Leg Progress </div>
 					</div>
 
 					<div className='test-col col-xs'>
-						<div className='test-title'>
-						API Calls
-						</div>
-						<div className='test-info-container'>
-							<div className='test-info'>
-								{this.props.numAPICalls} 
+						
+						<div className='row bottom-xs test-info-container'>
+							<div className='col-xs'>
+								<div className='test-info'>
+									{this.props.numAPICalls} 
+								</div>
+								<div className='row around-xs'>
+									<button className='col-xs force-api-button' onClick={() => this.props.forceAPICall()} >
+								        Force API call
+								   </button> 
+							   </div>
 							</div>
-							<button onClick={() => this.props.forceAPICall()} className='force-api-button'>
-						        Force API call
-						   </button> 
 						</div>
+						<div className='test-title'> API Calls </div>
 					</div>
 				</div>
 
-  				{this.state.testState ? 
-					    <div className='slider'>
-						    <Slider
-					          min={this.getMinTime()}
-					          max={this.getMaxTime()}
-					          tooltip={false}
-					          value={this.getTestDateValue()}
-					          onChange={this.handleTimeChange.bind(this)}
-					        />
-					        <div className='value'>{this.getTestDate()}</div>
-				        </div>
-				        : ''
-			    	}
+  				
 		    </div>
 
 		    <div className='vehicle-screen'>
@@ -529,22 +549,6 @@ class Ride extends Component {
 		)
 	}
 
-
-/*
-
-			       
-				   <button onClick={this.togglePause.bind(this)}>
-				       {this.state.isPaused ? 'Continue ride' : 'Pause ride'}
-				   </button> 
-				   {this.state.isPaused ?
-						<button onClick={this.continueToNextStop.bind(this)}>
-					       Continue to next stop
-					    </button> 
-					    : ''
-				   }
-
-
-*/
 	resetData(pm) {
 
 	    var url = '/reset/am',
@@ -585,72 +589,89 @@ class Ride extends Component {
 		}
 	}
 
-	getMinTime() {
-		return this.props.currentDate.getTime() //   -10*60*1000 // now - 10 min 
+	// getMinTime() {
+	// 	return this.props.currentDate.getTime() //   -10*60*1000 // now - 10 min 
 
-		// return this.getStopEtas()[0].eta.getTime() -10*60*1000 // first eta - 10 min 
-	}
+	// 	// return this.getStopEtas()[0].eta.getTime() -10*60*1000 // first eta - 10 min 
+	// }
 
-	getMaxTime() {
-		return this.getStopEtas()[this.getStopEtas().length-1].eta.getTime()
-	}
+	// getMaxTime() {
+	// 	return this.getStopEtas()[this.getStopEtas().length-1].eta.getTime()
+	// }
 
-	handleTimeChange(value) {
-		this.setState({
-	      testDate: new Date(value)
-	    })
-		this.updateStopStageForTestDate(new Date(value)) 
-	}
+	// handleTimeChange(value) {
+	// 	this.setState({
+	//       testDate: new Date(value)
+	//     })
+	// 	this.updateStopStageForTestDate(new Date(value)) 
+	// }
 
 
-	updateStopStageForTestDate() {
-		var stop = this.getNextStop()
+	// updateStopStageForTestDate() {
+	// 	var stop = this.getNextStop()
 
-		// if GLOBAL_current_leg_progress < 1 we need to cycle backwards
-		if (stop.stage === STOP_STAGE.current_stop) {
-			if (GLOBAL_current_leg_progress > 1.05) {
-				this.cycleStopStagesForward()
-			} else if (GLOBAL_current_leg_progress < .9) {
-				this.cycleStopStagesBackward()
-			}
-			// go to next stage if leaving current stop 
+	// 	// if GLOBAL_current_leg_progress < 1 we need to cycle backwards
+	// 	if (stop.stage === STOP_STAGE.current_stop) {
+	// 		if (GLOBAL_current_leg_progress > 1.05) {
+	// 			this.cycleStopStagesForward()
+	// 		} else if (GLOBAL_current_leg_progress < .9) {
+	// 			this.cycleStopStagesBackward()
+	// 		}
+	// 		// go to next stage if leaving current stop 
 
-		} else if (stop.stage === STOP_STAGE.upcoming_stop) {
-			if (GLOBAL_current_leg_progress + .1 > 1) {
-				this.cycleStopStagesForward()
-			} else if (GLOBAL_current_leg_progress < .7) {
-				this.cycleStopStagesBackward()
-			}
-			// go to next stage if upcoming stop has arrived
+	// 	} else if (stop.stage === STOP_STAGE.upcoming_stop) {
+	// 		if (GLOBAL_current_leg_progress + .1 > 1) {
+	// 			this.cycleStopStagesForward()
+	// 		} else if (GLOBAL_current_leg_progress < .7) {
+	// 			this.cycleStopStagesBackward()
+	// 		}
+	// 		// go to next stage if upcoming stop has arrived
 
-		} else if (stop.stage === STOP_STAGE.future_stop) {
-			if (GLOBAL_current_leg_progress + .3 > 1) {
-				this.cycleStopStagesForward()
-			} else if (GLOBAL_current_leg_progress <= 0) {
-				this.cycleStopStagesBackward()
-			}
-		} 
-	}
+	// 	} else if (stop.stage === STOP_STAGE.future_stop) {
+	// 		if (GLOBAL_current_leg_progress + .3 > 1) {
+	// 			this.cycleStopStagesForward()
+	// 		} else if (GLOBAL_current_leg_progress <= 0) {
+	// 			this.cycleStopStagesBackward()
+	// 		}
+	// 	} 
+	// }
 
 
 	cycleStopStagesForward() {
 		var stops = this.getStopEtas(),
-			num_stops = stops.length
+			num_stops = stops.length,
+			last_stop = this.getStopEtas()[this.getStopEtas().length-1]
 
+		console.log('going forwards')
+
+
+		// set testDate
 		for(var i=0; i<num_stops; i++) {
 			var stop = stops[i]
 
 			if (stop.stage === STOP_STAGE.current_stop){
 				stop.stage = STOP_STAGE.past_stop
 
+				this.setState({
+					testDate: new Date(stop.eta.getTime() + 2*60*1000)
+				})
+
+				if (stop === last_stop) {
+					this.resetStopStages()
+				}
+
+				return
 			} else if (stop.stage === STOP_STAGE.upcoming_stop){
 				stop.stage = STOP_STAGE.current_stop
-				// this.togglePause()
+				this.setState({
+					testDate: stop.eta
+				})
 
 			} else if (stop === this.getNextStop()){
-				if (GLOBAL_current_leg_progress < .9 && GLOBAL_current_leg_progress + .3 > 1) {
 					stop.stage = STOP_STAGE.upcoming_stop
-				}
+					this.setState({
+						testDate: new Date(stop.eta.getTime() - 1*60*1000)
+					})
 			} 
 		}
 	}
@@ -659,20 +680,36 @@ class Ride extends Component {
 		var stops = this.getStopEtas(),
 			num_stops = stops.length
 
-		for(var i=0; i<num_stops; i++) {
+		console.log('going backwards')
+
+		for(var i=num_stops-1; i>=0; i--) {
 			var stop = stops[i]
 
 			if (stop.stage === STOP_STAGE.current_stop){
 				stop.stage = STOP_STAGE.upcoming_stop
 
+				return
 			} else if (stop.stage === STOP_STAGE.upcoming_stop){
 				stop.stage = STOP_STAGE.future_stop
 
+				return
 			} else if (stop === this.getPastStop()){
-				if (GLOBAL_current_leg_progress < 0) {
-					stop.stage = STOP_STAGE.current_stop
-				}
+				// if (GLOBAL_current_leg_progress < 0) {
+				stop.stage = STOP_STAGE.current_stop
+				return
+				// }
 			} 
+		}
+	}
+
+	resetStopStages() {
+		var stops = this.getStopEtas(),
+			num_stops = stops.length
+
+		for(var i=0; i<num_stops; i++) {
+			var stop = stops[i]
+
+			stop.stage = STOP_STAGE.future_stop
 		}
 	}
 
