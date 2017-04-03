@@ -1,13 +1,13 @@
 {
 	"route": [
 	{
-		"name": "Philz Coffee",
+		"name": "SF Caltrain",
 		"address":"1234 Brannan",
 		"lat": 37.444167,
 		"lng": -122.165692,
 		"announcement" : {
-			"text": "The office is now open on weekends!",
-			"time": "We've got a shower :)"
+			"text": "Have a Philz today",
+			"time": "$1 off with Chariot pass"
 		}
 	}, 
 	{
@@ -16,8 +16,8 @@
 		"lat": 37.443347, 
 		"lng": -122.155996,
 		"announcement" : {
-			"text": "Buy this thing you dont need",
-			"time": "This weekend"
+			"text": "Local tree walk",
+			"time": "Every 1st Saturday 8am"
 		}
 	},
 	{
@@ -26,8 +26,8 @@
 		"lat": 37.447308, 
 		"lng": -122.158141,
 		"announcement" : {
-			"text": "The office is now open on weekends!",
-			"time": "We've got a shower :)"
+			"text": "Uniqlo 30% off sale",
+			"time": "Welcome spring in style"
 		}
 	},
 	{
@@ -36,8 +36,8 @@
 		"lat": 37.442678, 
 		"lng": -122.161218,
 		"announcement" : {
-			"text": "Buy this thing you dont need",
-			"time": "This weekend"
+			"text": "Trader Joe's, eat healthy",
+			"time": "Ask about our Chariot Loyalty card"
 		}
 	},
 	{
@@ -46,8 +46,8 @@
 		"lat": 37.44272,
 		"lng": -122.15801,
 		"announcement" : {
-			"text": "The office is now open on weekends!",
-			"time": "We've got a shower :)"
+			"text": "MoMA Abstract Exhibit",
+			"time": "April 1st - 27th"
 		}
 	}, 
 	{
@@ -56,8 +56,8 @@
 		"lat": 37.44294, 
 		"lng": -122.15451,
 		"announcement" : {
-			"text": "Buy this thing you dont need",
-			"time": "This weekend"
+			"text": "YogaTree",
+			"time": "Discounts for locals"
 		}
 	}, {
 		"name": "SF Art Institute",
@@ -65,8 +65,8 @@
 		"lat": 37.44542, 
 		"lng": -122.16014,
 		"announcement" : {
-			"text": "Buy this thing you dont need",
-			"time": "This weekend"
+			"text": "Birkenstocks, the perfect footware",
+			"time": "New store opening soon"
 		}
 	}]
 }
