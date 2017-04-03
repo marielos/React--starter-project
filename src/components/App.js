@@ -148,10 +148,14 @@ class App extends Component {
         if (data.routes) {   
           var stop_etas = that.addEtaToStops(data),
               available_caltrains = that.getAvailableCaltrains(stop_etas),
-              caltrain_keys = Object.keys(available_caltrains),
-              available_caltrains_nb = available_caltrains[caltrain_keys[0]],
-              available_caltrains_sb = available_caltrains[caltrain_keys[1]]
+              available_caltrains_nb = null,
+              available_caltrains_sb = null
 
+          if (available_caltrains) {
+            available_caltrains_nb = available_caltrains['NB']
+            available_caltrains_sb = available_caltrains['SB']
+          }
+          
           that.setState({
             // route_data: data,
             isAM: data.isAM,
@@ -414,8 +418,12 @@ class App extends Component {
   }
 
   getAvailableCaltrains(stop_etas){
-      var caltrainStopEta = this.getCaltrainStop(stop_etas),
-          stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta.eta),
+      var caltrainStopEta = this.getCaltrainStop(stop_etas)
+
+      if (!caltrainStopEta) { // no caltrain stop
+        return null
+      }
+      var stationEtaTimeInMins = this.convertSecToMins(caltrainStopEta.eta),
           validNBCaltrain = [],
           validSBCaltrain = [],        
           caltrain_data = this.state.caltrain_data
@@ -445,8 +453,8 @@ class App extends Component {
         }
       }
     }
-    if (validNBCaltrain.length > 2){validNBCaltrain = validNBCaltrain.slice(0, 2)}
-    if (validSBCaltrain.length > 2){validSBCaltrain = validSBCaltrain.slice(0, 2)}
+    if (validNBCaltrain.length) validNBCaltrain = validNBCaltrain[0]//.slice(0, 2)
+    if (validSBCaltrain.length) validSBCaltrain = validSBCaltrain[0]//.slice(0, 2)
 
     var validCaltrain = {
       NB: validNBCaltrain,

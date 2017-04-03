@@ -10,6 +10,9 @@ $stop-info-left-margin: -12px;
 
 $dark-gray: #444;
 
+
+
+
 body{
   margin: 0px;
   font-family: Arial, Helvetica, sans-serif;
@@ -18,13 +21,17 @@ body{
   height: 100%
 }
 
+button {
+  margin: 5px !important;;
+}
+
 .main-container {
   position: absolute;
   top: 0;
   bottom: 0;
   right: 0;
   left: 0;
-  background-color: $dark-gray; 
+  background-color: #333; 
 }
 
 .box {
@@ -61,6 +68,15 @@ body{
   font-size: 18px;
 }
 
+.van-pic {
+    width: 45px;
+    left: 28%;
+    margin-left: -24px;
+    top: 61px;
+    z-index: 15;
+    position: absolute;
+  }
+
 
 /* ----------------------- Route Line classes -----------------------*/
 
@@ -94,14 +110,7 @@ body{
   }  
 }
 
-.van-pic {
-    width: 45px;
-    left: 28%;
-    margin-left: -24px;
-    top: 61px;
-    z-index: 15;
-    position: absolute;
-  }
+
 /*move margin to a calculated variable*/
 
 
@@ -194,6 +203,7 @@ body{
   margin-left: $stop-info-left-margin;
   font-size: 12px;
   transition: opacity 1s linear;
+
   .stop-announcement-title {
     opacity: .85;
     font-size: 10px;
@@ -256,81 +266,103 @@ body{
   bottom: 0px;
   right: 0px;
   left: 0px;
-  height: 20px;
-  background-color: #333;
+  height: 50px;
+  background: linear-gradient(black 15%, #444);
   padding: 7px 5%;
   font-size: 14px;
+  line-height: 20px;
 }
 
-
+.bold {
+  font-weight: bold;
+}
 
 
 
 .driver-container {
   display: inline-block;
-  line-height: 20px;
-  position: absolute;
-
-  .chariot-id {
-    display: inline-block;
-    margin-left: 55px;
-  }
-
-  .chariot-container {
-    width: 50px;
-  }
-
-  .driver-photo {
-    bottom: 18px;
-    height: 50px;
-    width: 50px;
-    left: 2px;
-    z-index: 10;
-    position: absolute;
-  }
-
-  .driver-name {
-    display: inline-block;
-    position: absolute;
-    bottom: 0px;
-    width: 50px;
-    height: 20px;
-    text-align: center;
-    /* based on driver photo size*/
-  }
-}
-
-.time-container {
-    width: 100%;
-    left: 0px;
-    position: absolute;
-    text-align: center;
-    font-size: 20px;
-  }
-
-.caltrain-container {
-  float: right;
+  
+  position: relative;
 
   
 
+  .chariot-container {
+    float: right;
+    /* based on driver photo size*/
+    margin-right: 55px;
+    bottom: 0px;
+    right: 0px;
+    position: absolute;
+
+    .driver-name {
+      width: 100%;
+      text-align: right;
+    }
+
+    .chariot-id {
+    }
+  }
+
+  .driver-photo {
+    bottom: 3px;
+    height: 50px;
+    width: 50px;
+    right: 0px;
+    z-index: 10;
+    position: absolute;
+  }
+}
+
+.time-container {  
+    
+    position: relative;
+    display: inline-block;
+
+    .time-text {
+      text-align: center;
+      width: 100%;
+      position: absolute;
+      bottom: 0px;
+      font-size: 20px;
+    }
+  }
+
+.caltrain-container {
+  position: relative;
+
+/* ---- take out without pic ----*/
+  .caltrain-photo {
+    position: absolute;
+    height: 35px;
+    left: 0px;
+  }
 
   .caltrain-text {
-    line-height: 20px;
-    display: inline;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    /* ---- take out without pic ----*/
+    padding-left: 35px;
+
     .caltrain-heading {
       display: inline;
     }
 
     .caltrain-direction {
         display: inline;
-        border: solid 1px;
-        margin: 0 2px;
-        padding: 0 5px;
 
       .caltrain-time {
-        width: 50px;
         display: inline;
       }
+    }
+
+    .direction-img {
+      height: 15px;
+      padding: 0 5px;
+    }
+
+    .south-arrow {
+      margin-bottom: -4px;
     }
   }
 
@@ -385,16 +417,16 @@ body{
     margin: 10px 0;
   }
 
-  button {
+/*  button {
     height: 30px;
     margin: 10px;
-  }
+  }*/
 
-  .reset-button {
+/*  .reset-button {
     background-color: red;
     color: white;
     font-weight: bolder;
-  }
+  }*/
 
 }
 
@@ -1474,3 +1506,61 @@ body{
     order: 1;
   }
 }
+
+
+
+/*!
+Pure v0.6.2
+Copyright 2013 Yahoo!
+Licensed under the BSD License.
+https://github.com/yahoo/pure/blob/master/LICENSE.md
+*/
+/*!
+normalize.css v^3.0 | MIT License | git.io/normalize
+Copyright (c) Nicolas Gallagher and Jonathan Neal
+*/
+/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
+
+.button-success,
+.button-error,
+.button-warning,
+.button-secondary {
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.button-success {
+    background: rgb(28, 184, 65) !important; /* this is a green */
+}
+
+.button-error {
+    background: rgb(202, 60, 60) !important; /* this is a maroon */
+    color: white !important;
+}
+
+.button-warning {
+    background: rgb(223, 117, 20) !important; /* this is an orange */
+}
+
+.button-secondary {
+    background: rgb(66, 184, 221) !important; /* this is a light blue */
+}
+.pure-button {
+    font-family: inherit;
+    font-size: 100%;
+    padding: .5em 1em;
+    color: #444;
+    color: rgba(0,0,0,.8);
+    border: 1px solid #999;
+    border: transparent;
+    background-color: #E6E6E6;
+    text-decoration: none;
+    border-radius: 2px;
+    display: inline-block;
+    zoom: 1;
+    white-space: nowrap;
+    vertical-align: middle;
+    text-align: center;
+}
+

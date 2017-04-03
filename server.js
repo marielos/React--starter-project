@@ -127,7 +127,7 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
       directions_data['isAM'] = isAM
       response.json(directions_data)
     } else {
-      console.log('err-' + err);
+      console.log('google direction api err-' + err);
 
       response.json({
         stops: stops_GLOBAL

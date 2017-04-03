@@ -1,9 +1,11 @@
 import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import {Motion} from 'react-motion'
-import Slider from 'react-rangeslider'
+// import Slider from 'react-rangeslider'
 import 'whatwg-fetch'
-
+// import Vue from 'vue';
+// // import 'keen-ui/src/bootstrap'; // Required when using components from `lib/`, should be imported only once in your project
+// import UiButton from 'keen-ui/lib/UiButton';
 
 
 // for testing purposes
@@ -494,50 +496,68 @@ class Ride extends Component {
 	}
 
 
-	renderCaltrains() {
+	renderBottomBar() {
 		var caltrain_etas_NB,
 			caltrain_etas_SB
 
-	    if (!this.props.availableCaltrainsNB || !this.props.availableCaltrainsSB) {
-	    	caltrain_etas_NB = <div className='caltrain-time'> -- </div>
-	    	caltrain_etas_SB = <div className='caltrain-time'> -- </div>
-	    } else {
-	      caltrain_etas_NB = this.props.availableCaltrainsNB.map( function(caltrainEtaNb) {
-	        return <div className='caltrain-time' key={caltrainEtaNb}> {caltrainEtaNb} </div>
-	      })
-	      caltrain_etas_SB = this.props.availableCaltrainsSB.map( function(caltrainEtaSb) {
-	        return <div className=' caltrain-time' key={caltrainEtaSb}> {caltrainEtaSb} </div>
-	      })
-	    }
+	    // if (!this.props.availableCaltrainsNB || !this.props.availableCaltrainsSB) {
+	    var caltrain_etas_NB = <div className='caltrain-time'> {this.props.availableCaltrainsNB} </div>,
+	    	caltrain_etas_SB = <div className='caltrain-time'> {this.props.availableCaltrainsSB} </div>
+	    // } else {
+	    //   caltrain_etas_NB = this.props.availableCaltrainsNB.map( function(caltrainEtaNb) {
+	    //     return <div className='caltrain-time' key={caltrainEtaNb}> {caltrainEtaNb} </div>
+	    //   })
+	    //   caltrain_etas_SB = this.props.availableCaltrainsSB.map( function(caltrainEtaSb) {
+	    //     return <div className=' caltrain-time' key={caltrainEtaSb}> {caltrainEtaSb} </div>
+	    //   })
+	    // }
+	    // <img className='caltrain-check' src={require("./img/caltrain_check.png")} />
+
 	      
 	    return (
-	      	<div className='bottom-container'>
+	      	<div className='bottom-container row around-xs'>
 
-			<div className='driver-container '>
-				<div className='chariot-container'>
+	      		<div className={'caltrain-container col-xs '+ this.shouldShowCaltrain()}>
+	      			<img className='caltrain-photo' src={require("./img/caltrain.png")}  />
+		      		<div className='caltrain-text'>
+		      			<div className='row around-xs invisible'>
+				        	<div className='caltrain-heading col-xs bold'> Caltrain connections </div>
+				        </div>
+				        <div className='row around-xs'>
+					        <div className='caltrain-direction col-xs'> 
+					        	<span className='direction-letter'>N</span>
+					        	<img className='direction-img' src={require("./img/north.png")}/>
+					        	{caltrain_etas_NB} Express
+					        </div> 
+					    </div>
+					    <div className='row around-xs'>
+					        <div className='caltrain-direction col-xs'> 
+					        	<span className='direction-letter'>S</span>
+					        	<img className='direction-img south-arrow' src={require("./img/south.png")}/>
+					        	{caltrain_etas_SB} Bullet
+					        </div> 
+					    </div>
+					    
+			        </div>
+		        </div> 
+
+
+				<div className='col-xs time-container'>
+					<div className='time-text'> 
+						{this.parseDate(this.state.testState ? this.state.testDate : this.props.currentDate)} {this.props.isAM ? ' AM' : ' PM'}
+					</div>
+				</div>
+
+
+				<div className='driver-container col-xs'>
 					<img className='driver-photo' src={require("./img/driver_photo.png")}  />
-
-					<div className='driver-name'>Derek</div>
+					<div className='chariot-container'>
+						<div className='driver-name row'> 
+							<div className='driver-name'> Derek </div>
+						</div>
+						<div className='chariot-id row bold'> Chariot #10 </div>
+					</div>
 				</div>
-				<div className='chariot-id'> 
-					Chariot #10
-				</div>
-			</div>
-
-			<div className='time-container'>
-				{this.parseDate(this.state.testState ? this.state.testDate : this.props.currentDate)} {this.props.isAM ? ' AM' : ' PM'}
-			</div>
-
-	      	<div className={'caltrain-container '+ this.shouldShowCaltrain()}>
-	      		<img className='caltrain-check' src={require("./img/caltrain_check.png")} />
-	      		<div className='caltrain-text'>
-			        <div className='caltrain-heading'>  On time for Caltrain: </div>
-			        <div className='caltrain-direction'> NB {caltrain_etas_NB} </div> 
-			        	
-			        <div className='caltrain-direction'> SB {caltrain_etas_SB}</div>
-			        	
-		        </div>
-	        </div> 
 		    </div>
 	    )
 	 }
@@ -567,15 +587,15 @@ class Ride extends Component {
 						<div className='row bottom-xs test-info-container'>
 							<div className='col-xs'>
 								<div className='row around-xs'>
-									<button onClick={() => this.resetData()} className='reset-button col-xs'>
+									<button onClick={() => this.resetData()} className='pure-button button-error col-xs'>
 								    	AM 
 								   </button> 
-								   <button onClick={() => this.resetData(true)} className='reset-button col-xs'>
+								   <button onClick={() => this.resetData(true)} className='pure-button button-error col-xs'>
 								        PM 
 								   </button> 
 							   </div>
 							   <div className='row around-xs'>
-									<button className={this.state.testState ? 'invisible col-xs pause-button' : 'col-xs pause-button'} onClick={this.togglePause.bind(this)}>
+									<button className={this.state.testState ? 'pure-button invisible col-xs pause-button' : 'pure-button col-xs pause-button'} onClick={this.togglePause.bind(this)}>
 								       {this.state.isPaused ? 'Continue' : 'Pause'}
 								   </button> 
 							   </div>
@@ -592,10 +612,10 @@ class Ride extends Component {
 								
 									{this.state.testState ?
 										<div className='row around-xs'>
-											<button onClick={() => this.cycleStopStagesBackward()} className='col-xs'>
+											<button onClick={() => this.cycleStopStagesBackward()} className='pure-button col-xs'>
 										    	Previous
 										    </button> 
-										    <button onClick={() => this.cycleStopStagesForward()} className='col-xs'>
+										    <button onClick={() => this.cycleStopStagesForward()} className='pure-button col-xs'>
 										        Next
 										    </button> 
 										</div>
@@ -612,7 +632,7 @@ class Ride extends Component {
 									
 								
 								<div className='row around-xs'>
-									<button className='col-xs test-state-button' onClick={this.toggleTestState.bind(this)}>
+									<button className='pure-button col-xs test-state-button' onClick={this.toggleTestState.bind(this)}>
 								       {this.state.testState ? 'Back to location base' : 'Switch to test state'}
 								   </button> 
 							   </div>
@@ -630,7 +650,7 @@ class Ride extends Component {
 									{this.props.numAPICalls} 
 								</div>
 								<div className='row around-xs'>
-									<button className= {this.state.testState ? 'invisible col-xs force-api-button' : 'col-xs force-api-button'}  onClick={() => this.props.forceAPICall()} >
+									<button className= {this.state.testState ? 'pure-button invisible col-xs force-api-button' : 'pure-button col-xs force-api-button'}  onClick={() => this.props.forceAPICall()} >
 								        Force API call
 								   </button> 
 							   </div>
@@ -653,7 +673,7 @@ class Ride extends Component {
 				    )}
 			    </Motion>
 			    
-				{this.renderCaltrains()}
+				{this.renderBottomBar()}
 		    </div>
 		 </div>
 		)
@@ -691,9 +711,6 @@ class Ride extends Component {
 			num_stops = stops.length,
 			last_stop = this.getStopEtas()[this.getStopEtas().length-1]
 
-		console.log('going forwards')
-
-
 		// set testDate
 		for(var i=0; i<num_stops; i++) {
 			var stop = stops[i]
@@ -702,7 +719,7 @@ class Ride extends Component {
 				stop.stage = STOP_STAGE.past_stop
 
 				this.setState({
-					testDate: new Date(stop.eta.getTime() + 2*60*1000)
+					testDate: new Date(stop.eta.getTime() + 1*60*1000)
 				})
 
 				if (stop === last_stop) {
@@ -729,22 +746,29 @@ class Ride extends Component {
 		var stops = this.getStopEtas(),
 			num_stops = stops.length
 
-		console.log('going backwards')
-
 		for(var i=num_stops-1; i>=0; i--) {
 			var stop = stops[i]
 
 			if (stop.stage === STOP_STAGE.current_stop){
 				stop.stage = STOP_STAGE.upcoming_stop
+				this.setState({
+					testDate: new Date(stop.eta.getTime() - 1*60*1000)
+				})
 
 				return
 			} else if (stop.stage === STOP_STAGE.upcoming_stop){
 				stop.stage = STOP_STAGE.future_stop
+				this.setState({
+					testDate: new Date(stop.eta.getTime() - 2*60*1000)
+				})
 
 				return
 			} else if (stop === this.getPastStop()){
 				// if (GLOBAL_current_leg_progress < 0) {
 				stop.stage = STOP_STAGE.current_stop
+				this.setState({
+					testDate: new Date(stop.eta.getTime())
+				})
 				return
 				// }
 			} 
