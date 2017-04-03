@@ -1,11 +1,7 @@
 import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import {Motion} from 'react-motion'
-// import Slider from 'react-rangeslider'
 import 'whatwg-fetch'
-// import Vue from 'vue';
-// // import 'keen-ui/src/bootstrap'; // Required when using components from `lib/`, should be imported only once in your project
-// import UiButton from 'keen-ui/lib/UiButton';
 
 
 // for testing purposes

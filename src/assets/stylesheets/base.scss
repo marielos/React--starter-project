@@ -1,6 +1,6 @@
-$top-margin: 25px;
-$top-margin-adjusted-mobile: 12px;
-$top-margin-adjusted-desktop: 19px;
+$top-margin: 45px;
+/*$top-margin-adjusted-mobile: 40px;
+*/$top-margin-adjusted-desktop: 38px;
 
 
 $stop-width: 18%;
@@ -58,6 +58,7 @@ button {
   height: 100px;
   white-space: nowrap;
   transition: left linear 1s;
+  z-index: 8;
 }
 
 
@@ -72,7 +73,7 @@ button {
     width: 45px;
     left: 28%;
     margin-left: -24px;
-    top: 61px;
+    top: 80px;
     z-index: 15;
     position: absolute;
   }
@@ -176,10 +177,12 @@ button {
     margin-bottom: 2px;
     z-index: 11;
     position: absolute;
+    transition: opacity 1s linear;
   }
 
   .gray-dot {
     background-color: $dark-gray !important;
+    opacity: 0;
   }
 
   .fake-dot {
@@ -227,7 +230,7 @@ button {
 }
 
 .upcoming {
-  font-size: 19px;
+  font-size: 18px;
 }
 
 .past {
@@ -235,7 +238,7 @@ button {
 }
 
 .current {
-  font-size: 19px;
+  font-size: 18px;
 }
 
 .hidden {
@@ -393,7 +396,7 @@ button {
   position: absolute;
   top:0;
   width: 100%;
-
+  margin-top: 50px;
 
   .test-col {
     padding: 10px;
