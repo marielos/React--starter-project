@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 
 var googleMapsDirectionsClient = require('@google/maps').createClient({
-  key: 'AIzaSyDVl65wW5zqkICh0c1UrabLIn4MV8ryIfk'
+  key: 'AIzaSyDhYQs3y6neWPf1TIX_Y8IgjTtOcpSe7X0'//'AIzaSyDVl65wW5zqkICh0c1UrabLIn4MV8ryIfk'
 });
 
 // must match App.js --- eventually export
