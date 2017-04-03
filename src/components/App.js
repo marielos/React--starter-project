@@ -2,7 +2,6 @@ import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import 'whatwg-fetch'
 import Ride from './Ride'
-import Favicon from 'react-favicon'
 
 // must match server.js --- eventually change
 var STOP_STAGE = {
@@ -554,13 +553,8 @@ class App extends Component {
   render() {
   	if (!this.state) return null
 
-    return (
-      <div>
-        {this.renderCurrentStage()}
-        <Favicon url={'./favicon.png'}/>
-      </div>
-      )
-    
+    return this.renderCurrentStage()
+      
   }
 
 
