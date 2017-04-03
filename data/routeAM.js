@@ -9,8 +9,8 @@
 	{
 		"name": "City Hall",
 		"address":"Hamilton & Ramona",
-		"lat": 37.444601, 
-		"lng": -122.160809
+		"lat": 37.444399, 
+		"lng": -122.160707
 	},
 	{
 		"name": "Johnson Park",

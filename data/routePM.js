@@ -12,7 +12,7 @@
 	}, 
 	{
 		"name": "Scott Park",
-		"address":"Bryant & 2nd",
+		"address":"Bryant & Channing",
 		"lat": 37.443347, 
 		"lng": -122.155996,
 		"announcement" : {
@@ -23,8 +23,8 @@
 	{
 		"name": "Wells Fargo",
 		"address":"480 Hamilton",
-		"lat": 37.447308, 
-		"lng": -122.158141,
+		"lat": 37.446497, 
+		"lng": -122.158942,
 		"announcement" : {
 			"text": "Uniqlo 30% off sale",
 			"time": "Welcome spring in style"
