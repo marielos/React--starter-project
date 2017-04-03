@@ -27,12 +27,12 @@
 	{
 		"name": "Reposado",
 		"address":"Forest & University",
-		"lat": 37.44425,
+		"lat": 37.44435,
 		"lng": -122.1611
 	}, 
 	{
 		"name": "The Marc",
-		"address":"Forest & University",
+		"address":"Forest & Cowper",
 		"lat": 37.44694, 
 		"lng": -122.15691
 	}, 

@@ -3,8 +3,8 @@
 	{
 		"name": "SF Caltrain",
 		"address":"1234 Brannan",
-		"lat": 37.444167,
-		"lng": -122.165692,
+		"lat": 37.443912,
+		"lng": -122.164960,
 		"announcement" : {
 			"text": "Have a Philz today",
 			"time": "$1 off with Chariot pass"
