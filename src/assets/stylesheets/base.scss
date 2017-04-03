@@ -22,7 +22,7 @@ body{
 }
 
 button {
-  margin: 5px !important;;
+  margin: 10px !important;;
 }
 
 .main-container {
@@ -404,7 +404,7 @@ button {
 
   .test-title {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 50px;
     padding-top: 5px;
     border-top: solid 1px;
   }
@@ -1552,7 +1552,7 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 .pure-button {
     font-family: inherit;
     font-size: 100%;
-    padding: .5em 1em;
+    padding: 1em 1em;
     color: #444;
     color: rgba(0,0,0,.8);
     border: 1px solid #999;
