@@ -16,7 +16,6 @@ var STOP_STAGE = {
 
 
 
-
 class App extends Component {
 
   componentWillMount(){
