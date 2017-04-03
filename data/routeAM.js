@@ -1,6 +1,12 @@
 {
 	"route": [
 	{
+		"name": "Ideo",
+		"address":"4th & King",
+		"lat": 37.44198, 
+		"lng": -122.16025
+	},
+	{
 		"name": "City Hall",
 		"address":"Hamilton & Ramona",
 		"lat": 37.444601, 
@@ -35,11 +41,5 @@
 		"address":"4th & King",
 		"lat": 37.44769, 
 		"lng": -122.15974
-	},
-	{
-		"name": "Ideo",
-		"address":"4th & King",
-		"lat": 37.44198, 
-		"lng": -122.16025
 	}]
 }

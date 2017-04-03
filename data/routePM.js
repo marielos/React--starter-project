@@ -3,18 +3,18 @@
 	{
 		"name": "Philz Coffee",
 		"address":"1234 Brannan",
-		"lat": 37.44255, 
-		"lng": -122.16304,
+		"lat": 37.444167,
+		"lng": -122.165692,
 		"announcement" : {
 			"text": "The office is now open on weekends!",
 			"time": "We've got a shower :)"
 		}
 	}, 
 	{
-		"name": "SOMA Shopping",
+		"name": "Scott Park",
 		"address":"Bryant & 2nd",
-		"lat": 37.44646, 
-		"lng": -122.16098,
+		"lat": 37.443347, 
+		"lng": -122.155996,
 		"announcement" : {
 			"text": "Buy this thing you dont need",
 			"time": "This weekend"
@@ -22,9 +22,9 @@
 	},
 	{
 		"name": "Wells Fargo",
-		"address":"Folsom & 4th",
-		"lat": 37.44623, 
-		"lng": -122.15886,
+		"address":"480 Hamilton",
+		"lat": 37.447308, 
+		"lng": -122.158141,
 		"announcement" : {
 			"text": "The office is now open on weekends!",
 			"time": "We've got a shower :)"
@@ -33,8 +33,8 @@
 	{
 		"name": "Trader Joe's",
 		"address":"Sacramento & Hyde",
-		"lat": 37.44198, 
-		"lng": -122.16025,
+		"lat": 37.442678, 
+		"lng": -122.161218,
 		"announcement" : {
 			"text": "Buy this thing you dont need",
 			"time": "This weekend"
@@ -55,16 +55,6 @@
 		"address":"California & Arguello",
 		"lat": 37.44294, 
 		"lng": -122.15451,
-		"announcement" : {
-			"text": "Buy this thing you dont need",
-			"time": "This weekend"
-		}
-	}, 
-	{
-		"name": "Curry Up",
-		"address":"Hamilton & Ramona",
-		"lat": 37.44542, 
-		"lng": -122.16014,
 		"announcement" : {
 			"text": "Buy this thing you dont need",
 			"time": "This weekend"
