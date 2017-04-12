@@ -2,15 +2,10 @@ import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import {Motion} from 'react-motion'
 import 'whatwg-fetch'
+import {STOP_STAGE} from './App'
 
 
-// for testing purposes
-var STOP_STAGE = {
-  upcoming_stop: 0,
-  current_stop: 1,
-  past_stop: 2,
-  future_stop: 3
-}
+/* -------------- Constants -------------- */
 
 var RIDE_STAGE = {
   stop: 0,
@@ -20,56 +15,43 @@ var RIDE_STAGE = {
 var GLOBAL_current_leg_progress = 0,
 	GLOBAL_left = 0
 
-
-	/* ---------------------- TO DO ----------------------
-
-
-		click to toggle stage of stop 
-
-	*/
-
-
+/* --------------------------------------- */
 
 class Ride extends Component {
   
 	componentWillMount() {
-		console.log('----- only see this once ------')
 		this.setState({
 			left: 0,
 			testDate: this.props.currentDate,
-			testStopEtas:  this.shallowCopyOfStopEtas(this.props.stopEtas), // might need to become a shallow copy
+			testStopEtas:  this.shallowCopyOfStopEtas(this.props.stopEtas), 
 			testState: false,
 			isPaused: false
 		})
-
 	}
 
+	shallowCopyOfStopEtas(etas) {
 
-	togglePause() {
-		if (!this.state.testState) {
-			this.setState({
-				isPaused: !this.state.isPaused
-			})
+		function shallowCopy( original )  {
+		    // First create an empty object with
+		    // same prototype of our original source
+		    var clone = Object.create( Object.getPrototypeOf( original ) )
+		    var i , keys = Object.getOwnPropertyNames( original )
+
+		    for ( i = 0 ; i < keys.length ; i ++ ) {
+		        // copy each property into the clone
+		        Object.defineProperty(clone, keys[ i ], Object.getOwnPropertyDescriptor(original, keys[ i ])) 
+		    }
+
+		    return clone ;
 		}
-	}
 
+		var etas_copy = []
 
-	resetData(pm) {
-
-	    var url = '/reset/am',
-	    that = this
-	    if (pm) {
-	      url = 'reset/pm'
+	    for(var i=0; i<etas.length; i++) {
+	      var stop_copy = shallowCopy(etas[i]) 
+	      etas_copy.push(stop_copy)
 	    }
-
-	    fetch(url).then(function(response) {
-	          return response
-	        }, function(error) {
-	          console.log('error- '+ error);
-	        }).then(function(data) {
-	          console.log('successful reset')
-	          this.props.setRouteData(0)
-	        }.bind(this))
+	    return etas_copy
 	}
 
 
@@ -85,6 +67,9 @@ class Ride extends Component {
 
 	    return time
 	}
+
+
+/* -------------- Get Methods -------------- */
 
 	getTestDate() {
 		return this.parseDate(this.state.testDate)
@@ -121,35 +106,35 @@ class Ride extends Component {
 		}
 	}
 
-	shallowCopyOfStopEtas(etas) {
+	// // for testing purposes
+	getStopDistance(stop_obj) {
+		return stop_obj.distance
+	}
 
-		function shallowCopy( original )  {
-		    // First create an empty object with
-		    // same prototype of our original source
-		    var clone = Object.create( Object.getPrototypeOf( original ) )
-		    var i , keys = Object.getOwnPropertyNames( original )
+	getStopLegTime(stop_obj) {
+		if (!stop_obj.leg_time) return ''
+			var minutes = stop_obj.leg_time.getMinutes(),
+				seconds = stop_obj.leg_time.getSeconds()
 
-		    for ( i = 0 ; i < keys.length ; i ++ ) {
-		        // copy each property into the clone
-		        Object.defineProperty(clone, keys[ i ], Object.getOwnPropertyDescriptor(original, keys[ i ])) 
-		    }
+			if( minutes < 10) { minutes = '0'+ minutes}
+		    if( seconds < 10) { seconds = '0'+ seconds}
 
-		    return clone ;
+		return minutes+ ':' + seconds
+	}
+
+	getRideState() {
+		if (!this.getNextStop()) {
+			console.log('da fuck?')
 		}
 
-		var etas_copy = []
+		if (this.getNextStop().stage ===  STOP_STAGE.current_stop) {
+			return RIDE_STAGE.stop
+		} else {
+			return RIDE_STAGE.ride
+		}
+	}
 
-	    for(var i=0; i<etas.length; i++) {
-	      var stop_copy = shallowCopy(etas[i]) 
-	      etas_copy.push(stop_copy)
-	    }
-	    return etas_copy
-	  }
-
-
-
-
-
+/* -------------- CSS class Methods -------------- */
 
 	shouldDimStop(stop_obj) {
 		if (this.getRideState() == RIDE_STAGE.stop && stop_obj.stage != STOP_STAGE.current_stop) {
@@ -186,35 +171,6 @@ class Ride extends Component {
 		return ''
 	}
 
-	getRideState() {
-		if (!this.getNextStop()) {
-			console.log('da fuck?')
-		}
-
-		if (this.getNextStop().stage ===  STOP_STAGE.current_stop) {
-			return RIDE_STAGE.stop
-		} else {
-			return RIDE_STAGE.ride
-		}
-	}
-
-
-
-// // for testing purposes
-	getStopDistance(stop_obj) {
-		return stop_obj.distance
-	}
-
-	getStopLegTime(stop_obj) {
-		if (!stop_obj.leg_time) return ''
-			var minutes = stop_obj.leg_time.getMinutes(),
-				seconds = stop_obj.leg_time.getSeconds()
-
-			if( minutes < 10) { minutes = '0'+ minutes}
-		    if( seconds < 10) { seconds = '0'+ seconds}
-
-		return minutes+ ':' + seconds
-	}
 
 	shouldShowCaltrain() {
 		if (this.props.isAM) return ''
@@ -450,7 +406,6 @@ class Ride extends Component {
 
 	renderTestInfo(stop_obj, index) {
 
-		// return null // comment out when testing
 		var shouldHide = ''
 		if (index === 0) {	// first fake stop
 			shouldHide = 'invisible'
@@ -471,7 +426,6 @@ class Ride extends Component {
 		if (this.props.isAM) return '' // no stop announcements :(
 		if (!stop_obj) return ''
 		if (!stop_obj.announcement) return ''
-		// if () return ''
 		
 		var fake = '',
 			shouldHide = stop_obj !== this.getNextStop() ? ' hidden ' : ''
@@ -479,9 +433,6 @@ class Ride extends Component {
 		if (index === 0) {	// first fake stop
 			fake = ' invisible '
 		}
-
-
-//				<div className='stop-announcement-title'> Upcoming Events </div>
 
 		return (
 			<div className={'stop_announcement '+ shouldHide + fake}>
@@ -493,22 +444,9 @@ class Ride extends Component {
 
 
 	renderBottomBar() {
-		var caltrain_etas_NB,
-			caltrain_etas_SB
 
-	    // if (!this.props.availableCaltrainsNB || !this.props.availableCaltrainsSB) {
 	    var caltrain_etas_NB = <div className='caltrain-time'> {this.props.availableCaltrainsNB} </div>,
 	    	caltrain_etas_SB = <div className='caltrain-time'> {this.props.availableCaltrainsSB} </div>
-	    // } else {
-	    //   caltrain_etas_NB = this.props.availableCaltrainsNB.map( function(caltrainEtaNb) {
-	    //     return <div className='caltrain-time' key={caltrainEtaNb}> {caltrainEtaNb} </div>
-	    //   })
-	    //   caltrain_etas_SB = this.props.availableCaltrainsSB.map( function(caltrainEtaSb) {
-	    //     return <div className=' caltrain-time' key={caltrainEtaSb}> {caltrainEtaSb} </div>
-	    //   })
-	    // }
-	    // <img className='caltrain-check' src={require("./img/caltrain_check.png")} />
-
 	      
 	    return (
 	      	<div className='bottom-container row around-xs'>
@@ -558,8 +496,6 @@ class Ride extends Component {
 	    )
 	 }
 
-
-// change AM/PM
 	renderCurrentTime() {
 		return (
 		  <div className='time'>
@@ -676,17 +612,9 @@ class Ride extends Component {
 	}
 
 
-
-
-
-
 	/*------------ Testing methods -------------- */
 
-/*
-	fix tezting environment to include leg_time, startime
 
-
-*/
 	toggleTestState() {
 		if(this.state.testState) {
 			this.setState({
@@ -701,6 +629,31 @@ class Ride extends Component {
 		}
 	}
 
+	togglePause() {
+		if (!this.state.testState) {
+			this.setState({
+				isPaused: !this.state.isPaused
+			})
+		}
+	}
+	
+	resetData(pm) {
+
+	    var url = '/reset/am',
+	    that = this
+	    if (pm) {
+	      url = 'reset/pm'
+	    }
+
+	    fetch(url).then(function(response) {
+	          return response
+	        }, function(error) {
+	          console.log('error- '+ error);
+	        }).then(function(data) {
+	          console.log('successful reset')
+	          this.props.setRouteData(0)
+	        }.bind(this))
+	}
 
 	cycleStopStagesForward() {
 		var stops = this.getStopEtas(),

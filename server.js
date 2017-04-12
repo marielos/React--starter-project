@@ -1,3 +1,5 @@
+/*---------------  Express Server Setup  ----------------*/
+
 var path = require('path');
 var express = require('express');
 var app = express();
@@ -17,16 +19,30 @@ if(process.env.NODE_ENV !== 'production') {
 }
 
 app.use(express.static(path.join(__dirname, 'dist')));
-// app.use(express.favicon(path.join(__dirname, 'public','images','favicon.ico')));
+
+app.get('/', function(request, response) {
+  response.sendFile(__dirname + '/dist/index.html')
+});
+
+
+app.listen(PORT, function(error) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.info("==> 🌎  Listening on port %s. Visit http://localhost:%s/ in your browser.", PORT, PORT);
+  }
+});
+
 
 /*--------------- ^^^ Express Server Setup ^^^ ----------------*/
 
 
-var googleMapsDirectionsClient = require('@google/maps').createClient({
-  key: 'AIzaSyDhYQs3y6neWPf1TIX_Y8IgjTtOcpSe7X0'//'AIzaSyDVl65wW5zqkICh0c1UrabLIn4MV8ryIfk'
-});
 
-// must match App.js --- eventually export
+
+/*---------------  Constants  ----------------*/
+
+
+// must match App.js 
 var STAGE = {
   upcoming_stop: 0,
   current_stop: 1,
@@ -35,6 +51,18 @@ var STAGE = {
 },
   stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8')),
   isAM = true
+
+var googleMapsDirectionsClient = require('@google/maps').createClient({
+  key: 'AIzaSyDhYQs3y6neWPf1TIX_Y8IgjTtOcpSe7X0'//'AIzaSyDVl65wW5zqkICh0c1UrabLIn4MV8ryIfk'
+});
+
+
+
+
+
+/*--------------- Load AM / PM routes ----------------*/
+
+
 
 app.get('/reset/am', function(request, response) {
   stops_GLOBAL = JSON.parse(fs.readFileSync('data/routeAM.js', 'utf8'))
@@ -68,6 +96,14 @@ app.get('/caltrain/etas', function(request, response) {
 });
 
 
+/*--------------- Get Route times/distance ----------------
+
+  in the future, call this only once per stop. 
+  Google Directions API blocks your key if it is called too much
+  Also, modify algorithm to get simple A->B directions for next stop and B->C->...->X for the rest of stops
+  Traffic data is only available for A->B queries
+*/
+
 app.get('/route/etas', function(request, response) {
 
   var origin  = function() {
@@ -83,11 +119,8 @@ app.get('/route/etas', function(request, response) {
           lat = stop_obj.lat,
           lng = stop_obj.lng
 
-      // console.log(stop_obj.name)
-
       stops.push([lat, lng])    
     }
-    // console.log('finished getting waypointe')
     return stops
   }()
 
@@ -101,12 +134,11 @@ app.get('/route/etas', function(request, response) {
 
 
 /*
-
+          ------ from Google Directions API Docs -----------
 The duration in traffic is returned only if all of the following are true:
 
 The request does not include stopover waypoints. 
 If the request includes waypoints, they must be prefixed with via: to avoid stopovers.
-
 
 If you'd like to influence the route using waypoints without adding a stopover, 
 prefix the waypoint with via:. Waypoints prefixed with via: will not add an entry to the legs
@@ -137,100 +169,21 @@ prefix the waypoint with via:. Waypoints prefixed with via: will not add an entr
   });
 
 
-
-  // should all of this be done client side and we pass the index of nextStop to start
     var updateDistanceOfStops = function(directions_data) {
       var legs = directions_data.routes[0].legs,
           num_legs = legs.length,
           num_stops = stops_GLOBAL.route.length,
           num_past_stops = parseInt(request.query.num_past_stops)
-          // leg_i = 0,
-          // next_stop = true
-
-          // more stops than legs
-          // console.log('num_legs-'+num_legs)
-          // console.log('num_stops-'+num_stops)
-          // console.log('num_past_stops-'+num_past_stops)
 
       for (var leg_i=0; leg_i<num_legs; leg_i++) {
-        // console.log('in loop-'+leg_i)
-        // console.log('stop_i-'+leg_i+''+num_past_stops)
 
         var stop_distance = legs[leg_i].distance.value,
             stop_i = leg_i+num_past_stops,
             stop_obj = stops_GLOBAL.route[stop_i] // in meters
-        // console.log('stop_obj-'+stop_obj.name)
-        // if (stop_obj.stage === STAGE.past_stop) { // || stop_obj.stage === STAGE.current_stop ) {
-        //   continue
-        // }
 
         stop_obj['distance'] = stop_distance
-        // leg_i++
-
-        // console.log('distance-'+stop_obj['distance'])
-
       }
-      // console.log('finished adding distance to stops')
       return stops_GLOBAL
     }
 });
-
-
-app.get('/', function(request, response) {
-  response.sendFile(__dirname + '/dist/index.html')
-});
-
-
-app.listen(PORT, function(error) {
-  if (error) {
-    console.error(error);
-  } else {
-    console.info("==> 🌎  Listening on port %s. Visit http://localhost:%s/ in your browser.", PORT, PORT);
-  }
-});
-
-
-
-/* ----------------------------- Sample http request ---------------------------------
-
-http.get(url, (res) => {
-    const statusCode = res.statusCode;
-    const contentType = res.headers['content-type'];
-
-    var error;
-    if (statusCode !== 200) {
-      error = new Error(`Request Failed.\n` +
-                        `Status Code: ${statusCode}`);
-    } else if (!/^application\/json/.test(contentType)) {
-      error = new Error(`Invalid content-type.\n` +
-                        `Expected application/json but received ${contentType}`);
-    }
-    if (error) {
-      console.log(error.message);
-      // consume response data to free up memory
-      res.resume();
-      return;
-    }
-
-    res.setEncoding('utf8');
-    var rawData = '';
-    res.on('data', (chunk) => rawData += chunk);
-    res.on('end', () => {
-      try {
-        var parsedData = JSON.parse(rawData);
-        response.json(parsedData);
-        console.log(parsedData);
-      } catch (e) {
-        console.log(e.message);
-      }
-    });
-  }).on('error', (e) => {
-    console.log(`Got error: ${e.message}`);
-  });
-
-
-
-
-  ---------------------------------------------------------------------------------------*/
-
 
