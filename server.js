@@ -11,6 +11,7 @@ var express = require('express');
 var app = express();
 var PORT = process.env.PORT || 8080
 var fs = require('fs');
+var http = require('http');
 
 // using webpack-dev-server and middleware in development environment
 if(process.env.NODE_ENV !== 'production') {
@@ -70,12 +71,69 @@ var findParameterByKey = function(params, key) {
 
 
 
-/*--------------- Load Local JSON ----------------*/
+/* --------------- Load Local JSON ---------------- */
 
 app.get('/local_data', function(request, response) {
   var local_data = JSON.parse(fs.readFileSync('data/local_data.js', 'utf8'))
   response.json(local_data)
 })
+
+
+
+/* --------------- Call External API ---------------- */
+
+app.get('/external_api', function(request, response) {
+
+  var example_recipe_app_id = 'c5bd1e1a',
+      example_recipe_key = '2b746487bce0eb83675174a4429c1a94',
+      example_recipe_base_url = 'https://api.edamam.com/search'
+
+
+
+
+  http.get(url, (res) => {
+     const statusCode = res.statusCode;
+     const contentType = res.headers['content-type'];
+ 
+     var error;
+     if (statusCode !== 200) {
+       error = new Error(`Request Failed.\n` +
+                         `Status Code: ${statusCode}`);
+     } else if (!/^application\/json/.test(contentType)) {
+       error = new Error(`Invalid content-type.\n` +
+                         `Expected application/json but received ${contentType}`);
+     }
+     if (error) {
+       console.log(error.message);
+       // consume response data to free up memory
+       res.resume();
+       return;
+     }
+ 
+     res.setEncoding('utf8');
+     var rawData = '';
+     res.on('data', (chunk) => rawData += chunk);
+     res.on('end', () => {
+       try {
+         var parsedData = JSON.parse(rawData);
+         response.json(parsedData);
+         console.log(parsedData);
+       } catch (e) {
+         console.log(e.message);
+       }
+     });
+  }).on('error', (e) => {
+     console.log(`Got error: ${e.message}`);
+  });
+ 
+ 
+
+})
+
+
+curl "https://api.edamam.com/search?q=chicken&app_id=${YOUR_APP_ID}&app_key=${YOUR_APP_KEY}&from=0&to=3&calories=gte%20591,%20lte%20722&health=alcohol-free"
+
+
 
 
  /* ----------------------------- Sample http request ---------------------------------

@@ -102,6 +102,9 @@ exGetGoogleDirections() {
 }
 
 
+exGetExternalRecipeAPI() {
+  this.getRequestToServer('/external_api', {recipe: 'tomato soup'}, this.testCallBackFn.bind(this))
+}
 
 
 
