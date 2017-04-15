@@ -16,7 +16,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.exGetGoogleDirections()
+    this.exGetExternalRecipeAPI()
   }
 
 
@@ -103,7 +103,7 @@ exGetGoogleDirections() {
 
 
 exGetExternalRecipeAPI() {
-  this.getRequestToServer('/external_api', {recipe: 'tomato soup'}, this.testCallBackFn.bind(this))
+  this.getRequestToServer('/external_api', [{q: 'tomato soup'}], this.testCallBackFn.bind(this))
 }
 
 

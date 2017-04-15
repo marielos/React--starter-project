@@ -11,7 +11,7 @@ var express = require('express');
 var app = express();
 var PORT = process.env.PORT || 8080
 var fs = require('fs');
-var http = require('http');
+var https = require('https');
 
 // using webpack-dev-server and middleware in development environment
 if(process.env.NODE_ENV !== 'production') {
@@ -53,6 +53,19 @@ app.listen(PORT, function(error) {
 
 /*--------------- Request Helper Functions ----------------*/
 
+// params = [{key: value},...{key: value}]
+var encodeParameters = function(params) {
+  if (!params) return ''
+  var encoded_params = '?'
+
+  params.map(function(param_obj) {
+    var key = encodeURIComponent(Object.keys(param_obj)[0]),
+        value = encodeURIComponent(param_obj[key])
+    encoded_params = encoded_params.concat(key +'='+ value +'&')
+  })
+
+  return encoded_params.substring(0, encoded_params.length-1)     // take out last &
+}
 
 var getParameters = function(request) {
   var keys = Object.keys(request.query),
@@ -69,6 +82,15 @@ var findParameterByKey = function(params, key) {
   return params.find(function(param_obj) { return Object.keys(param_obj)[0] === key })
 }
 
+var combineParameters = function(param1, param2) {
+  return param1.concat(param2)
+}
+
+
+
+
+/* ------------------------------------------------------------------------------------------ */
+
 
 
 /* --------------- Load Local JSON ---------------- */
@@ -80,21 +102,28 @@ app.get('/local_data', function(request, response) {
 
 
 
-/* --------------- Call External API ---------------- */
+/* --------------- Call External API ---------------- 
+  best to keep sensitive data such as API keys in the server side
+*/
 
 app.get('/external_api', function(request, response) {
 
   var example_recipe_app_id = 'c5bd1e1a',
       example_recipe_key = '2b746487bce0eb83675174a4429c1a94',
-      example_recipe_base_url = 'https://api.edamam.com/search'
+      server_params = [{app_id:example_recipe_app_id}, {app_key:example_recipe_key}]
+      example_recipe_base_url = 'https://api.edamam.com/search',
+      user_params = getParameters(request),
+      encoded_params = encodeParameters(combineParameters(server_params, user_params)),
+      url = example_recipe_base_url + encoded_params
 
+      console.log(url)
+  // combine user and server parameters
 
-
-
-  http.get(url, (res) => {
+  https.get(url, (res) => {
      const statusCode = res.statusCode;
      const contentType = res.headers['content-type'];
- 
+      
+      //-------- error handling ------------
      var error;
      if (statusCode !== 200) {
        error = new Error(`Request Failed.\n` +
@@ -110,9 +139,13 @@ app.get('/external_api', function(request, response) {
        return;
      }
  
+     //-------- reading in data chunk by chunk ------------
+
      res.setEncoding('utf8');
      var rawData = '';
      res.on('data', (chunk) => rawData += chunk);
+
+     //-------- finished reading data ------------
      res.on('end', () => {
        try {
          var parsedData = JSON.parse(rawData);
@@ -131,9 +164,14 @@ app.get('/external_api', function(request, response) {
 })
 
 
-curl "https://api.edamam.com/search?q=chicken&app_id=${YOUR_APP_ID}&app_key=${YOUR_APP_KEY}&from=0&to=3&calories=gte%20591,%20lte%20722&health=alcohol-free"
+// curl "https://api.edamam.com/search?q=chicken&app_id=${YOUR_APP_ID}&app_key=${YOUR_APP_KEY}&from=0&to=3&calories=gte%20591,%20lte%20722&health=alcohol-free"
 
 
+
+
+  var sendGetRequest = function(base_url, paramaters) {
+
+  }
 
 
  /* ----------------------------- Sample http request ---------------------------------
