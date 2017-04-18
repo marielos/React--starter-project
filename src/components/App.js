@@ -103,7 +103,9 @@ exGetGoogleDirections() {
 
 
 exGetExternalRecipeAPI() {
-  this.getRequestToServer('/external_api', [{q: 'tomato soup'}], this.testCallBackFn.bind(this))
+  this.getRequestToServer('https://connected-simple-server.herokuapp.com/external_api', [{q: 'tomato soup'}], this.testCallBackFn.bind(this))
+
+  // this.getRequestToServer('/external_api', [{q: 'tomato soup'}], this.testCallBackFn.bind(this))
 }
 
 

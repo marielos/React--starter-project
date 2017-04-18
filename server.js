@@ -170,7 +170,7 @@ app.get('/external_api', function(request, response) {
 
 
   var sendGetRequest = function(base_url, paramaters) {
-
+    // helper for external_api
   }
 
 
