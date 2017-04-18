@@ -115,7 +115,7 @@ exGetExternalRecipeAPI() {
 
 
   render() {
-    return (<div> Super Simple Server </div> ) 
+    return (<div> Super Simple React Conenction </div> ) 
   }
 
 
