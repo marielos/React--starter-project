@@ -1,22 +1,22 @@
 import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import 'whatwg-fetch'
+import Camera from './Camera.js'
 
 
-
-/* -------------- GLOBAL VARIABLES -------------- */
-var TRACKING_ID = -1
 
 /* ----------------------------------------- */
 
 class App extends Component {
 
   componentWillMount(){
-
+    this.setState({
+       screenshot: 'null'
+    })
   }
 
   componentDidMount() {
-    this.exGetExternalRecipeAPI()
+    // this.exGetLocalData()
   }
 
 
@@ -24,14 +24,49 @@ class App extends Component {
     console.log(data)
   }
 
-  // TODO
-  postRequestToServer(path, params, callback_fn) {
 
 
+  saveImage(image_blob) {
+    // this.postRequestToServer('https://connected-simple-server.herokuapp.com/', {image:image_blob}, this.testCallBackFn.bind(this))
+    this.postRequestToServer('http://localhost:5000/upload', {image:image_blob}, this.testCallBackFn.bind(this))
   }
 
+  /*  
+  Example calls:  
+    
+    this.postRequestToServer('http://localhost:5000/upload', {image:image_blob}, this.testCallBackFn.bind(this))
+
+  */
+  postRequestToServer(path, data_blobs, callback_fn) {
+
+    var formData  = new FormData();
+    for(var name in data_blobs) {
+
+      formData.append(name, data_blobs[name]);
+    }
 
 
+    // var url = path + this.encodeParameters(params)
+    // console.log(path)
+    fetch(path, {
+      method: "POST",
+      body: formData,
+      headers: { 
+        "Accept": 'application/json, */*', 
+        // "Content-type": "multipart/form-data"               //"application/x-www-form-urlencoded; charset=UTF-8"  
+      }
+    })
+      .then(function(response) {
+        return response
+      }, function(error) { console.log('error- '+ error) })
+      .then(function(data) {
+        if(data) {
+          callback_fn(data)    
+        } else {
+          console.log('didnt get any data')
+        }
+      })
+  }
 
   /*  
   Example calls:  
@@ -39,8 +74,7 @@ class App extends Component {
 
   */
   getRequestToServer(path, params, callback_fn) {
-    var that = this,   // to avoid scoping puzzles 
-        url = path + this.encodeParameters(params)
+    var url = path + this.encodeParameters(params)
     console.log(url)
     fetch(url)
       .then(function(response) {
@@ -105,7 +139,27 @@ exGetGoogleDirections() {
 exGetExternalRecipeAPI() {
   this.getRequestToServer('https://connected-simple-server.herokuapp.com/external_api', [{q: 'tomato soup'}], this.testCallBackFn.bind(this))
 
-  // this.getRequestToServer('/external_api', [{q: 'tomato soup'}], this.testCallBackFn.bind(this))
+}
+
+
+
+
+// handleFileUpload() {
+//   var file = document.getElementById('input').files[0]
+
+//   this.postRequestToServer('/image', null, file, this.testCallBackFn.bind(this)) 
+// }
+
+
+render() {
+  return (
+            <div> 
+            Super Simple React Conenction - SPACEBAR for camera
+              <Camera
+                saveImage={this.saveImage.bind(this)}
+              />
+            </div>
+        ) 
 }
 
 
@@ -113,63 +167,54 @@ exGetExternalRecipeAPI() {
 
 
 
-
-  render() {
-    return (<div> Super Simple React Conenction </div> ) 
-  }
-
-
-
-
-
-
   /* -------------- Location methods -------------- */
-  trackLocation() {
-    if (navigator.geolocation) {
 
-      // gets called everytime we change position
-      TRACKING_ID = navigator.geolocation.watchPosition(function(position) { 
-        var pos = {
-          lat: position.coords.latitude.toFixed(5),
-          lng: position.coords.longitude.toFixed(5)
-        }
+  // trackLocation() {
+  //   if (navigator.geolocation) {
 
-        this.setState({
-          current_location : pos
-        })
+  //     // gets called everytime we change position
+  //     TRACKING_ID = navigator.geolocation.watchPosition(function(position) { 
+  //       var pos = {
+  //         lat: position.coords.latitude.toFixed(5),
+  //         lng: position.coords.longitude.toFixed(5)
+  //       }
+
+  //       this.setState({
+  //         current_location : pos
+  //       })
         
-      }.bind(this), function(failure) {
-        console.log('error with navigator.geolocation- '+ failure.message)
+  //     }.bind(this), function(failure) {
+  //       console.log('error with navigator.geolocation- '+ failure.message)
         
-      }.bind(this));
-    } else {
-      console.log('browser doesnt support navigator.geolocation')
-    }
+  //     }.bind(this));
+  //   } else {
+  //     console.log('browser doesnt support navigator.geolocation')
+  //   }
 
-  }
+  // }
 
-  getLocation() {
-    if (navigator.geolocation) { 
-      // navigator.geolocation.clearWatch(TRACKING_ID); // only necessary if tracking previously
+  // getLocation() {
+  //   if (navigator.geolocation) { 
+  //     // navigator.geolocation.clearWatch(TRACKING_ID); // only necessary if tracking previously
 
-      navigator.geolocation.getCurrentPosition(function(position) {
-        var pos = {
-          lat: position.coords.latitude.toFixed(5),
-          lng: position.coords.longitude.toFixed(5)
-        }
+  //     navigator.geolocation.getCurrentPosition(function(position) {
+  //       var pos = {
+  //         lat: position.coords.latitude.toFixed(5),
+  //         lng: position.coords.longitude.toFixed(5)
+  //       }
 
-        this.setState({
-          current_location : pos
-        })
+  //       this.setState({
+  //         current_location : pos
+  //       })
 
-      }.bind(this), function(failure) {
-        console.log('error with force navigator.geolocation---- '+ failure.message)
-      });
+  //     }.bind(this), function(failure) {
+  //       console.log('error with force navigator.geolocation---- '+ failure.message)
+  //     });
       
-    } else {
-      console.log('browser doesnt support navigator.geolocation')
-    }
-  }
+  //   } else {
+  //     console.log('browser doesnt support navigator.geolocation')
+  //   }
+  // }
 
 
 
