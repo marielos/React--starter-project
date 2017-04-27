@@ -11,7 +11,8 @@ class App extends Component {
 
   componentWillMount(){
     this.setState({
-       screenshot: 'null'
+       screenshot: null,
+       posting: false
     })
   }
 
@@ -21,20 +22,43 @@ class App extends Component {
 
 
   testCallBackFn(data) {
+    this.setState({
+       screenshot: null,
+       image_blob: null,
+       posting: false
+    })
     console.log(data)
   }
 
 
 
-  saveImage(image_blob) {
-    // this.postRequestToServer('https://connected-simple-server.herokuapp.com/', {image:image_blob}, this.testCallBackFn.bind(this))
-    this.postRequestToServer('http://localhost:5000/upload', {image:image_blob}, this.testCallBackFn.bind(this))
+  showImage(image_blob, image_url) {
+    if (this.state.posting) return
+
+    this.setState({
+      screenshot: image_url,
+      image_blob: image_blob
+    })
   }
+
+  confirmPhoto() {
+    this.postRequestToServer('https://connected-simple-server.herokuapp.com/upload_image', {image:this.state.image_blob}, this.testCallBackFn.bind(this))
+    // this.postRequestToServer('http://localhost:5000/upload_image', {image:image_blob}, this.testCallBackFn.bind(this))
+    this.setState({
+      posting: true
+    })
+  }
+
+
+
+
+
+
 
   /*  
   Example calls:  
     
-    this.postRequestToServer('http://localhost:5000/upload', {image:image_blob}, this.testCallBackFn.bind(this))
+   this.postRequestToServer('http://localhost:5000/upload_image', {image:image_blob}, this.testCallBackFn.bind(this))
 
   */
   postRequestToServer(path, data_blobs, callback_fn) {
@@ -107,48 +131,27 @@ class App extends Component {
 
 
 
+renderPhoto() {
+  if (this.state && this.state.screenshot) {
+    return (
+      <div>
+        <img src={this.state.screenshot}/>
+        { !this.state.posting ?
+          <button onClick={this.confirmPhoto.bind(this)}> Post photo submission to Slack </button>
+          :
+          <div className='camera-announcement'> Posting to slack...</div>
+        }
 
-/*--------------- Example request calls ---------------- */
-
-exGetLocalData() {
-  this.getRequestToServer('/local_data', null, this.testCallBackFn.bind(this))
+        <div className='camera-announcement'> Not satisfied? Take another one with SPACEBAR </div>
+      </div>
+    )
+  } else {
+    return (
+       <div className='camera-announcement'>Take a photo with SPACEBAR </div>
+    )
+  }
 }
 
-exGetGoogleDirections() {
-  var locations = {origin: {
-                            "name": "SF Caltrain",
-                            "lat": 37.443912,
-                            "lng": -122.164960
-                          },
-                  destination: {
-                            "name": "Ideo",
-                            "lat": 37.44198, 
-                            "lng": -122.16025
-                          }
-                  },
-      params = [ 
-                {origin: locations['origin'].lat +',' +locations['origin'].lng},
-                {destination: locations['destination'].lat +',' +locations['destination'].lng}
-               ]
-
-
-  this.getRequestToServer('/googleDirections', params, this.testCallBackFn.bind(this))
-}
-
-
-exGetExternalRecipeAPI() {
-  this.getRequestToServer('https://connected-simple-server.herokuapp.com/external_api', [{q: 'tomato soup'}], this.testCallBackFn.bind(this))
-
-}
-
-
-
-
-// handleFileUpload() {
-//   var file = document.getElementById('input').files[0]
-
-//   this.postRequestToServer('/image', null, file, this.testCallBackFn.bind(this)) 
-// }
 
 
 render() {
@@ -156,15 +159,48 @@ render() {
             <div> 
             Super Simple React Conenction - SPACEBAR for camera
               <Camera
-                saveImage={this.saveImage.bind(this)}
+                showImage={this.showImage.bind(this)}
               />
+
+              {this.renderPhoto()}
             </div>
         ) 
 }
 
 
 
+/*--------------- Example request calls ---------------- */
 
+// exGetLocalData() {
+//   this.getRequestToServer('/local_data', null, this.testCallBackFn.bind(this))
+// }
+
+// exGetGoogleDirections() {
+//   var locations = {origin: {
+//                             "name": "SF Caltrain",
+//                             "lat": 37.443912,
+//                             "lng": -122.164960
+//                           },
+//                   destination: {
+//                             "name": "Ideo",
+//                             "lat": 37.44198, 
+//                             "lng": -122.16025
+//                           }
+//                   },
+//       params = [ 
+//                 {origin: locations['origin'].lat +',' +locations['origin'].lng},
+//                 {destination: locations['destination'].lat +',' +locations['destination'].lng}
+//                ]
+
+
+//   this.getRequestToServer('/googleDirections', params, this.testCallBackFn.bind(this))
+// }
+
+
+// exGetExternalRecipeAPI() {
+//   this.getRequestToServer('https://connected-simple-server.herokuapp.com/external_api', [{q: 'tomato soup'}], this.testCallBackFn.bind(this))
+
+// }
 
 
   /* -------------- Location methods -------------- */

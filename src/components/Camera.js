@@ -72,7 +72,7 @@ class Camera extends Component {
 		var data_url = canvas.toDataURL("image/png"),
 			image_blob = this.dataURItoBlob(data_url)
 
-		this.props.saveImage(image_blob)
+		this.props.showImage(image_blob, data_url)
 	}
 
 
