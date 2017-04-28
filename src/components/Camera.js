@@ -5,8 +5,10 @@ import React, { Component } from 'react'
 
 /* ----------------------------------------- */
 
-const HEIGHT = 480,
-	  WIDTH = 640
+const IMG_HEIGHT = 480,
+	  IMG_WIDTH = 640,
+	  CANVAS_HEIGHT = 580,
+	  CANVAS_WIDTH = 640
 
 
 class Camera extends Component {
@@ -62,18 +64,54 @@ class Camera extends Component {
 	takePhoto() {
 		var canvas = document.createElement('canvas'), //document.getElementById('canvas'),
 			context = canvas.getContext('2d'),
-			video = document.getElementById('video')
+			// video = document.getElementById('video-text-container')
+			video = document.getElementById('video'),
+			text = document.getElementById('text-input').value
 
-		canvas.height = HEIGHT
-		canvas.width = WIDTH
-		context.drawImage(video, 0, 0, 640, 480)
+		canvas.height = CANVAS_HEIGHT
+		canvas.width = CANVAS_WIDTH
+		context.font = '20px Sentinel'
 
+		context.drawImage(video, 0, 0, IMG_WIDTH, IMG_HEIGHT)
+		this.wrapText(context, text, 15, IMG_HEIGHT+30, CANVAS_WIDTH-30, 20)
+		// context.fillText(text, 10, IMG_HEIGHT+50)
+
+		// draw border
+		context.moveTo(0,0)
+		context.lineTo(CANVAS_WIDTH,0)
+		context.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT)
+		context.lineTo(0, CANVAS_HEIGHT)
+		context.lineTo(0, 0)
+		context.stroke()
 
 		var data_url = canvas.toDataURL("image/png"),
 			image_blob = this.dataURItoBlob(data_url)
 
 		this.props.showImage(image_blob, data_url)
 	}
+
+	wrapText(context, text, x, y, maxWidth, lineHeight) {
+		console.log(text)
+        var words = text.split(' ');
+        var line = '';
+
+        for(var n = 0; n < words.length; n++) {
+          var testLine = line + words[n] + ' ';
+          var metrics = context.measureText(testLine);
+          var testWidth = metrics.width;
+          if (testWidth > maxWidth && n > 0) {
+            context.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+          }
+          else {
+            line = testLine;
+          }
+        }
+        context.fillText(line, x, y);
+    }
+      
+    	
 
 
 	dataURItoBlob(dataURI) {
@@ -99,7 +137,11 @@ class Camera extends Component {
 
 	render() {
 		return (
-			<video id="video" width={WIDTH} height={HEIGHT} ></video>
+			<div id='video-text-container'>
+				<video id="video" width={IMG_WIDTH} height={IMG_HEIGHT}/>
+				<input id='text-input' type='text' placeholder='write a caption for your image' maxLength="250"/>
+			</div>
+
 		)
 	}
 
