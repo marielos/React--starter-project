@@ -18,14 +18,17 @@ class Camera extends Component {
 
 	componentWillMount(){
 		this.setState({
-			why: 'too soon to know'
+			isIphone : md.is('iPhone')
 		})
 	}
 
 	componentDidMount() {
 		console.log('mounting camera module')
 
-		this.recordVideo()
+		if (!this.state.isIphone) {
+			this.recordVideo()
+		}
+
 		document.addEventListener('keydown', function(event) {
 			if (event.code === "Space") {
 				this.takePhoto()
@@ -35,12 +38,12 @@ class Camera extends Component {
 	}
 
 	recordVideo() {
-
 		// Grab elements, create settings, etc.
 		var video = document.getElementById('video');
 		console.log('about to record video')
 		// Get access to the camera!
-		if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+
+		if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia ) {
 			console.log(navigator.mediaDevices)
 			console.log(navigator.mediaDevices.enumerateDevices())
 		    // Not adding `{ audio: true }` since we only want video now
@@ -55,31 +58,71 @@ class Camera extends Component {
 
 		// // List cameras and microphones.
 
-		navigator.mediaDevices.enumerateDevices()
-		.then(function(devices) {
-		  devices.forEach(function(device) {
-		    console.log(device.kind + ": " + device.label +
-		                " id = " + device.deviceId);
-		  });
-		})
-		.catch(function(err) {
-		  console.log(err.name + ": " + err.message);
-		});
+		// navigator.mediaDevices.enumerateDevices()
+		// .then(function(devices) {
+		//   devices.forEach(function(device) {
+		//     console.log(device.kind + ": " + device.label +
+		//                 " id = " + device.deviceId);
+		//   });
+		// })
+		// .catch(function(err) {
+		//   console.log(err.name + ": " + err.message);
+		// });
+	}
+
+
+
+	getImage() {
+		if(this.state.isIphone) {
+
+		} else {
+
+		}
+	}
+
+
+	tookPicture(event) {
+	
+		if (event.target.files && event.target.files[0]) {
+		    var reader = new FileReader();
+		    reader.onload = function (e) {
+		      var image = document.getElementById('img-review')
+
+		      image.setAttribute('src', e.target.result)
+
+		      // // document.getElementById('image-preview')
+		      // //   .attr('src', e.target.result)
+		      // //   .width(150)
+		      // //   .height(200);
+		      // this.setState
+		      // return image
+		    }
+		    reader.readAsDataURL(event.target.files[0]);
+		}
 	}
 
 
 	takePhoto() {
 		var canvas = document.createElement('canvas'), //document.getElementById('canvas'),
 			context = canvas.getContext('2d'),
-			// video = document.getElementById('video-text-container')
 			video = document.getElementById('video'),
-			text = document.getElementById('text-input').value
+			text = document.getElementById('text-input').value,
+			image = document.getElementById('img-review')
+
+			// can i select the image from the DOM??
 
 		canvas.height = CANVAS_HEIGHT
 		canvas.width = CANVAS_WIDTH
 		context.font = '20px Sentinel'
 
-		context.drawImage(video, 0, 0, IMG_WIDTH, IMG_HEIGHT)
+		if(this.state.isIphone) {
+			context.drawImage(image, 0, 0, IMG_WIDTH, IMG_HEIGHT)
+		} else {
+			context.drawImage(video, 0, 0, IMG_WIDTH, IMG_HEIGHT)
+		}
+
+
+		
 		this.wrapText(context, text, 15, IMG_HEIGHT+30, CANVAS_WIDTH-30, 20)
 		// context.fillText(text, 10, IMG_HEIGHT+50)
 
@@ -141,19 +184,29 @@ class Camera extends Component {
 	    return new Blob([ia], {type:mimeString});
 	}
 
+// <input id="standardImageCapture" type="file" accept="image/*" capture/>
+//             	<input id="rearImage" type="file" accept="image/*" capture="environment"/>
+/*
 
-	render() {
-		return (
-			<div id='video-text-container'>
-			<div>user agent {md.userAgent()} </div>
+<div>user agent {md.userAgent()} </div>
 			<div>phone {md.phone()} </div>
 			<div>mobile {md.mobile()} </div>
 			<div>os {md.os()} </div>
-			<div>isIphone {md.is('iPhone')} </div>
 
-	
+*/
+	render() {
+		return (
+			<div id='video-text-container'>
+			
+			{md.is('iPhone') ?
+				<div>
+			  		<img id='img-review' width={IMG_WIDTH} height={IMG_HEIGHT}/>			
+			  		<input id='image' type="file" name="image" accept="image/*" capture="user" onChange={this.tookPicture.bind(this)}/>
+			  	</div>
+			:
 				<video id="video" width={IMG_WIDTH} height={IMG_HEIGHT}/>
-				<input id='text-input' type='text' placeholder='write a caption for your image' maxLength="250"/>
+			}
+				<input id='text-input' type='text' placeholder='write a caption for your image' maxLength="250"/>	
 			</div>
 
 		)

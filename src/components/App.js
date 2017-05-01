@@ -169,8 +169,7 @@ render() {
 }
 
 
-              // <input id="standardImageCapture" type="file" accept="image/*" capture/>
-              // <input id="rearImage" type="file" accept="image/*" capture="environment"/>
+             
 
 /* --------------- Example request calls ---------------- */
 
