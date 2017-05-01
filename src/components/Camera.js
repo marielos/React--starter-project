@@ -20,6 +20,8 @@ class Camera extends Component {
 	}
 
 	componentDidMount() {
+		console.log('mounting camera module')
+
 		this.recordVideo()
 		document.addEventListener('keydown', function(event) {
 			if (event.code === "Space") {
@@ -33,7 +35,7 @@ class Camera extends Component {
 
 		// Grab elements, create settings, etc.
 		var video = document.getElementById('video');
-
+		console.log('about to record video')
 		// Get access to the camera!
 		if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 			console.log(navigator.mediaDevices)
@@ -43,21 +45,23 @@ class Camera extends Component {
 		        video.src = window.URL.createObjectURL(stream);
 		        video.play();
 		    });
+		} else {
+			console.log('no mediaDevices')
 		}
 
 
 		// // List cameras and microphones.
 
-		// navigator.mediaDevices.enumerateDevices()
-		// .then(function(devices) {
-		//   devices.forEach(function(device) {
-		//     console.log(device.kind + ": " + device.label +
-		//                 " id = " + device.deviceId);
-		//   });
-		// })
-		// .catch(function(err) {
-		//   console.log(err.name + ": " + err.message);
-		// });
+		navigator.mediaDevices.enumerateDevices()
+		.then(function(devices) {
+		  devices.forEach(function(device) {
+		    console.log(device.kind + ": " + device.label +
+		                " id = " + device.deviceId);
+		  });
+		})
+		.catch(function(err) {
+		  console.log(err.name + ": " + err.message);
+		});
 	}
 
 
