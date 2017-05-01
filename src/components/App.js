@@ -163,13 +163,16 @@ render() {
               />
 
               {this.renderPhoto()}
+              
             </div>
         ) 
 }
 
 
+              // <input id="standardImageCapture" type="file" accept="image/*" capture/>
+              // <input id="rearImage" type="file" accept="image/*" capture="environment"/>
 
-/*--------------- Example request calls ---------------- */
+/* --------------- Example request calls ---------------- */
 
 // exGetLocalData() {
 //   this.getRequestToServer('/local_data', null, this.testCallBackFn.bind(this))

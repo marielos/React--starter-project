@@ -1,6 +1,11 @@
 import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 
+var MobileDetect = require('mobile-detect'),
+md = new MobileDetect('Mozilla/5.0 (Linux; U; Android 4.0.3; en-in; SonyEricssonMT11i' +
+    ' Build/4.1.A.0.562) AppleWebKit/534.30 (KHTML, like Gecko)' +
+    ' Version/4.0 Mobile Safari/534.30')
+
 
 
 /* ----------------------------------------- */
@@ -142,6 +147,13 @@ class Camera extends Component {
 	render() {
 		return (
 			<div id='video-text-container'>
+			<div>user agent {md.userAgent()} </div>
+			<div>phone {md.phone()} </div>
+			<div>mobile {md.mobile()} </div>
+			<div>os {md.os()} </div>
+			<div>isIphone {md.is('iPhone')} </div>
+
+	
 				<video id="video" width={IMG_WIDTH} height={IMG_HEIGHT}/>
 				<input id='text-input' type='text' placeholder='write a caption for your image' maxLength="250"/>
 			</div>
