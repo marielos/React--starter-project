@@ -96,7 +96,8 @@ class Camera extends Component {
 		      // //   .height(200);
 		      // this.setState
 		      // return image
-		    }
+		      this.takePhoto()
+		    }.bind(this)
 		    reader.readAsDataURL(event.target.files[0]);
 		}
 	}
@@ -193,6 +194,10 @@ class Camera extends Component {
 			<div>mobile {md.mobile()} </div>
 			<div>os {md.os()} </div>
 
+
+			
+			  		<button onClick={this.takePhoto.bind(this)}> Submit Picture </button>
+
 */
 	render() {
 		return (
@@ -200,13 +205,17 @@ class Camera extends Component {
 			
 			{md.is('iPhone') ?
 				<div>
-			  		<img id='img-review' width={IMG_WIDTH} height={IMG_HEIGHT}/>			
+			  		<img id='img-review' height={IMG_HEIGHT}/>			
 			  		<input id='image' type="file" name="image" accept="image/*" capture="user" onChange={this.tookPicture.bind(this)}/>
 			  	</div>
 			:
-				<video id="video" width={IMG_WIDTH} height={IMG_HEIGHT}/>
+				<div>
+					<video id="video" width={IMG_WIDTH} height={IMG_HEIGHT}/>
+					<button onClick={this.takePhoto.bind(this)}> Take Picture </button>
+				</div>
 			}
 				<input id='text-input' type='text' placeholder='write a caption for your image' maxLength="250"/>	
+
 			</div>
 
 		)
