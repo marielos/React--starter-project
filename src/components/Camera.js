@@ -117,6 +117,10 @@ class Camera extends Component {
 		context.font = '20px Sentinel'
 
 		if(this.state.isIphone) {
+			// not working on phone 
+			this.setState({
+				img_src: image.src
+			})
 			context.drawImage(image, 0, 0, IMG_WIDTH, IMG_HEIGHT)
 		} else {
 			context.drawImage(video, 0, 0, IMG_WIDTH, IMG_HEIGHT)
@@ -185,28 +189,22 @@ class Camera extends Component {
 	    return new Blob([ia], {type:mimeString});
 	}
 
-// <input id="standardImageCapture" type="file" accept="image/*" capture/>
-//             	<input id="rearImage" type="file" accept="image/*" capture="environment"/>
-/*
-
-<div>user agent {md.userAgent()} </div>
-			<div>phone {md.phone()} </div>
-			<div>mobile {md.mobile()} </div>
-			<div>os {md.os()} </div>
 
 
-			
-			  		<button onClick={this.takePhoto.bind(this)}> Submit Picture </button>
 
-*/
+// change the name of the input file button 
+// 
+
 	render() {
 		return (
 			<div id='video-text-container'>
 			
 			{md.is('iPhone') ?
 				<div>
+					{this.state.img_src}
 			  		<img id='img-review' height={IMG_HEIGHT}/>			
 			  		<input id='image' type="file" name="image" accept="image/*" capture="user" onChange={this.tookPicture.bind(this)}/>
+			  		<button onClick={this.takePhoto.bind(this)}> Submit Picture </button>
 			  	</div>
 			:
 				<div>
