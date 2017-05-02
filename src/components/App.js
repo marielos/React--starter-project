@@ -4,6 +4,9 @@ import 'whatwg-fetch'
 import Camera from './Camera.js'
 require("../assets/stylesheets/flexboxgrid.css")
 
+var MobileDetect = require('mobile-detect'),
+md = new MobileDetect(navigator.userAgent)
+
 
 
 /* ----------------------------------------- */
@@ -33,26 +36,6 @@ class App extends Component {
 
 
 
-  showImage(image_blob, image_url) {
-    if (this.state.posting) return
-
-    this.setState({
-      screenshot: image_url,
-      image_blob: image_blob
-    })
-  }
-
-  confirmPhoto() {
-    this.postRequestToServer('https://connected-simple-server.herokuapp.com/upload_image', {image:this.state.image_blob}, this.testCallBackFn.bind(this))
-    // this.postRequestToServer('http://localhost:5000/upload_image', {image:image_blob}, this.testCallBackFn.bind(this))
-    this.setState({
-      posting: true
-    })
-  }
-
-
-
-
 
 
 
@@ -70,9 +53,6 @@ class App extends Component {
       formData.append(name, data_blobs[name]);
     }
 
-
-    // var url = path + this.encodeParameters(params)
-    // console.log(path)
     fetch(path, {
       method: "POST",
       body: formData,
@@ -131,27 +111,253 @@ class App extends Component {
 
 
 
+  showImage(image_or_canvas, is_image) {
+    // get image from the camera module and preview it by updating screenshot
+
+    var image_src = null
+    if (is_image) {
+      image_src = image_or_canvas.src
+    } else {
+      image_src = image_or_canvas.toDataURL("image/png")
+    }
+    // if (this.state.posting) return
+
+    // change screenshot name
+    this.setState({
+      screenshot: image_src,
+    })
+  }
+
+
+
+
+
+
+
+  createImageWithTextCanvas() {
+    var canvas = document.createElement('canvas'), //document.getElementById('canvas'),
+      context = canvas.getContext('2d'),
+      photo = document.getElementById('img-preview'), // 
+      photo_height = photo.height, //getBoundingClientRect().height,
+      photo_width = photo.width, //getBoundingClientRect().width,
+      canvas_height = photo_height +100
+
+        
+    canvas.height = canvas_height//this.state.img_height +100
+    canvas.width = photo_width//this.state.img_width
+
+    context.drawImage(photo, 0, 0, photo_width, photo_height)
+
+    context.font = '20px Sentinel'
+
+    var text = document.getElementById('text-input').value
+    this.wrapText(context, 15, photo_height+30, photo_width-30, 20)
+
+    // draw border
+    context.moveTo(0,0)
+    context.lineTo(photo_width,0)
+    context.lineTo(photo_width, canvas_height)
+    context.lineTo(0, canvas_height)
+    context.lineTo(0, 0)
+    context.stroke()
+
+    this.canvasToImage(canvas)
+  }
+
+  wrapText(context, text, x, y, maxWidth, lineHeight) {
+    
+        var words = text.split(' ');
+        var line = '';
+
+        for(var n = 0; n < words.length; n++) {
+          var testLine = line + words[n] + ' ';
+          var metrics = context.measureText(testLine);
+          var testWidth = metrics.width;
+          if (testWidth > maxWidth && n > 0) {
+            context.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+          }
+          else {
+            line = testLine;
+          }
+        }
+        context.fillText(line, x, y);
+    }
+
+  dataURItoBlob(dataURI) {
+      // convert base64/URLEncoded data component to raw binary data held in a string
+      var byteString;
+      if (dataURI.split(',')[0].indexOf('base64') >= 0)
+          byteString = atob(dataURI.split(',')[1]);
+      else
+          byteString = unescape(dataURI.split(',')[1]);
+
+      // separate out the mime component
+      var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+      // write the bytes of the string to a typed array
+      var ia = new Uint8Array(byteString.length);
+      for (var i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+      }
+
+      return new Blob([ia], {type:mimeString});
+  }
+
+  canvasToImage(canvas) {
+    var data_url = canvas.toDataURL("image/png"),
+      image_blob = this.dataURItoBlob(data_url)
+
+    this.setState({
+      image_taken: true, // image sent
+      image_blob: image_blob,
+    }) 
+  }
+
+
+    confirmPhoto() {
+
+      // take preview and text, convert it to image_blob and post it 
+
+
+
+
+
+
+    this.postRequestToServer(
+      'https://connected-simple-server.herokuapp.com/upload_image', 
+      {image:this.state.image_blob}, 
+      this.testCallBackFn.bind(this))
+
+    // this.postRequestToServer('http://localhost:5000/upload_image', {image:image_blob}, this.testCallBackFn.bind(this))
+    this.setState({
+      posting: true
+    })
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  renderTextInput() {
+      return (
+        <input 
+          className = {this.state && this.state.screenshot ? '': 'hide'}
+          id='text-input' 
+          type='text' 
+          placeholder='write a caption for your image' 
+          maxLength="250" 
+          onChange={this.createImageWithTextCanvas.bind(this)}/>  
+      )
+  }
+
+
+
+renderSubmitButton() {
+  return (
+      { !this.state.posting ?
+        <button className='pic-button' onClick={this.confirmPhoto.bind(this)}> Post photo submission to Slack </button>
+        :
+        <div className='camera-announcement'> Posting to slack...</div>
+      }
+  )
+}
 
 renderPhoto() {
   if (this.state && this.state.screenshot) {
     return (
-      <div>
-        <img className='preview-img' src={this.state.screenshot}/>
-        { !this.state.posting ?
-          <button className='pic-button' onClick={this.confirmPhoto.bind(this)}> Post photo submission to Slack </button>
-          :
-          <div className='camera-announcement'> Posting to slack...</div>
-        }
+      <div className='row'>
+        <div className='box'>
+          <img className='preview-img' src={this.state.screenshot}/>
+         
+        </div>
       </div>
     )
   } else {
+
     return (
-       <div className='camera-announcement'>Take a photo with SPACEBAR </div>
+       <div className='row around-xs'>
+        <div className='box'>
+          <br/>
+          <br/>
+          Take a picture of your doodle. 
+          <br/>
+          <br/>
+          Write a funny caption
+          <br/>
+          <br/>
+          Upload it to slack so everyone can vote on it!
+          <br/>
+          <br/>
+          Go to #slack-connection channel and vote on other submissions of the day!
+        </div>
+      </div>
     )
   }
 }
 
 
+// after a picture is taken, hide camera and call this.refs.Camera.openCamera
+renderMobile() {
+  return (
+    <div className='row around-xs'>
+      <div className='row'>
+
+        <Camera
+          className={this.state && this.state.screenshot ? 'hide': ''}
+          photoTaken={this.showImage.bind(this)}
+          ref='Camera'
+        />
+      </div>
+      <div className='row'>
+        {this.renderPhoto()}
+        {this.renderTextInput()}
+        {this.renderSubmitButton()}
+      </div>
+    </div>
+  )
+}
+
+
+renderDesktop() {
+  return (
+      <div className='row around-xs'>
+        <div className='col-xs-5 left'>
+          <Camera
+            photoTaken={this.showImage.bind(this)}
+            ref='Camera'
+          />
+        </div>
+        <div className='col-xs-5 left'>
+          {this.renderPhoto()}
+          {this.renderTextInput()}
+          {this.renderSubmitButton()}
+
+        </div>
+      </div>
+  )
+}
 
 render() {
   return (
@@ -159,27 +365,11 @@ render() {
               <h2 className='title'> 
                 IDEO Doodle Continuum Transfunctioner
               </h2>
-              <div className='row around-xs'>
-                <div className='col-xs-5 left'>
-                  <Camera
-                    showImage={this.showImage.bind(this)}
-                  />
-                </div>
-                <div className='col-xs-5 left'>
-                  {this.renderPhoto()}
-                </div>
-              </div>
-              <div className='row around-xs'>
-                <div className='box'>
-                  Take a picture of your doodle. 
-                  <br/>
-                  Write a funny caption
-                  <br/>
-                  Upload it to slack so everyone can vote on it!
-                  <br/>
-                  Go to #slack-connection channel and vote on other submissions of the day!
-                </div>
-              </div>
+              {md.is('iPhone') ?
+                this.renderMobile()
+              :
+                this.renderDesktop()
+              }
             </div>
         ) 
 }
