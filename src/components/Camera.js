@@ -1,5 +1,7 @@
 import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
+require("../assets/stylesheets/flexboxgrid.css")
+
 
 var MobileDetect = require('mobile-detect'),
 md = new MobileDetect(navigator.userAgent)
@@ -25,15 +27,17 @@ class Camera extends Component {
 	componentDidMount() {
 		console.log('mounting camera module')
 
+	
+
 		if (!this.state.isIphone) {
 			this.recordVideo()
 		}
 
-		document.addEventListener('keydown', function(event) {
-			if (event.code === "Space") {
-				this.takePhoto()
-			}
-		}.bind(this))
+		// document.addEventListener('keydown', function(event) {
+		// 	if (event.code === "Space") {
+		// 		this.takePhoto()
+		// 	}
+		// }.bind(this))
 	
 	}
 
@@ -48,9 +52,10 @@ class Camera extends Component {
 			console.log(navigator.mediaDevices.enumerateDevices())
 		    // Not adding `{ audio: true }` since we only want video now
 		    navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
-		        video.src = window.URL.createObjectURL(stream);
-		        video.play();
-		    });
+		        video.src = window.URL.createObjectURL(stream)
+		        video.play()
+
+		    }.bind(this))
 		} else {
 			console.log('no mediaDevices')
 		}
@@ -87,15 +92,8 @@ class Camera extends Component {
 		    var reader = new FileReader();
 		    reader.onload = function (e) {
 		      var image = document.getElementById('img-review')
-
 		      image.setAttribute('src', e.target.result)
 
-		      // // document.getElementById('image-preview')
-		      // //   .attr('src', e.target.result)
-		      // //   .width(150)
-		      // //   .height(200);
-		      // this.setState
-		      // return image
 		      this.takePhoto()
 		    }.bind(this)
 		    reader.readAsDataURL(event.target.files[0]);
@@ -103,50 +101,85 @@ class Camera extends Component {
 	}
 
 
+
+
+// ------- seperate getting the dimensions to a different method--------- 
+
 	takePhoto() {
-		var canvas = document.createElement('canvas'), //document.getElementById('canvas'),
+		var canvas = document.getElementById('img_canvas'), //document.getElementById('canvas'),
 			context = canvas.getContext('2d'),
 			video = document.getElementById('video'),
-			text = document.getElementById('text-input').value,
-			image = document.getElementById('img-review')
+		    video_height = video.getBoundingClientRect().height,
+			video_width = video.getBoundingClientRect().width
+				
 
-			// can i select the image from the DOM??
-
-		canvas.height = CANVAS_HEIGHT
-		canvas.width = CANVAS_WIDTH
-		context.font = '20px Sentinel'
+// -------- test for phone ---------
+		canvas.height = video_height
+		canvas.width = video_width
 
 		if(this.state.isIphone) {
-			// not working on phone 
+
+			var image = document.getElementById('img-review'),
+			image_height = image.getBoundingClientRect().height,
+			image_width = image.getBoundingClientRect().width
+
 			this.setState({
 				img_src: image.src
 			})
-			context.drawImage(image, 0, 0, IMG_WIDTH, IMG_HEIGHT)
+			context.drawImage(image, 0, 0, image_width, image_height)
 		} else {
-			context.drawImage(video, 0, 0, IMG_WIDTH, IMG_HEIGHT)
+			context.drawImage(video, 0, 0, video_width, video_height)
 		}
 
+		this.createImageWithTextCanvas() 
+	}
 
-		
-		this.wrapText(context, text, 15, IMG_HEIGHT+30, CANVAS_WIDTH-30, 20)
-		// context.fillText(text, 10, IMG_HEIGHT+50)
+
+	createImageWithTextCanvas() {
+		var canvas = document.createElement('canvas'), //document.getElementById('canvas'),
+			context = canvas.getContext('2d'),
+			photo = document.getElementById('img_canvas'),
+		    photo_height = photo.height, //getBoundingClientRect().height,
+			photo_width = photo.width, //getBoundingClientRect().width,
+			canvas_height = photo_height +100
+
+				
+		canvas.height = canvas_height//this.state.img_height +100
+		canvas.width = photo_width//this.state.img_width
+
+		context.drawImage(photo, 0, 0, photo_width, photo_height)
+
+		context.font = '20px Sentinel'
+
+		this.wrapText(context, 15, photo_height+30, photo_width-30, 20)
 
 		// draw border
 		context.moveTo(0,0)
-		context.lineTo(CANVAS_WIDTH,0)
-		context.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT)
-		context.lineTo(0, CANVAS_HEIGHT)
+		context.lineTo(photo_width,0)
+		context.lineTo(photo_width, canvas_height)
+		context.lineTo(0, canvas_height)
 		context.lineTo(0, 0)
 		context.stroke()
 
+		this.canvasToImage(canvas)
+	}
+
+
+	canvasToImage(canvas) {
 		var data_url = canvas.toDataURL("image/png"),
 			image_blob = this.dataURItoBlob(data_url)
+
+		this.setState({
+			image_taken: true
+		})
 
 		this.props.showImage(image_blob, data_url)
 	}
 
-	wrapText(context, text, x, y, maxWidth, lineHeight) {
-		console.log(text)
+	wrapText(context, x, y, maxWidth, lineHeight) {
+		if (!this.state.image_taken) return
+
+		var text = document.getElementById('text-input').value
         var words = text.split(' ');
         var line = '';
 
@@ -165,9 +198,6 @@ class Camera extends Component {
         }
         context.fillText(line, x, y);
     }
-      
-    	
-
 
 	dataURItoBlob(dataURI) {
 	    // convert base64/URLEncoded data component to raw binary data held in a string
@@ -195,6 +225,39 @@ class Camera extends Component {
 // change the name of the input file button 
 // 
 
+
+	renderTextInput() {
+		if (this.state && this.state.image_taken) {
+			return (
+				<input id='text-input' type='text' placeholder='write a caption for your image' maxLength="250" onChange={this.createImageWithTextCanvas.bind(this)}/>	
+			)
+		} else {
+			return null
+		}
+	}
+
+	renderMobile(){
+
+	}
+
+
+	renderDesktop() {
+		return(
+			<div className='main-container row'>
+				<div className='box'>
+					<video id="video" />
+					<canvas id='canvas' />
+					<canvas id='img_canvas' />
+					{this.renderTextInput()}	
+					<button className='pic-button' onClick={this.takePhoto.bind(this)}> 
+						{this.state && this.state.image_taken ? 'Update Photo' : 'Take Photo' } 
+					</button>
+				</div>
+			</div>
+		)
+	}
+
+
 	render() {
 		return (
 			<div id='video-text-container'>
@@ -202,18 +265,13 @@ class Camera extends Component {
 			{md.is('iPhone') ?
 				<div>
 					{this.state.img_src}
-			  		<img id='img-review' height={IMG_HEIGHT}/>			
+			  		<img id='img-review' src={require('./placeholder1.png')} height={IMG_HEIGHT}/>			
 			  		<input id='image' type="file" name="image" accept="image/*" capture="user" onChange={this.tookPicture.bind(this)}/>
 			  		<button onClick={this.takePhoto.bind(this)}> Submit Picture </button>
 			  	</div>
 			:
-				<div>
-					<video id="video" width={IMG_WIDTH} height={IMG_HEIGHT}/>
-					<button onClick={this.takePhoto.bind(this)}> Take Picture </button>
-				</div>
+				this.renderDesktop()
 			}
-				<input id='text-input' type='text' placeholder='write a caption for your image' maxLength="250"/>	
-
 			</div>
 
 		)

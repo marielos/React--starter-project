@@ -2,6 +2,7 @@ import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import 'whatwg-fetch'
 import Camera from './Camera.js'
+require("../assets/stylesheets/flexboxgrid.css")
 
 
 
@@ -135,14 +136,12 @@ renderPhoto() {
   if (this.state && this.state.screenshot) {
     return (
       <div>
-        <img src={this.state.screenshot}/>
+        <img className='preview-img' src={this.state.screenshot}/>
         { !this.state.posting ?
-          <button onClick={this.confirmPhoto.bind(this)}> Post photo submission to Slack </button>
+          <button className='pic-button' onClick={this.confirmPhoto.bind(this)}> Post photo submission to Slack </button>
           :
           <div className='camera-announcement'> Posting to slack...</div>
         }
-
-        <div className='camera-announcement'> Not satisfied? Take another one with SPACEBAR </div>
       </div>
     )
   } else {
@@ -157,13 +156,30 @@ renderPhoto() {
 render() {
   return (
             <div> 
-            Super Simple React Conenction - SPACEBAR for camera
-              <Camera
-                showImage={this.showImage.bind(this)}
-              />
-
-              {this.renderPhoto()}
-              
+              <h2 className='title'> 
+                IDEO Doodle Continuum Transfunctioner
+              </h2>
+              <div className='row around-xs'>
+                <div className='col-xs-5 left'>
+                  <Camera
+                    showImage={this.showImage.bind(this)}
+                  />
+                </div>
+                <div className='col-xs-5 left'>
+                  {this.renderPhoto()}
+                </div>
+              </div>
+              <div className='row around-xs'>
+                <div className='box'>
+                  Take a picture of your doodle. 
+                  <br/>
+                  Write a funny caption
+                  <br/>
+                  Upload it to slack so everyone can vote on it!
+                  <br/>
+                  Go to #slack-connection channel and vote on other submissions of the day!
+                </div>
+              </div>
             </div>
         ) 
 }

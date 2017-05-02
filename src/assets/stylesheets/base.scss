@@ -5,3 +5,34 @@ TODO:
  */
 
 
+
+body {
+	font: 'Sentinel';
+}
+
+.title {
+	text-align: center;
+}
+
+#text-input {
+	width: 100%;
+	height: 100px;
+}
+
+.pic-button {
+	width: 100%;
+	height: 50px;
+
+}
+
+#video {
+	width: 100%;
+}
+
+#canvas, #img_canvas {
+	display: none;
+}
+
+.preview-img {
+
+}
