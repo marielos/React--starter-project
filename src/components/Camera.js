@@ -85,17 +85,17 @@ class Camera extends Component {
 		if (event.target.files && event.target.files[0]) {
 		    var reader = new FileReader();
 		    reader.onload = function (e) {
-		      var image = document.getElementById('img-preview')
+		      var image = document.getElementById('img-holder')
 		      image.setAttribute('src', e.target.result)
 
-		      this.props.photoTaken(image) 
+		      this.props.photoTaken(image, true) 
 		    }.bind(this)
 		    reader.readAsDataURL(event.target.files[0]);
 		}
 	}
 
 	takePhotoDesktop() {
-		var canvas = document.getElementById('img-preview'), //document.getElementById('canvas'),
+		var canvas = document.getElementById('img-holder'), //document.getElementById('canvas'),
 			context = canvas.getContext('2d'),
 			video = document.getElementById('video'),
 		    video_height = video.getBoundingClientRect().height,
@@ -105,20 +105,21 @@ class Camera extends Component {
 		canvas.width = video_width
 		context.drawImage(video, 0, 0, video_width, video_height)
 
-		this.props.photoTaken(canvas) 
+		this.props.photoTaken(canvas, false) 
 	}
 
 
 	renderMobile(){
 		return(
 			<div>
-				{this.state && this.state.image_taken ? '' : <img id='img-preview' src={require('./placeholder1.png')}/> }
+				{this.state && this.state.image_taken ? '' : <img id='img-placeholder' src={require('./placeholder1.png')}/> }
 		  					
 		  		<input id='image-input' type="file" name="image" accept="image/*" capture="user" onChange={this.takePhotoMobile.bind(this)}/>
+		  		
+		  		<img id='img-holder'/>
 		  		<button className='pic-button' onClick={this.openCamera.bind(this)}> 
 		  			{this.state && this.state.image_taken ? 'Change Photo' : 'Take Photo' } 
 		  		</button>
-		  		<img id='img-holder'/>
 		  	</div>
 	  	)
 	}
