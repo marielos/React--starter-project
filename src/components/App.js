@@ -178,21 +178,22 @@ class App extends Component {
   renderPhoto() {
     if (this.state && this.state.screenshot) {
       return (
-        <div className='row around-xs'>
-          <div className='box'>
-            <img id='preview-img' src={this.state.screenshot}/>
+        <div className='vertical-container'>
+            <div className='img-container'>
+              <img id='preview-img' src={this.state.screenshot}/>
+            </div>
             <button 
               className='pic-button'
               onClick={this.changePhoto.bind(this)}
             > Change Photo </button>
-          </div>
+          
         </div>
       )
     } else {
 
       return (
          <div className='row around-xs'>
-          <div className='box'>
+          
             <br/>
             <br/>
             Take a picture of your doodle. 
@@ -205,7 +206,7 @@ class App extends Component {
             <br/>
             <br/>
             Go to #slack-connection channel and vote on other submissions of the day!
-          </div>
+          
         </div>
       )
     }
@@ -215,44 +216,40 @@ class App extends Component {
   // after a picture is taken, hide camera and call this.refs.Camera.openCamera
   renderMobile() {
     return (
-      <div className='row around-xs'>
-        <div className={this.state && this.state.screenshot ? 'hide': 'row'}>
-
+      <div className='vertical-container'>
+        <div className={this.state && this.state.screenshot ? 'hide': ''}>
           <Camera
             photoTaken={this.showImage.bind(this)}
             ref='Camera'
           />
         </div>
-        <div>
-        <div className='photo-container'>
           {this.renderPhoto()}
-        </div>
           {this.renderTextInput()}
           {this.renderSubmitButton()}
-        </div>
       </div>
     )
   }
 
 
-  renderDesktop() {
-    return (
-        <div className='row around-xs'>
-          <div className='col-xs-5 left'>
-            <Camera
-              photoTaken={this.showImage.bind(this)}
-              ref='Camera'
-            />
-          </div>
-          <div className='col-xs-5 left'>
-            {this.renderPhoto()}
-            {this.renderTextInput()}
-            {this.renderSubmitButton()}
+  // renderDesktop() {
+  //   return (
+  //       <div className='row around-xs'>
+  //         <div className='col-xs-5 left'>
+  //           <Camera
+  //             photoTaken={this.showImage.bind(this)}
+  //             ref='Camera'
+  //           />
+  //         </div>
+  //         <div className='col-xs-5 left'>
 
-          </div>
-        </div>
-    )
-  }
+  //           {this.renderPhoto()}
+  //           {this.renderTextInput()}
+  //           {this.renderSubmitButton()}
+
+  //         </div>
+  //       </div>
+  //   )
+  // }
 
   renderTextInput() {
       return (
@@ -271,7 +268,7 @@ class App extends Component {
   renderSubmitButton() {
 
     return (
-        <div className='row around-xs'>
+        <div className='vertical-container'>
 
           {!this.state.posting ?
             <button 
@@ -295,7 +292,7 @@ class App extends Component {
                 {md.is('iPhone') ?
                   this.renderMobile()
                 :
-                  this.renderDesktop()
+                  this.renderMobile()
                 }
               </div>
           ) 

@@ -111,11 +111,18 @@ class Camera extends Component {
 
 	renderMobile(){
 		return(
-			<div>
-				{this.state && this.state.image_taken ? '' : <img id='img-placeholder' src={require('./placeholder1.png')}/> }
-		  					
-		  		<input id='image-input' type="file" name="image" accept="image/*" capture="user" onChange={this.takePhotoMobile.bind(this)}/>
-		  		
+			<div className='vertical-container'>
+				{this.state && this.state.image_taken ? 
+					'' 
+					: 
+					<div className='img-container'>
+						<img id='img-placeholder' src={require('./placeholder1.png')}/> 
+					</div>
+				}
+		  		<div className='img-container'>
+		  			<input id='image-input' type="file" name="image" accept="image/*" capture="user" onChange={this.takePhotoMobile.bind(this)}/>
+		  		</div>
+
 		  		<img id='img-holder'/>
 		  		<button className='pic-button' onClick={this.openCamera.bind(this)}> 
 		  			{this.state && this.state.image_taken ? 'Change Photo' : 'Take Photo' } 
@@ -127,15 +134,15 @@ class Camera extends Component {
 
 	renderDesktop() {
 		return(
-			<div className='main-container row'>
-				<div className='box'>
+			<div className='vertical-container'>
+				<div className='img-container'>
 					<video id="video" />
-					<canvas id='canvas' />
-					<canvas id='img-holder' />
-					<button className='pic-button' onClick={this.takePhotoDesktop.bind(this)}> 
-						{this.state && this.state.image_taken ? 'Update Photo' : 'Take Photo' } 
-					</button>
 				</div>
+				<canvas id='canvas' />
+				<canvas id='img-holder' />
+				<button className='pic-button' onClick={this.takePhotoDesktop.bind(this)}> 
+					{this.state && this.state.image_taken ? 'Update Photo' : 'Take Photo' } 
+				</button>
 			</div>
 		)
 	}
@@ -143,7 +150,7 @@ class Camera extends Component {
 
 	render() {
 		return (
-			<div id='camera-video-container'>
+			<div id='camera-container'>
 				{md.is('iPhone') ?
 					this.renderMobile()
 				:
