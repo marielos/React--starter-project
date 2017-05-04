@@ -46,7 +46,6 @@ class App extends Component {
 
     // change screenshot name
 
-
     this.setState({
       screenshot: canvas.toDataURL("image/png"),
       orientation: orientation,
@@ -79,16 +78,6 @@ class App extends Component {
 
         
 
-
-    // EXIF.getData(photo, function() {
-    //   console.log('got data')
-    //   var orientation = EXIF.getTag(this, "Orientation")
-    //   console.log('photo preview orientation')
-    //   console.log(orientation)
-    // })
-
-
-
     canvas.height = canvas_height
     canvas.width = photo_width
 
@@ -108,12 +97,9 @@ class App extends Component {
     context.lineTo(0, 0)
     context.stroke()
 
-
-
     console.log('done drawing')
     console.log('canvas state orientation')
     console.log(this.state.orientation)
-    // canvas = this.refs.Camera.rotateCanvas(canvas, this.state.orientation)
     console.log('about to convert to blob ')
 
     return this.canvasToImageBlob(canvas)
@@ -206,7 +192,7 @@ class App extends Component {
               <img id='preview-img' src={this.state.screenshot}/>
             </div>
             <div className='img-container'>
-            
+
             </div>
             <button 
               className='pic-button'
