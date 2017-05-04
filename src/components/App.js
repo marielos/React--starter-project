@@ -2,6 +2,7 @@ import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import 'whatwg-fetch'
 import Camera from './Camera.js'
+import EXIF from 'exif-js'
 require("../assets/stylesheets/flexboxgrid.css")
 
 var MobileDetect = require('mobile-detect'),
@@ -37,10 +38,6 @@ class App extends Component {
 
 
 
-
-
-
-
 /* ----------------------------- Preview Image From Camera  ----------------------------- */
 
 
@@ -49,7 +46,11 @@ class App extends Component {
 
     var image_src = null
     if (is_image) {
-      image_src = image_or_canvas.src
+
+      var canvas = this.rotateImage(image_or_canvas)
+
+      // image_src = image_or_canvas.src
+      image_src = canvas.toDataURL("image/png")
     } else {
       image_src = image_or_canvas.toDataURL("image/png")
     }
@@ -67,6 +68,65 @@ class App extends Component {
   }
 
 
+  // needs more testing
+  rotateImage(image) {
+      var canvas = document.createElement('canvas'),
+          ctx = canvas.getContext('2d'),
+          orientation = null
+
+      canvas.width  = image.width;
+      canvas.height = image.height;
+
+      EXIF.getData(image, function() {
+        orientation = EXIF.getTag(this, "Orientation")
+        console.log(orientation)
+      })
+
+    console.log(orientation)
+      switch(orientation){
+
+            case 2:
+                // horizontal flip
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+                break;
+            case 3:
+                // 180° rotate left
+                ctx.translate(canvas.width, canvas.height);
+                ctx.rotate(Math.PI);
+                break;
+            case 4:
+                // vertical flip
+                ctx.translate(0, canvas.height);
+                ctx.scale(1, -1);
+                break;
+            case 5:
+                // vertical flip + 90 rotate right
+                ctx.rotate(0.5 * Math.PI);
+                ctx.scale(1, -1);
+                break;
+            case 6:
+                // 90° rotate right
+                ctx.rotate(0.5 * Math.PI);
+                ctx.translate(0, -canvas.height);
+                break;
+            case 7:
+                // horizontal flip + 90 rotate right
+                ctx.rotate(0.5 * Math.PI);
+                ctx.translate(canvas.width, -canvas.height);
+                ctx.scale(-1, 1);
+                break;
+            case 8:
+                // 90° rotate left
+                ctx.rotate(-0.5 * Math.PI);
+                ctx.translate(-canvas.width, 0);
+                break;
+        }
+
+    ctx.drawImage(image,0,0);
+    ctx.restore();
+    return canvas
+  }
 
 
 
@@ -87,6 +147,7 @@ class App extends Component {
     context.drawImage(photo, 0, 0, photo_width, photo_height)
 
     context.font = '20px Sentinel'
+
 
     var text = document.getElementById('text-input').value
     this.wrapText(context, text, 15, photo_height+30, photo_width-30, 20)
@@ -231,26 +292,6 @@ class App extends Component {
   }
 
 
-  // renderDesktop() {
-  //   return (
-  //       <div className='row around-xs'>
-  //         <div className='col-xs-5 left'>
-  //           <Camera
-  //             photoTaken={this.showImage.bind(this)}
-  //             ref='Camera'
-  //           />
-  //         </div>
-  //         <div className='col-xs-5 left'>
-
-  //           {this.renderPhoto()}
-  //           {this.renderTextInput()}
-  //           {this.renderSubmitButton()}
-
-  //         </div>
-  //       </div>
-  //   )
-  // }
-
   renderTextInput() {
       return (
             <input 
@@ -292,7 +333,11 @@ class App extends Component {
                 {md.is('iPhone') ?
                   this.renderMobile()
                 :
-                  this.renderMobile()
+                  <div className='row center-xs'>
+                    <div className='col-xs6'>
+                      {this.renderMobile()}
+                    </div>
+                  </div>
                 }
               </div>
           ) 
