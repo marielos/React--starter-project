@@ -54,6 +54,10 @@ class App extends Component {
   }
 
   changePhoto() {
+    if (md.is('iPhone')) {
+      this.refs.Camera.openCamera()
+    }
+
     this.setState({
       screenshot: null,
       orientation: null,
@@ -157,8 +161,12 @@ class App extends Component {
   }
 
 
-  confirmPhoto() {
+  wipeTextBox() {
+    document.getElementById('text-input').value = ''
+  }
 
+
+  confirmPhoto() {
       // take preview and text, convert it to image_blob and post it 
     var image_text_blob = this.createImageWithTextCanvas()
 
@@ -166,7 +174,9 @@ class App extends Component {
       'https://connected-simple-server.herokuapp.com/upload_image', 
       {image:image_text_blob}, 
       this.testCallBackFn.bind(this))
+    
 
+    this.wipeTextBox()
     // this.postRequestToServer('http://localhost:5000/upload_image', {image:image_blob}, this.testCallBackFn.bind(this))
     this.setState({
       posting: true

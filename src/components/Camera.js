@@ -82,25 +82,14 @@ class Camera extends Component {
 	    }
 	    return bytes.buffer;
 	}
-/*
- if (orientation > 4) {
-        can.width  = height; can.style.width  = styleHeight;
-        can.height = width;  can.style.height = styleWidth;
-      }
-
-
-*/
 
 
 	rotateCanvas(canvas, orientation) {
-		var ctx = canvas.getContext('2d')
-
-		var width  = canvas.width,
+		var ctx = canvas.getContext('2d'),
+			width  = canvas.width,
 			styleWidth  = canvas.style.width,
 	    	height = canvas.height,
 	    	styleHeight = canvas.style.height
-
-
 	    
 		if (orientation > 4) {
 			canvas.width  = height
@@ -119,54 +108,14 @@ class Camera extends Component {
 			case 7: ctx.rotate(0.5 * Math.PI);   ctx.translate(width,-height); ctx.scale(-1,1); break;
 			case 8: ctx.rotate(-0.5 * Math.PI);  ctx.translate(-width,0); break;
     
-
-
-		    // case 2:
-	     //        // horizontal flip
-	     //        ctx.translate(canvas.width, 0);
-	     //        ctx.scale(-1, 1);
-	     //        break;
-	     //    case 3:
-	     //        // 180° rotate left
-	     //        ctx.translate(canvas.width, canvas.height);
-	     //        ctx.rotate(Math.PI);
-	     //        break;
-	     //    case 4:
-	     //        // vertical flip
-	     //        ctx.translate(0, canvas.height);
-	     //        ctx.scale(1, -1);
-	     //        break;
-	     //    case 5:
-	     //        // vertical flip + 90 rotate right
-	     //        ctx.rotate(0.5 * Math.PI);
-	     //        ctx.scale(1, -1);
-	     //        break;
-	     //    case 6:
-	     //        // 90° rotate right
-	     //        ctx.rotate(0.5 * Math.PI);
-	     //        ctx.translate(0, -canvas.height);
-	     //        break;
-	     //    case 7:
-	     //        // horizontal flip + 90 rotate right
-	     //        ctx.rotate(0.5 * Math.PI);
-	     //        ctx.translate(canvas.width, -canvas.height);
-	     //        ctx.scale(-1, 1);
-	     //        break;
-	     //    case 8:
-	     //        // 90° rotate left
-	     //        ctx.rotate(-0.5 * Math.PI);
-	     //        ctx.translate(-canvas.width, 0);
-	     //        break;
 	    }
-
-	
 	    return canvas
 	}
 
 
 
 	takePhotoMobile(event) {
-
+		console.log('taking photo')
 		if (event.target.files && event.target.files[0]) {
 		    var reader = new FileReader(),
 				can = document.createElement("canvas"),
@@ -197,8 +146,9 @@ class Camera extends Component {
 		}
 	}
 
+
 	takePhotoDesktop() {
-		var canvas = document.createElement("canvas")//document.getElementById('img-holder'), //document.getElementById('canvas'),
+		var canvas = document.createElement("canvas"),//document.getElementById('img-holder'), //document.getElementById('canvas'),
 			context = canvas.getContext('2d'),
 			video = document.getElementById('video'),
 		    video_height = video.getBoundingClientRect().height,
@@ -212,74 +162,6 @@ class Camera extends Component {
 	}
 
 
-
-	//  // needs more testing
- //  	rotateImage(image) {
-	// 	var canvas = document.createElement('canvas'),
-	// 	  ctx = canvas.getContext('2d'),
-	// 	  orientation = null
-
-	// 	canvas.width  = image.width;
-	// 	canvas.height = image.height;
-
-	// 	EXIF.getData(image, function() {
-	// 	console.log('got data')
-	// 	orientation = EXIF.getTag(this, "Orientation")
-	// 	console.log(orientation)
-	// 	})
-
-	// 	if (!orientation) {
-	// 	console.log(image)
-	// 	}
-
-	// 	console.log(orientation)
-	//   	switch(orientation){
-	//         case 2:
-	//             // horizontal flip
-	//             ctx.translate(canvas.width, 0);
-	//             ctx.scale(-1, 1);
-	//             break;
-	//         case 3:
-	//             // 180° rotate left
-	//             ctx.translate(canvas.width, canvas.height);
-	//             ctx.rotate(Math.PI);
-	//             break;
-	//         case 4:
-	//             // vertical flip
-	//             ctx.translate(0, canvas.height);
-	//             ctx.scale(1, -1);
-	//             break;
-	//         case 5:
-	//             // vertical flip + 90 rotate right
-	//             ctx.rotate(0.5 * Math.PI);
-	//             ctx.scale(1, -1);
-	//             break;
-	//         case 6:
-	//             // 90° rotate right
-	//             ctx.rotate(0.5 * Math.PI);
-	//             ctx.translate(0, -canvas.height);
-	//             break;
-	//         case 7:
-	//             // horizontal flip + 90 rotate right
-	//             ctx.rotate(0.5 * Math.PI);
-	//             ctx.translate(canvas.width, -canvas.height);
-	//             ctx.scale(-1, 1);
-	//             break;
-	//         case 8:
-	//             // 90° rotate left
-	//             ctx.rotate(-0.5 * Math.PI);
-	//             ctx.translate(-canvas.width, 0);
-	//             break;
-	//     }
-
-	// 	ctx.drawImage(image,0,0);
-	// 	ctx.restore();
-	// 	return canvas
-	// }
-
-
-
-//<img id='img-holder'/>
 	renderMobile(){
 		return(
 			<div className='vertical-container'>
@@ -301,8 +183,7 @@ class Camera extends Component {
 	  	)
 	}
 
-//	<canvas id='canvas' />
-				// <canvas id='img-holder' />
+
 	renderDesktop() {
 		return(
 			<div className='vertical-container'>
