@@ -2,7 +2,6 @@ import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import 'whatwg-fetch'
 import Camera from './Camera.js'
-import EXIF from 'exif-js'
 require("../assets/stylesheets/flexboxgrid.css")
 
 var MobileDetect = require('mobile-detect'),
@@ -41,19 +40,21 @@ class App extends Component {
 /* ----------------------------- Preview Image From Camera  ----------------------------- */
 
 
-  showImage(image_or_canvas, is_image) {
+  showImage(canvas, is_image) {
     // get image from the camera module and preview it by updating screenshot
 
-    var image_src = null
-    if (is_image) {
+    // var image_src = null
+    // if (is_image) {
 
-      var canvas = this.rotateImage(image_or_canvas)
+    //   var canvas = this.rotateImage(image_or_canvas)
 
-      // image_src = image_or_canvas.src
-      image_src = canvas.toDataURL("image/png")
-    } else {
-      image_src = image_or_canvas.toDataURL("image/png")
-    }
+    //   // image_src = image_or_canvas.src
+    //   image_src = canvas.toDataURL("image/png")
+    // } else {
+    //   image_src = image_or_canvas.toDataURL("image/png")
+    // }
+
+    var image_src = canvas.toDataURL("image/png")
 
     // change screenshot name
     this.setState({
@@ -68,65 +69,7 @@ class App extends Component {
   }
 
 
-  // needs more testing
-  rotateImage(image) {
-      var canvas = document.createElement('canvas'),
-          ctx = canvas.getContext('2d'),
-          orientation = null
 
-      canvas.width  = image.width;
-      canvas.height = image.height;
-
-      EXIF.getData(image, function() {
-        orientation = EXIF.getTag(this, "Orientation")
-        console.log(orientation)
-      })
-
-    console.log(orientation)
-      switch(orientation){
-
-            case 2:
-                // horizontal flip
-                ctx.translate(canvas.width, 0);
-                ctx.scale(-1, 1);
-                break;
-            case 3:
-                // 180° rotate left
-                ctx.translate(canvas.width, canvas.height);
-                ctx.rotate(Math.PI);
-                break;
-            case 4:
-                // vertical flip
-                ctx.translate(0, canvas.height);
-                ctx.scale(1, -1);
-                break;
-            case 5:
-                // vertical flip + 90 rotate right
-                ctx.rotate(0.5 * Math.PI);
-                ctx.scale(1, -1);
-                break;
-            case 6:
-                // 90° rotate right
-                ctx.rotate(0.5 * Math.PI);
-                ctx.translate(0, -canvas.height);
-                break;
-            case 7:
-                // horizontal flip + 90 rotate right
-                ctx.rotate(0.5 * Math.PI);
-                ctx.translate(canvas.width, -canvas.height);
-                ctx.scale(-1, 1);
-                break;
-            case 8:
-                // 90° rotate left
-                ctx.rotate(-0.5 * Math.PI);
-                ctx.translate(-canvas.width, 0);
-                break;
-        }
-
-    ctx.drawImage(image,0,0);
-    ctx.restore();
-    return canvas
-  }
 
 
 
@@ -141,8 +84,8 @@ class App extends Component {
       canvas_height = photo_height +100
 
         
-    canvas.height = canvas_height//this.state.img_height +100
-    canvas.width = photo_width//this.state.img_width
+    canvas.height = canvas_height
+    canvas.width = photo_width
 
     context.drawImage(photo, 0, 0, photo_width, photo_height)
 
@@ -253,10 +196,8 @@ class App extends Component {
     } else {
 
       return (
-         <div className='row around-xs'>
+         <div className=''>
           
-            <br/>
-            <br/>
             Take a picture of your doodle. 
             <br/>
             <br/>
