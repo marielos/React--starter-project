@@ -2,6 +2,8 @@ import '../assets/stylesheets/base.scss'
 import React, { Component } from 'react'
 import 'whatwg-fetch'
 import Camera from './Camera.js'
+import EXIF from 'exif-js'
+
 require("../assets/stylesheets/flexboxgrid.css")
 
 var MobileDetect = require('mobile-detect'),
@@ -40,31 +42,21 @@ class App extends Component {
 /* ----------------------------- Preview Image From Camera  ----------------------------- */
 
 
-  showImage(canvas, is_image) {
-    // get image from the camera module and preview it by updating screenshot
-
-    // var image_src = null
-    // if (is_image) {
-
-    //   var canvas = this.rotateImage(image_or_canvas)
-
-    //   // image_src = image_or_canvas.src
-    //   image_src = canvas.toDataURL("image/png")
-    // } else {
-    //   image_src = image_or_canvas.toDataURL("image/png")
-    // }
-
-    var image_src = canvas.toDataURL("image/png")
+  showImage(canvas, orientation) {
 
     // change screenshot name
+
+
     this.setState({
-      screenshot: image_src,
+      screenshot: canvas.toDataURL("image/png"),
+      orientation: orientation
     })
   }
 
   changePhoto() {
     this.setState({
-      screenshot: null
+      screenshot: null,
+      orientation: null
     })
   }
 
@@ -84,6 +76,17 @@ class App extends Component {
       canvas_height = photo_height +100
 
         
+
+
+    // EXIF.getData(photo, function() {
+    //   console.log('got data')
+    //   var orientation = EXIF.getTag(this, "Orientation")
+    //   console.log('photo preview orientation')
+    //   console.log(orientation)
+    // })
+
+
+
     canvas.height = canvas_height
     canvas.width = photo_width
 
@@ -102,6 +105,14 @@ class App extends Component {
     context.lineTo(0, canvas_height)
     context.lineTo(0, 0)
     context.stroke()
+
+
+
+    console.log('done drawing')
+    console.log('canvas state orientation')
+    console.log(this.state.orientation)
+    canvas = this.refs.Camera.rotateCanvas(canvas, this.state.orientation)
+    console.log('about to convert to blob ')
 
     return this.canvasToImageBlob(canvas)
   }

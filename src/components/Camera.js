@@ -67,15 +67,6 @@ class Camera extends Component {
 	}
 
 
-
-	getImage() {
-		if(this.state.isIphone) {
-
-		} else {
-
-		}
-	}
-
 	openCamera() {
 		var elem = document.getElementById("image-input");
 		elem.click()
@@ -99,41 +90,64 @@ class Camera extends Component {
 
 
 */
+
+
+	rotateCanvas(canvas, orientation) {
+		var ctx = canvas.getContext('2d')
+
+		switch(orientation){
+
+	       case 8:
+	           ctx.rotate(90*Math.PI/180);
+	           break;
+	       case 3:
+	           ctx.rotate(180*Math.PI/180);
+	           break;
+	       case 6:
+	           ctx.rotate(-90*Math.PI/180);
+	           break;
+	    }
+	    return canvas
+	}
+
+
+
 	takePhotoMobile(event) {
 	
 		if (event.target.files && event.target.files[0]) {
-		    var reader = new FileReader()
-		    var image = document.getElementById('img-holder')
-			var can = document.createElement("canvas")
-			var ctx = can.getContext('2d')
+		    var reader = new FileReader(),
+			    image = document.getElementById('img-holder'),
+				can = document.createElement("canvas"),
+				ctx = can.getContext('2d'),
+				orientation = 1
 
 			
 
 		    image.onload = function() {
-		    	console.log('image-onload')
+		    	// console.log('image-onload')
 		    	can.height = image.height
 				can.width = image.width
 		    	ctx.drawImage(image,0,0)
     			// ctx.restore()
 
-			    this.props.photoTaken(can, true) 
+			    this.props.photoTaken(can, orientation) 
 		    }.bind(this)
 
 
 		    reader.onload = function (e) {
 		    	// this binary image file
-		    	console.log('-reader-onload')
+		    	// console.log('-reader-onload')
 
 				image.setAttribute('src', e.target.result)
 		    }.bind(this)
 
 		    reader.onloadend = function() {
-				console.log('reader-onload-end')
+				// console.log('reader-onload-end')
 			    var exif = EXIF.readFromBinaryFile(this.base64ToArrayBuffer(reader.result))//new BinaryFile(this.result));
 				
+			    orientation = exif.Orientation
 
-
-			    switch(exif.Orientation){
+			    switch(orientation){
 
 			       case 8:
 			           ctx.rotate(90*Math.PI/180);
@@ -163,74 +177,74 @@ class Camera extends Component {
 		canvas.width = video_width
 		context.drawImage(video, 0, 0, video_width, video_height)
 
-		this.props.photoTaken(canvas, false) 
+		this.props.photoTaken(canvas) 
 	}
 
 
 
-	 // needs more testing
-  	rotateImage(image) {
-		var canvas = document.createElement('canvas'),
-		  ctx = canvas.getContext('2d'),
-		  orientation = null
+	//  // needs more testing
+ //  	rotateImage(image) {
+	// 	var canvas = document.createElement('canvas'),
+	// 	  ctx = canvas.getContext('2d'),
+	// 	  orientation = null
 
-		canvas.width  = image.width;
-		canvas.height = image.height;
+	// 	canvas.width  = image.width;
+	// 	canvas.height = image.height;
 
-		EXIF.getData(image, function() {
-		console.log('got data')
-		orientation = EXIF.getTag(this, "Orientation")
-		console.log(orientation)
-		})
+	// 	EXIF.getData(image, function() {
+	// 	console.log('got data')
+	// 	orientation = EXIF.getTag(this, "Orientation")
+	// 	console.log(orientation)
+	// 	})
 
-		if (!orientation) {
-		console.log(image)
-		}
+	// 	if (!orientation) {
+	// 	console.log(image)
+	// 	}
 
-		console.log(orientation)
-	  	switch(orientation){
-	        case 2:
-	            // horizontal flip
-	            ctx.translate(canvas.width, 0);
-	            ctx.scale(-1, 1);
-	            break;
-	        case 3:
-	            // 180° rotate left
-	            ctx.translate(canvas.width, canvas.height);
-	            ctx.rotate(Math.PI);
-	            break;
-	        case 4:
-	            // vertical flip
-	            ctx.translate(0, canvas.height);
-	            ctx.scale(1, -1);
-	            break;
-	        case 5:
-	            // vertical flip + 90 rotate right
-	            ctx.rotate(0.5 * Math.PI);
-	            ctx.scale(1, -1);
-	            break;
-	        case 6:
-	            // 90° rotate right
-	            ctx.rotate(0.5 * Math.PI);
-	            ctx.translate(0, -canvas.height);
-	            break;
-	        case 7:
-	            // horizontal flip + 90 rotate right
-	            ctx.rotate(0.5 * Math.PI);
-	            ctx.translate(canvas.width, -canvas.height);
-	            ctx.scale(-1, 1);
-	            break;
-	        case 8:
-	            // 90° rotate left
-	            ctx.rotate(-0.5 * Math.PI);
-	            ctx.translate(-canvas.width, 0);
-	            break;
-	    }
+	// 	console.log(orientation)
+	//   	switch(orientation){
+	//         case 2:
+	//             // horizontal flip
+	//             ctx.translate(canvas.width, 0);
+	//             ctx.scale(-1, 1);
+	//             break;
+	//         case 3:
+	//             // 180° rotate left
+	//             ctx.translate(canvas.width, canvas.height);
+	//             ctx.rotate(Math.PI);
+	//             break;
+	//         case 4:
+	//             // vertical flip
+	//             ctx.translate(0, canvas.height);
+	//             ctx.scale(1, -1);
+	//             break;
+	//         case 5:
+	//             // vertical flip + 90 rotate right
+	//             ctx.rotate(0.5 * Math.PI);
+	//             ctx.scale(1, -1);
+	//             break;
+	//         case 6:
+	//             // 90° rotate right
+	//             ctx.rotate(0.5 * Math.PI);
+	//             ctx.translate(0, -canvas.height);
+	//             break;
+	//         case 7:
+	//             // horizontal flip + 90 rotate right
+	//             ctx.rotate(0.5 * Math.PI);
+	//             ctx.translate(canvas.width, -canvas.height);
+	//             ctx.scale(-1, 1);
+	//             break;
+	//         case 8:
+	//             // 90° rotate left
+	//             ctx.rotate(-0.5 * Math.PI);
+	//             ctx.translate(-canvas.width, 0);
+	//             break;
+	//     }
 
-		ctx.drawImage(image,0,0);
-		ctx.restore();
-		return canvas
-	}
+	// 	ctx.drawImage(image,0,0);
+	// 	ctx.restore();
+	// 	return canvas
+	// }
 
 
 	renderMobile(){
