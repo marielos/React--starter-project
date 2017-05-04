@@ -49,14 +49,16 @@ class App extends Component {
 
     this.setState({
       screenshot: canvas.toDataURL("image/png"),
-      orientation: orientation
+      orientation: orientation,
+      canvas: canvas
     })
   }
 
   changePhoto() {
     this.setState({
       screenshot: null,
-      orientation: null
+      orientation: null,
+      canvas: null
     })
   }
 
@@ -111,7 +113,7 @@ class App extends Component {
     console.log('done drawing')
     console.log('canvas state orientation')
     console.log(this.state.orientation)
-    canvas = this.refs.Camera.rotateCanvas(canvas, this.state.orientation)
+    // canvas = this.refs.Camera.rotateCanvas(canvas, this.state.orientation)
     console.log('about to convert to blob ')
 
     return this.canvasToImageBlob(canvas)
@@ -190,12 +192,21 @@ class App extends Component {
 /* ----------------------------- Render Functions ----------------------------- */
 
 
+  renderCanvas() {
+    return(
+      this.state.canvas
+    )
+  }
+
   renderPhoto() {
     if (this.state && this.state.screenshot) {
       return (
         <div className='vertical-container'>
             <div className='img-container'>
               <img id='preview-img' src={this.state.screenshot}/>
+            </div>
+            <div className='img-container'>
+            
             </div>
             <button 
               className='pic-button'
@@ -230,6 +241,9 @@ class App extends Component {
   renderMobile() {
     return (
       <div className='vertical-container'>
+        <div>
+        {this.state && this.state.orientation ? this.state.orientation : 'no orientation'}
+        </div>
         <div className={this.state && this.state.screenshot ? 'hide': ''}>
           <Camera
             photoTaken={this.showImage.bind(this)}

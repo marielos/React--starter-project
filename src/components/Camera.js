@@ -72,16 +72,16 @@ class Camera extends Component {
 		elem.click()
 	}
 
-	base64ToArrayBuffer (base64) {
-	    base64 = base64.replace(/^data\:([^\;]+)\;base64,/gmi, '');
-	    var binaryString = atob(base64);
-	    var len = binaryString.length;
-	    var bytes = new Uint8Array(len);
-	    for (var i = 0; i < len; i++) {
-	        bytes[i] = binaryString.charCodeAt(i);
-	    }
-	    return bytes.buffer;
-	}
+	// base64ToArrayBuffer (base64) {
+	//     base64 = base64.replace(/^data\:([^\;]+)\;base64,/gmi, '');
+	//     var binaryString = atob(base64);
+	//     var len = binaryString.length;
+	//     var bytes = new Uint8Array(len);
+	//     for (var i = 0; i < len; i++) {
+	//         bytes[i] = binaryString.charCodeAt(i);
+	//     }
+	//     return bytes.buffer;
+	// }
 /*
  if (orientation > 4) {
         can.width  = height; can.style.width  = styleHeight;
@@ -142,61 +142,42 @@ class Camera extends Component {
 
 
 	takePhotoMobile(event) {
-	
+		event.persist()
 		if (event.target.files && event.target.files[0]) {
 		    var reader = new FileReader(),
-			    image = document.getElementById('img-holder'),
 				can = document.createElement("canvas"),
 				ctx = can.getContext('2d'),
-				orientation = 1
+				orientation = 1, 
+				bitmap = null
 
-			
-
-		    image.onload = function() {
-		    	// console.log('image-onload')
-		    	can.height = image.height
-				can.width = image.width
-		    	ctx.drawImage(image,0,0)
-    			// ctx.restore()
-
-			    this.props.photoTaken(can, orientation) 
-		    }.bind(this)
-
-
-		    reader.onload = function (e) {
-		    	// this binary image file
-		    	// console.log('-reader-onload')
-
-				image.setAttribute('src', e.target.result)
-		    }.bind(this)
-
+			// reader to get orientation data
 		    reader.onloadend = function() {
-				// console.log('reader-onload-end')
-			    // var exif = EXIF.readFromBinaryFile(this.base64ToArrayBuffer(reader.result))//new BinaryFile(this.result));
+				console.log('reader-onload-end')
+			    var exif = EXIF.readFromBinaryFile(reader.result)
 				
-			    // orientation = exif.Orientation
+			    orientation = exif.Orientation
 			    // this.rotateCanvas(can, orientation)
-			    // switch(orientation){
+		    	ctx.drawImage(bitmap,0,0)
 
-			    //    case 8:
-			    //        ctx.rotate(90*Math.PI/180);
-			    //        break;
-			    //    case 3:
-			    //        ctx.rotate(180*Math.PI/180);
-			    //        break;
-			    //    case 6:
-			    //        ctx.rotate(-90*Math.PI/180);
-			    //        break;
 
-			    // }
+				this.props.photoTaken(can, orientation)
 			}.bind(this)
 
-		    reader.readAsDataURL(event.target.files[0]);
-		}
+
+			createImageBitmap(event.target.files[0]).then(function(image_bitmap) {
+				console.log('created bitmap')
+				bitmap = image_bitmap
+	    		can.height = image_bitmap.height
+				can.width = image_bitmap.width
+
+		    	// reader must be after
+		    	reader.readAsArrayBuffer(event.target.files[0])
+	    	}.bind(this))
+					}
 	}
 
 	takePhotoDesktop() {
-		var canvas = document.getElementById('img-holder'), //document.getElementById('canvas'),
+		var canvas = document.createElement("canvas")//document.getElementById('img-holder'), //document.getElementById('canvas'),
 			context = canvas.getContext('2d'),
 			video = document.getElementById('video'),
 		    video_height = video.getBoundingClientRect().height,
@@ -206,7 +187,7 @@ class Camera extends Component {
 		canvas.width = video_width
 		context.drawImage(video, 0, 0, video_width, video_height)
 
-		this.props.photoTaken(canvas) 
+		this.props.photoTaken(canvas, null) 
 	}
 
 
@@ -276,6 +257,8 @@ class Camera extends Component {
 	// }
 
 
+
+//<img id='img-holder'/>
 	renderMobile(){
 		return(
 			<div className='vertical-container'>
@@ -290,7 +273,6 @@ class Camera extends Component {
 		  			<input id='image-input' type="file" name="image" accept="image/*" capture="user" onChange={this.takePhotoMobile.bind(this)}/>
 		  		</div>
 
-		  		<img id='img-holder'/>
 		  		<button className='pic-button' onClick={this.openCamera.bind(this)}> 
 		  			{this.state && this.state.image_taken ? 'Change Photo' : 'Take Photo' } 
 		  		</button>
@@ -298,15 +280,15 @@ class Camera extends Component {
 	  	)
 	}
 
-
+//	<canvas id='canvas' />
+				// <canvas id='img-holder' />
 	renderDesktop() {
 		return(
 			<div className='vertical-container'>
 				<div className='img-container'>
 					<video id="video" />
 				</div>
-				<canvas id='canvas' />
-				<canvas id='img-holder' />
+			
 				<button className='pic-button' onClick={this.takePhotoDesktop.bind(this)}> 
 					{this.state && this.state.image_taken ? 'Update Photo' : 'Take Photo' } 
 				</button>
@@ -317,7 +299,7 @@ class Camera extends Component {
 
 	render() {
 		return (
-			<div id='camera-container'>
+			<div id='camera-container' >
 				{md.is('iPhone') ?
 					this.renderMobile()
 				:
