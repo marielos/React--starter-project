@@ -97,16 +97,45 @@ class Camera extends Component {
 
 		switch(orientation){
 
-	       case 8:
-	           ctx.rotate(90*Math.PI/180);
-	           break;
-	       case 3:
-	           ctx.rotate(180*Math.PI/180);
-	           break;
-	       case 6:
-	           ctx.rotate(-90*Math.PI/180);
-	           break;
+		    case 2:
+	            // horizontal flip
+	            ctx.translate(canvas.width, 0);
+	            ctx.scale(-1, 1);
+	            break;
+	        case 3:
+	            // 180° rotate left
+	            ctx.translate(canvas.width, canvas.height);
+	            ctx.rotate(Math.PI);
+	            break;
+	        case 4:
+	            // vertical flip
+	            ctx.translate(0, canvas.height);
+	            ctx.scale(1, -1);
+	            break;
+	        case 5:
+	            // vertical flip + 90 rotate right
+	            ctx.rotate(0.5 * Math.PI);
+	            ctx.scale(1, -1);
+	            break;
+	        case 6:
+	            // 90° rotate right
+	            ctx.rotate(0.5 * Math.PI);
+	            ctx.translate(0, -canvas.height);
+	            break;
+	        case 7:
+	            // horizontal flip + 90 rotate right
+	            ctx.rotate(0.5 * Math.PI);
+	            ctx.translate(canvas.width, -canvas.height);
+	            ctx.scale(-1, 1);
+	            break;
+	        case 8:
+	            // 90° rotate left
+	            ctx.rotate(-0.5 * Math.PI);
+	            ctx.translate(-canvas.width, 0);
+	            break;
 	    }
+
+
 	    return canvas
 	}
 
@@ -146,20 +175,20 @@ class Camera extends Component {
 			    var exif = EXIF.readFromBinaryFile(this.base64ToArrayBuffer(reader.result))//new BinaryFile(this.result));
 				
 			    orientation = exif.Orientation
+			    this.rotateCanvas(can, orientation)
+			    // switch(orientation){
 
-			    switch(orientation){
+			    //    case 8:
+			    //        ctx.rotate(90*Math.PI/180);
+			    //        break;
+			    //    case 3:
+			    //        ctx.rotate(180*Math.PI/180);
+			    //        break;
+			    //    case 6:
+			    //        ctx.rotate(-90*Math.PI/180);
+			    //        break;
 
-			       case 8:
-			           ctx.rotate(90*Math.PI/180);
-			           break;
-			       case 3:
-			           ctx.rotate(180*Math.PI/180);
-			           break;
-			       case 6:
-			           ctx.rotate(-90*Math.PI/180);
-			           break;
-
-			    }
+			    // }
 			}.bind(this)
 
 		    reader.readAsDataURL(event.target.files[0]);
