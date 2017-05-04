@@ -172,10 +172,10 @@ class Camera extends Component {
 
 		    reader.onloadend = function() {
 				// console.log('reader-onload-end')
-			    var exif = EXIF.readFromBinaryFile(this.base64ToArrayBuffer(reader.result))//new BinaryFile(this.result));
+			    // var exif = EXIF.readFromBinaryFile(this.base64ToArrayBuffer(reader.result))//new BinaryFile(this.result));
 				
-			    orientation = exif.Orientation
-			    this.rotateCanvas(can, orientation)
+			    // orientation = exif.Orientation
+			    // this.rotateCanvas(can, orientation)
 			    // switch(orientation){
 
 			    //    case 8:
