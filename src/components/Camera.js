@@ -72,16 +72,16 @@ class Camera extends Component {
 		elem.click()
 	}
 
-	// base64ToArrayBuffer (base64) {
-	//     base64 = base64.replace(/^data\:([^\;]+)\;base64,/gmi, '');
-	//     var binaryString = atob(base64);
-	//     var len = binaryString.length;
-	//     var bytes = new Uint8Array(len);
-	//     for (var i = 0; i < len; i++) {
-	//         bytes[i] = binaryString.charCodeAt(i);
-	//     }
-	//     return bytes.buffer;
-	// }
+	base64ToArrayBuffer (base64) {
+	    base64 = base64.replace(/^data\:([^\;]+)\;base64,/gmi, '');
+	    var binaryString = atob(base64);
+	    var len = binaryString.length;
+	    var bytes = new Uint8Array(len);
+	    for (var i = 0; i < len; i++) {
+	        bytes[i] = binaryString.charCodeAt(i);
+	    }
+	    return bytes.buffer;
+	}
 /*
  if (orientation > 4) {
         can.width  = height; can.style.width  = styleHeight;
@@ -142,38 +142,66 @@ class Camera extends Component {
 
 
 	takePhotoMobile(event) {
-		event.persist()
+		// event.persist()
+
 		if (event.target.files && event.target.files[0]) {
 		    var reader = new FileReader(),
 				can = document.createElement("canvas"),
+				img = document.createElement('img'),
 				ctx = can.getContext('2d'),
 				orientation = 1, 
 				bitmap = null
 
-			// reader to get orientation data
-		    reader.onloadend = function() {
-				console.log('reader-onload-end')
-			    var exif = EXIF.readFromBinaryFile(reader.result)
-				
-			    orientation = exif.Orientation
-			    // this.rotateCanvas(can, orientation)
-		    	ctx.drawImage(bitmap,0,0)
 
+			img.onload = function() {
 
+				can.height = img.height
+				can.width = img.width
+			    this.rotateCanvas(can, orientation)
+
+				ctx.drawImage(img,0,0)
+				console.log('imgloaded')
 				this.props.photoTaken(can, orientation)
 			}.bind(this)
 
+			// reader to get orientation data
+		    reader.onloadend = function() {
+				console.log('reader-onload-end')
 
-			createImageBitmap(event.target.files[0]).then(function(image_bitmap) {
-				console.log('created bitmap')
-				bitmap = image_bitmap
-	    		can.height = image_bitmap.height
-				can.width = image_bitmap.width
 
-		    	// reader must be after
-		    	reader.readAsArrayBuffer(event.target.files[0])
-	    	}.bind(this))
-					}
+
+
+			    var exif = EXIF.readFromBinaryFile(this.base64ToArrayBuffer(reader.result))
+				
+			    orientation = exif.Orientation
+
+			    // var clampedArray = new Uint8ClampedArray(reader.result),
+			    // 	imageData = new ImageData(clampedArray, bitmap.width, bitmap.height)
+
+			    // ctx.putImageData(imageData, 0, 0);
+
+			    img.src = reader.result
+		    	// ctx.drawImage(bitmap,0,0)
+
+
+			}.bind(this)
+
+
+			// createImageBitmap(event.target.files[0]).then(function(image_bitmap) {
+			// 	console.log('created bitmap')
+			// 	bitmap = image_bitmap
+	  //   		can.height = image_bitmap.height
+			// 	can.width = image_bitmap.width
+
+		 //    	// reader must be after
+		 //    	reader.readAsArrayBuffer(event.target.files[0])
+	  //   	}.bind(this))
+
+
+
+			reader.readAsDataURL(event.target.files[0])
+			// reader.readAsArrayBuffer(event.target.files[0])
+		}
 	}
 
 	takePhotoDesktop() {
